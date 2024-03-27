@@ -113,7 +113,7 @@ public class GameServer : IConnectionHandler {
         {
             for (int z = 0; z < 16; z++) { }
         }
-     //   ServerWorld.SendChunk(client, 6, 6);
+    //    ServerWorld.SendChunk(client, 6, 6);
         // TODO: SetTime, maybe other things?
     }
 

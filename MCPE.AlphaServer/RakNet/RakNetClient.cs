@@ -109,6 +109,16 @@ public class RakNetClient {
     }
     public int bigCnt = -1;
 
+    public bool wait = false;
+
+
+    public int queueAndIndex(ConnectedPacket packet, bool justCheck = true, bool bronirovat = false, int indexes = 0)
+    {
+
+
+        return 0;
+    }
+
     internal async Task HandleOutgoing() {
         if (OutgoingPackets.Count < 1) {
             if (NeedsACK.Count < 1)
@@ -142,12 +152,13 @@ public class RakNetClient {
             packet.Encode(ref packetWriter);
             // Check split packet
             // 1480 is my MTU. Hardcoded
-            int offsetMTU = 414;
-            if (packetWriter.GetBytes().Length > 1480- offsetMTU)
+            int offsetMTU = 24; // 414 is default for pmmp. PMMP Bandwith is 1086
+            if (packetWriter.GetBytes().Length > 1480 - offsetMTU)
             {
-
+                
 
                 writer = new DataWriter();
+                CurrentSequenceNumber--;
                 writer.Byte(UnconnectedPacket.IS_CONNECTED);
                 writer.Triad(CurrentSequenceNumber-1);
                 List<byte[]> fragmented_body = new List<byte[]>();
@@ -178,8 +189,12 @@ public class RakNetClient {
 
 
                 bigCnt = (bigCnt + 1) % 0x10000;
+                
                 for (int i = 0; i < fragmented_body.Count; i++)
                 {
+                    writer = new DataWriter();
+                    writer.Byte(UnconnectedPacket.IS_CONNECTED);
+                    writer.Triad(CurrentSequenceNumber++);
                     newpacket = new UnknowPacket();
                     newpacket.ReliableIndex = LastReliablePacketIndex++;
                     newpacket.packetID = (byte)MinecraftPacketType.ChunkData;
@@ -188,34 +203,37 @@ public class RakNetClient {
                     newpacket.splitID = (short)bigCnt;
                     newpacket.splitCount = fragmented_body.Count;
                     newpacket.splitIndex = i;
-
+                    
 
                     writer.Byte((byte)((newpacket.Reliability << 5) | (newpacket.hasSplit ? 0x10 : 0)));
-                    writer.Short((short)(packetWriter.Length * 8));
-                    switch (newpacket.Reliability)
-                    {
-                        case ConnectedPacket.RELIABLE:
+                    writer.Short((short)(fragmented_body[i].Length * 8));
+                   // switch (newpacket.Reliability)
+                   // {
+                     //   case ConnectedPacket.RELIABLE:
                             writer.Triad(newpacket.ReliableIndex); // TODO Add priority for reliable index
-                            break;
-                    }
+                    //        break;
+                  //  }
                     writer.Int(newpacket.splitCount);
                     writer.Short(newpacket.splitID);
                     writer.Int(newpacket.splitIndex);
                     writer.RawData(fragmented_body[i]);
                     var strss = string.Join(" ", writer.GetBytes());
-                    Logger.Info(strss + " Size: " + writer.GetBytes().Length);
+                  //  Logger.Info(strss + " Size: " + writer.GetBytes().Length);
                     await Server.UDP.SendAsync(writer.GetBytes(), IP);
-                    writer = new DataWriter();
-                    writer.Byte(UnconnectedPacket.IS_CONNECTED);
-                    writer.Triad(CurrentSequenceNumber++);
+                    
+
+
+
                 }
-             
+                OutgoingPackets.Remove(packet);
+                wait = false;
+                return;
             } 
             else
             {
                 writer.Byte((byte)(packet.Reliability << 5));
                 writer.Short((short)(packetWriter.Length << 3));
-
+                    
                 switch (packet.Reliability)
                 {
                     case ConnectedPacket.RELIABLE:
@@ -234,7 +252,7 @@ public class RakNetClient {
 
         }
         var strs = string.Join(" ", writer.GetBytes());
-        Logger.Info(strs + " Size: " + writer.GetBytes().Length);
+      //  Logger.Info(strs + " Size: " + writer.GetBytes().Length);
         var str = string.Join(" ", writer.GetBytes());
         if (writer.GetBytes().Length > 1480)
         {
@@ -253,14 +271,54 @@ public class RakNetClient {
     }
 
 
-
+    private List<ConnectedPacket> Queue = new List<ConnectedPacket>();
     public void Send(ConnectedPacket packet, int reliability = ConnectedPacket.RELIABLE) {
-        if (reliability == ConnectedPacket.RELIABLE) {
-            packet.Reliability = reliability;
-            packet.ReliableIndex = LastReliablePacketIndex++;
+
+
+
+
+        if (wait)
+        {
+            if (reliability == ConnectedPacket.RELIABLE)
+            {
+                packet.Reliability = reliability;
+
+
+            }
+            Queue.Add(packet);
+        }
+        else
+        {
+            if (packet is ChunkDataPacket)
+            {
+                OutgoingPackets.Add(packet);
+                wait = true;
+                return;
+            }
+            if (Queue.Count != 0)
+            {
+                foreach(var packetQ in Queue)
+                {
+                    if (packetQ.Reliability == ConnectedPacket.RELIABLE)
+                    {
+                        packetQ.ReliableIndex = LastReliablePacketIndex++;
+                    }
+                    OutgoingPackets.Add(packetQ);
+                }
+                Queue.Clear();
+            }
+            
+            if (reliability == ConnectedPacket.RELIABLE)
+            {
+                packet.Reliability = reliability;
+                packet.ReliableIndex = LastReliablePacketIndex++;
+
+            }
+            OutgoingPackets.Add(packet);
+
         }
 
-        OutgoingPackets.Add(packet);
+        
     }
 
     public override string ToString() => $"RakNetConnection(IP={IP}, LastPing={LastPing}, ClientID={ClientID})";

@@ -9,7 +9,7 @@ public class Player : Entity {
 
     public ulong PlayerID;
     public string Username;
-    public Vector3 Position = new(100.0f, 70.0f, 100.0f);
+    public Vector3 Position = new(100.0f, 10.0f, 100.0f);
     public Vector3 ViewAngle = new();
     public int port;
     public byte itemID;
