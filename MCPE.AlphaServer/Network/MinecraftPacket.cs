@@ -607,14 +607,12 @@ public class RequestChunkPacket : MinecraftPacket {
 public class ChunkDataPacket : MinecraftPacket {
     public int X;
     public int Z;
-    public byte IsNew;
     public byte[] ChunkData;
 
     public override void Decode(ref DataReader reader) {
         reader.Byte(); // Packet type.
         X = reader.Int();
         Z = reader.Int();
-       // IsNew = reader.Byte();
         Data = default; // TODO
     }
 
@@ -622,7 +620,6 @@ public class ChunkDataPacket : MinecraftPacket {
         writer.Byte((byte)MinecraftPacketType.ChunkData);
         writer.Int(X);
         writer.Int(Z);
-    //    writer.Byte(IsNew);
         writer.RawData(ChunkData);
     }
 }

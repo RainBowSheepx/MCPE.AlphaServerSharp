@@ -29,11 +29,23 @@ public class ConnectedPacket {
 
     internal int Reliability;
 
+
+    // Split packet shit
+    internal bool hasSplit;
+    internal int splitCount;
+    internal short splitID;
+    internal int splitIndex;
+
     public ConnectedPacket() {
         Reliability = UNRELIABLE;
         ReliableIndex = 0;
         OrderingIndex = 0;
         OrderingChannel = 0;
+
+        hasSplit = false;
+        splitID = 0;
+        splitCount = 0;
+        splitIndex = 0;
     }
 
     public static ConnectedPacket Parse(ref DataReader reader) {

@@ -109,7 +109,11 @@ public class GameServer : IConnectionHandler {
                 Time = 333333,
             }
         );
-        ServerWorld.SendChunk(client, 6, 6);
+        for (int x = 0; x < 16; x++)
+        {
+            for (int z = 0; z < 16; z++) { }
+        }
+     //   ServerWorld.SendChunk(client, 6, 6);
         // TODO: SetTime, maybe other things?
     }
 
@@ -134,8 +138,8 @@ public class GameServer : IConnectionHandler {
     //public virtual void HandleLevelEvent(RakNetClient client, LevelEventPacket packet) { }
     //public virtual void HandleTileEvent(RakNetClient client, TileEventPacket packet) { }
     //public virtual void HandleEntityEvent(RakNetClient client, EntityEventPacket packet) { }
-   // public virtual void HandleRequestChunk(RakNetClient client, RequestChunkPacket rcp) =>
-   //     ServerWorld.SendChunks(client, rcp);
+    public virtual void HandleRequestChunk(RakNetClient client, RequestChunkPacket rcp) =>
+        ServerWorld.SendChunk(client, rcp.X, rcp.Z);
     //public virtual void HandleChunkData(RakNetClient client, ChunkDataPacket packet) { }
     //public virtual void HandlePlayerEquipment(RakNetClient client, PlayerEquipmentPacket packet) { }
     //public virtual void HandlePlayerArmorEquipment(RakNetClient client, PlayerArmorEquipmentPacket packet) { }

@@ -63,7 +63,7 @@ public class RakNetServer {
             case OpenConnectionRequest1Packet openConnectionRequest1Packet:
                 Logger.Debug($"Received OpenConnectionRequest1Packet from {receiveResult.RemoteEndPoint}");
                 await Send(receiveResult.RemoteEndPoint,
-                    new OpenConnectionReply1Packet(GUID, false, 1500) // TODO: MTU Is hardcoded.
+                    new OpenConnectionReply1Packet(GUID, false, 1480) // TODO: MTU Is hardcoded.
                 );
                 break;
             case OpenConnectionRequest2Packet request:
@@ -75,7 +75,7 @@ public class RakNetServer {
                 Connections.Add(receiveResult.RemoteEndPoint, newConnetion);
 
                 await Send(receiveResult.RemoteEndPoint,
-                    new OpenConnectionReply2Packet(GUID, newConnetion.IP, 1500, false) // TODO: MTU Is hardcoded.
+                    new OpenConnectionReply2Packet(GUID, newConnetion.IP, 1480, false) // TODO: MTU Is hardcoded.
                 );
 
                 break;
