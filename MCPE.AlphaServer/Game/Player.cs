@@ -1,4 +1,5 @@
 ﻿using MCPE.AlphaServer.RakNet;
+using System;
 using System.Numerics;
 
 namespace MCPE.AlphaServer.Game;
@@ -10,10 +11,13 @@ public class Player : Entity {
     public string Username;
     public Vector3 Position = new(100.0f, 70.0f, 100.0f);
     public Vector3 ViewAngle = new();
-
+    public int port;
+    public byte itemID;
+    public string ip, identifier;
+    public bool firstChunkData = true;
     public Player(RakNetClient client) {
         Client = client;
-
+        
         Define(EntityDataKey.IsSleeping, EntityDataType.Byte);
         Define(EntityDataKey.SleepPosition, EntityDataType.Pos);
     }

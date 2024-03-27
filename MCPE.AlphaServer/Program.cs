@@ -4,6 +4,7 @@ using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 using MCPE.AlphaServer.Game;
+using MCPE.AlphaServer.Game.Generator;
 using MCPE.AlphaServer.Network;
 using MCPE.AlphaServer.RakNet;
 using MCPE.AlphaServer.Utils;
@@ -14,19 +15,22 @@ namespace MCPE.AlphaServer;
 
 internal static class Program {
     private static async Task Main(string[] _) {
-#if DEBUG
-        Directory.SetCurrentDirectory("/Users/atipls/work/MCPE.AlphaServer");
-#endif
-        var mainWorld = World.From("Data/MainWorld/");
-        
-        mainWorld.PrintEntitiesData();
+//#if DEBUG
+        Directory.SetCurrentDirectory("work");
+        //#endif
+
+        var mainWorld = new World(666);
+        Block.init();
+        FlatWorldGenerator.generateChunks(mainWorld);
+        Logger.LogBackend = new LoggerConfiguration()
+.WriteTo.Console(theme: SystemConsoleTheme.Colored)
+.MinimumLevel.Debug()
+.CreateLogger();
+        //   mainWorld.PrintEntitiesData();
         Console.WriteLine("Level Data:");
         mainWorld.PrintLevelData();
 
-        Logger.LogBackend = new LoggerConfiguration()
-            .WriteTo.Console(theme: SystemConsoleTheme.Colored)
-            .MinimumLevel.Debug()
-            .CreateLogger();
+
 
         Logger.Info("MCPE.AlphaServer starting.");
 

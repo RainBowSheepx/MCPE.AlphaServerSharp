@@ -614,7 +614,7 @@ public class ChunkDataPacket : MinecraftPacket {
         reader.Byte(); // Packet type.
         X = reader.Int();
         Z = reader.Int();
-        IsNew = reader.Byte();
+       // IsNew = reader.Byte();
         Data = default; // TODO
     }
 
@@ -622,7 +622,7 @@ public class ChunkDataPacket : MinecraftPacket {
         writer.Byte((byte)MinecraftPacketType.ChunkData);
         writer.Int(X);
         writer.Int(Z);
-        writer.Byte(IsNew);
+    //    writer.Byte(IsNew);
         writer.RawData(ChunkData);
     }
 }
@@ -1147,7 +1147,21 @@ public class AdventureSettingsPacket : MinecraftPacket {
         writer.UInt(Unk1);
     }
 }
+public class UnknowPacket : MinecraftPacket
+{
+    public int packetID = -1;
 
+    public override void Decode(ref DataReader reader)
+    {
+      
+    }
+
+    public override void Encode(ref DataWriter writer)
+    {
+        
+
+    }
+}
 public abstract class MinecraftPacket : UserPacket {
     public static MinecraftPacket Parse(ReadOnlyMemory<byte> data) {
         MinecraftPacket packet = data.Span[0] switch {
@@ -1202,6 +1216,7 @@ public abstract class MinecraftPacket : UserPacket {
             (byte)MinecraftPacketType.Chat => new ChatPacket(),
             (byte)MinecraftPacketType.SignUpdate => new SignUpdatePacket(),
             (byte)MinecraftPacketType.AdventureSettings => new AdventureSettingsPacket(),
+            (byte)MinecraftPacketType.Unknown => new UnknowPacket(),
             _ => null,
         };
 

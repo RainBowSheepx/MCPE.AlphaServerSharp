@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
+using MCPE.AlphaServer.Network;
 using MCPE.AlphaServer.Utils;
 
 namespace MCPE.AlphaServer.RakNet;
@@ -45,9 +46,9 @@ public class RakNetClient {
     internal void HandlePacket(byte[] data) {
         LastPing = DateTime.Now;
 
-        // Logger.Debug(
-        //        $"{IP} PreProcess: IsACK={data[0] & UnconnectedPacket.IS_ACK}, IsNAK={data[0] & UnconnectedPacket.IS_NAK}, IsConnected={data[0] & UnconnectedPacket.IS_CONNECTED}");
-        // Logger.Debug(Formatters.AsHex(data));
+    //    Logger.Debug(
+     //           $"{IP} PreProcess: IsACK={data[0] & UnconnectedPacket.IS_ACK}, IsNAK={data[0] & UnconnectedPacket.IS_NAK}, IsConnected={data[0] & UnconnectedPacket.IS_CONNECTED}");
+     //    Logger.Debug(Formatters.AsHex(data));
 
         var reader = new DataReader(data);
         if ((data[0] & UnconnectedPacket.IS_ACK) != 0)
@@ -150,9 +151,12 @@ public class RakNetClient {
                     writer.Byte((byte)packet.OrderingChannel);
                     break;
             }
-
+          
             writer.RawData(packetWriter.GetBytes());
         }
+        var str = string.Join(" ", writer.GetBytes());
+        Logger.Info("Packet size is " + writer.GetBytes().Length);
+        Logger.Info("Bigger packet!\n" + str);
 
         await Server.UDP.SendAsync(writer.GetBytes(), IP);
         OutgoingPackets.Clear();

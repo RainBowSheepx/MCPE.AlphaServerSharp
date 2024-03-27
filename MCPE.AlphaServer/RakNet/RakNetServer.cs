@@ -48,7 +48,7 @@ public class RakNetServer {
 
         // Try handling the connected packet, might fall through if the client reconnects?
         if (Connections.TryGetValue(receiveResult.RemoteEndPoint, out var existingConnection)) {
-            // Logger.Debug($"Letting {existingConnection} handle packet");
+         //   Logger.Debug($"Letting {existingConnection} handle packet");
             existingConnection.HandlePacket(receiveResult.Buffer);
             return;
         }
@@ -63,7 +63,7 @@ public class RakNetServer {
             case OpenConnectionRequest1Packet openConnectionRequest1Packet:
                 Logger.Debug($"Received OpenConnectionRequest1Packet from {receiveResult.RemoteEndPoint}");
                 await Send(receiveResult.RemoteEndPoint,
-                    new OpenConnectionReply1Packet(GUID, false, 1492) // TODO: MTU Is hardcoded.
+                    new OpenConnectionReply1Packet(GUID, false, 1500) // TODO: MTU Is hardcoded.
                 );
                 break;
             case OpenConnectionRequest2Packet request:
@@ -75,7 +75,7 @@ public class RakNetServer {
                 Connections.Add(receiveResult.RemoteEndPoint, newConnetion);
 
                 await Send(receiveResult.RemoteEndPoint,
-                    new OpenConnectionReply2Packet(GUID, newConnetion.IP, 1492, false) // TODO: MTU Is hardcoded.
+                    new OpenConnectionReply2Packet(GUID, newConnetion.IP, 1500, false) // TODO: MTU Is hardcoded.
                 );
 
                 break;
@@ -120,5 +120,5 @@ public class RakNetServer {
     internal void OnClose(RakNetClient connection, string reason) => ConnectionHandler?.OnClose(connection, reason);
 
     internal void OnData(RakNetClient connection, ReadOnlyMemory<byte> data) =>
-        ConnectionHandler?.OnData(connection, data);
+            ConnectionHandler?.OnData(connection, data);
 }

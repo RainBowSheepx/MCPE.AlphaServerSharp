@@ -41,7 +41,7 @@ public class GameServer : IConnectionHandler {
         const BindingFlags bindingFlags = BindingFlags.Public | BindingFlags.Instance;
         var handlerMethod = GetType().GetMethod($"Handle{packetName}", bindingFlags);
         var genericHandlerMethod = GetType().GetMethod("HandleGeneric", bindingFlags);
-
+      //  Logger.Debug($"Handler implemented for {packetName}. {handlerMethod} {genericHandlerMethod}");
         if (handlerMethod == null)
             Logger.Warn($"Handler not implemented for {packetName}. Bug?");
 
@@ -80,7 +80,11 @@ public class GameServer : IConnectionHandler {
         foreach (var player in ServerWorld.Players) {
             if (player.IsClientOf(client))
                 continue;
-
+/*            client.Send(new PlayerEquipmentPacket
+            {
+                EntityId = player.EntityID,
+                itemID = 0
+            });*/
             client.Send(new AddPlayerPacket {
                     PlayerId = player.PlayerID,
                     Username = player.Username,
@@ -105,7 +109,7 @@ public class GameServer : IConnectionHandler {
                 Time = 333333,
             }
         );
-
+        ServerWorld.SendChunk(client, 6, 6);
         // TODO: SetTime, maybe other things?
     }
 
@@ -130,7 +134,8 @@ public class GameServer : IConnectionHandler {
     //public virtual void HandleLevelEvent(RakNetClient client, LevelEventPacket packet) { }
     //public virtual void HandleTileEvent(RakNetClient client, TileEventPacket packet) { }
     //public virtual void HandleEntityEvent(RakNetClient client, EntityEventPacket packet) { }
-    //public virtual void HandleRequestChunk(RakNetClient client, RequestChunkPacket packet) { }
+   // public virtual void HandleRequestChunk(RakNetClient client, RequestChunkPacket rcp) =>
+   //     ServerWorld.SendChunks(client, rcp);
     //public virtual void HandleChunkData(RakNetClient client, ChunkDataPacket packet) { }
     //public virtual void HandlePlayerEquipment(RakNetClient client, PlayerEquipmentPacket packet) { }
     //public virtual void HandlePlayerArmorEquipment(RakNetClient client, PlayerArmorEquipmentPacket packet) { }
@@ -154,7 +159,9 @@ public class GameServer : IConnectionHandler {
     //public virtual void HandleDropItem(RakNetClient client, DropItemPacket packet) { }
     //public virtual void HandleContainerOpen(RakNetClient client, ContainerOpenPacket packet) { }
     //public virtual void HandleContainerClose(RakNetClient client, ContainerClosePacket packet) { }
-    //public virtual void HandleContainerSetSlot(RakNetClient client, ContainerSetSlotPacket packet) { }
+    public virtual void HandleContainerSetSlot(RakNetClient client, ContainerSetSlotPacket packet) {
+       
+            }
     //public virtual void HandleContainerSetData(RakNetClient client, ContainerSetDataPacket packet) { }
     //public virtual void HandleContainerSetContent(RakNetClient client, ContainerSetContentPacket packet) { }
     //public virtual void HandleContainerAck(RakNetClient client, ContainerAckPacket packet) { }

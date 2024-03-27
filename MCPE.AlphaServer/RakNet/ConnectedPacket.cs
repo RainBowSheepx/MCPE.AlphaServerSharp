@@ -282,6 +282,7 @@ public class PlayerDisconnectPacket : ConnectedPacket {
 
 public class UserPacket : ConnectedPacket {
     public Memory<byte> Data;
+    public bool hasSplit = false;
 
     public UserPacket() => Data = new Memory<byte>();
     public UserPacket(Memory<byte> data) => Data = data;

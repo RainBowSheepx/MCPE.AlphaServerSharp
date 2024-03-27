@@ -1,6 +1,7 @@
 ﻿namespace MCPE.AlphaServer.Network;
 
 public enum MinecraftPacketType : byte {
+    Unknown = 0x00,
     LoginRequest = 0x82,
     LoginResponse = 0x83,
     Ready = 0x84,
@@ -51,5 +52,7 @@ public enum MinecraftPacketType : byte {
     ContainerAck = 0xB5,
     Chat = 0xB6,
     SignUpdate = 0xB7,
-    AdventureSettings = 0xB8
+    AdventureSettings = 0xB8,
+    DATA_PACKET_0 = 0x80
+
 }
