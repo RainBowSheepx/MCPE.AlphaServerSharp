@@ -152,8 +152,9 @@ public class RakNetClient {
             packet.Encode(ref packetWriter);
             // Check split packet
             // 1480 is my MTU. Hardcoded
+            int MTU = 1480;
             int offsetMTU = 24; // 414 is default for pmmp. PMMP Bandwith is 1086
-            if (packetWriter.GetBytes().Length > 1480 - offsetMTU)
+            if (packetWriter.GetBytes().Length > MTU - offsetMTU)
             {
                 
 
@@ -165,17 +166,17 @@ public class RakNetClient {
                 byte[] test = packetWriter.GetBytes();
                 try
                 {
-                    for (int i = 0; i < test.Length; i += 1480 - offsetMTU)
+                    for (int i = 0; i < test.Length; i += MTU - offsetMTU)
                     {
-                        if (i + (1480 - offsetMTU) > test.Length)
+                        if (i + (MTU - offsetMTU) > test.Length)
                         {
-                            int t = (i + (1480 - offsetMTU)) - ((i + (1480 - offsetMTU)) - test.Length);
+                            int t = (i + (1480 - offsetMTU)) - ((i + (MTU - offsetMTU)) - test.Length);
                             
                             fragmented_body.Add(test[i..t]);
                         }
                         else
                         {
-                            fragmented_body.Add(test[i..(i + 1480 - offsetMTU)]);
+                            fragmented_body.Add(test[i..(i + MTU - offsetMTU)]);
                         }
                             
 
