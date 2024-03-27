@@ -16,7 +16,7 @@ namespace MCPE.AlphaServer;
 internal static class Program {
     private static async Task Main(string[] _) {
 //#if DEBUG
-        Directory.SetCurrentDirectory("work");
+       // Directory.SetCurrentDirectory("work");
         //#endif
 
         var mainWorld = new World(666);

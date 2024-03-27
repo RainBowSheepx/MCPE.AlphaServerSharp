@@ -118,7 +118,7 @@ internal class UnconnectedPongPacket : UnconnectedPacket {
 
 internal class OpenConnectionRequest1Packet : UnconnectedPacket {
     public byte ProtocolVersion;
-
+    public int mtuSize;
     public OpenConnectionRequest1Packet() {
         Type = UnconnectedPacketType.OpenConnectionRequest1;
         ProtocolVersion = 0;
@@ -134,6 +134,7 @@ internal class OpenConnectionRequest1Packet : UnconnectedPacket {
         reader.RakNetMagic();
 
         ProtocolVersion = reader.Byte();
+        this.mtuSize = reader.Remaining().Length;
     }
 
     public override void Encode(ref DataWriter writer) {
