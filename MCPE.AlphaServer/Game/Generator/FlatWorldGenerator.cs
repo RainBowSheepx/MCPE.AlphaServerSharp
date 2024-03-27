@@ -27,15 +27,12 @@ namespace MCPE.AlphaServer.Game.Generator
 
         public static void generateChunk(Chunk c)
         {
-            Enumerable.Range(0, 128).ToList().ForEach(delegate (int xz)
+            Enumerable.Range(0, 256).ToList().ForEach(delegate (int xz)
             {
                 int x = xz & 0xf;
                 int z = xz >> 4;
-                // Why would we need loops for flat world? // idk
-                //       c.GetType();
-         
+
                 c.BlockData[x,z,3] = (byte)Block.grass.blockID;
-              
                 c.BlockMetadata[x,z,3] = (byte)0;
                 c.BlockData[x,z,2] = (byte)Block.dirt.blockID;
                 c.BlockMetadata[x,z,2] = 0;

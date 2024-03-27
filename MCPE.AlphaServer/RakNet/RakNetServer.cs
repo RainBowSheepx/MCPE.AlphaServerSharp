@@ -61,15 +61,16 @@ public class RakNetServer {
                 );
                 break;
             case OpenConnectionRequest1Packet openConnectionRequest1Packet:
-                Logger.Debug($"Received OpenConnectionRequest1Packet from {receiveResult.RemoteEndPoint}");
+                Logger.Debug($"Received OpenConnectionRequest1Packet from {receiveResult.RemoteEndPoint} MTU: {openConnectionRequest1Packet.mtuSize}");
                 await Send(receiveResult.RemoteEndPoint,
-                    new OpenConnectionReply1Packet(GUID, false, 1480) // TODO: MTU Is hardcoded.
+                    new OpenConnectionReply1Packet(GUID, false, (ushort) Math.Min(openConnectionRequest1Packet.mtuSize, 1480)) // TODO: MTU Is hardcoded.
                 );
                 break;
             case OpenConnectionRequest2Packet request:
-                Logger.Debug($"Handling connection request from {receiveResult.RemoteEndPoint}");
+                Logger.Debug($"Handling connection request from {receiveResult.RemoteEndPoint} MTU: {request.MtuSize}");
                 var newConnetion = new RakNetClient(receiveResult.RemoteEndPoint, this) {
-                    ClientID = request.ClientID
+                    ClientID = request.ClientID,
+                    mtuSize = request.MtuSize
                 };
 
                 Connections.Add(receiveResult.RemoteEndPoint, newConnetion);

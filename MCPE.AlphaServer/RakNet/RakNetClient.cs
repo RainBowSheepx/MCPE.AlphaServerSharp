@@ -38,6 +38,7 @@ public class RakNetClient {
     private SortedSet<int> NeedsACK { get; }
     private int CurrentSequenceNumber;
     private int LastReliablePacketIndex;
+    public ushort mtuSize;
 
     internal RakNetServer Server;
 
@@ -152,9 +153,8 @@ public class RakNetClient {
             packet.Encode(ref packetWriter);
             // Check split packet
             // 1480 is my MTU. Hardcoded
-            int MTU = 1480;
             int offsetMTU = 24; // 414 is default for pmmp. PMMP Bandwith is 1086
-            if (packetWriter.GetBytes().Length > MTU - offsetMTU)
+            if (packetWriter.GetBytes().Length > this.mtuSize - offsetMTU)
             {
                 
 
@@ -166,17 +166,17 @@ public class RakNetClient {
                 byte[] test = packetWriter.GetBytes();
                 try
                 {
-                    for (int i = 0; i < test.Length; i += MTU - offsetMTU)
+                    for (int i = 0; i < test.Length; i += this.mtuSize - offsetMTU)
                     {
-                        if (i + (MTU - offsetMTU) > test.Length)
+                        if (i + (this.mtuSize - offsetMTU) > test.Length)
                         {
-                            int t = (i + (1480 - offsetMTU)) - ((i + (MTU - offsetMTU)) - test.Length);
+                            int t = (i + (this.mtuSize - offsetMTU)) - ((i + (this.mtuSize - offsetMTU)) - test.Length);
                             
                             fragmented_body.Add(test[i..t]);
                         }
                         else
                         {
-                            fragmented_body.Add(test[i..(i + MTU - offsetMTU)]);
+                            fragmented_body.Add(test[i..(i + this.mtuSize - offsetMTU)]);
                         }
                             
 
@@ -255,7 +255,7 @@ public class RakNetClient {
         var strs = string.Join(" ", writer.GetBytes());
       //  Logger.Info(strs + " Size: " + writer.GetBytes().Length);
         var str = string.Join(" ", writer.GetBytes());
-        if (writer.GetBytes().Length > 1480)
+        if (writer.GetBytes().Length > this.mtuSize)
         {
             Logger.Info("Packet size is " + writer.GetBytes().Length);
             //     Logger.Info("Bigger packet!\n" + str);
