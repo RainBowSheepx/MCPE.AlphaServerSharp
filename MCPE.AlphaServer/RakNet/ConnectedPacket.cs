@@ -49,10 +49,13 @@ public class ConnectedPacket {
     }
 
     public static ConnectedPacket Parse(ref DataReader reader) {
+        // Начало заголовка (Первый байт ISCONNECTED и sequenceNumber уже пройдены)
         var flags = reader.Byte();
         var reliability = (flags & 0xE0) >> 5;
+        var hasSplit = (flags & 0b00010000) > 0;
 
         var payloadLength = reader.Short();
+        // reliableIndex = messageIndex pmmp moment
         var (reliableIndex, orderingIndex, orderingChannel) = reliability switch {
             RELIABLE => (reader.Triad(), 0, 0),
             RELIABLE_ORDERED => (reader.Triad(), reader.Triad(), reader.Byte()),
@@ -60,6 +63,21 @@ public class ConnectedPacket {
             _ => (0, 0, 0)
         };
 
+
+        // Информация о split должна читаться именно в этот момент.
+        var splitCount = 0;
+        short splitID = 0;
+        var splitIndex = 0;
+        if (hasSplit)
+        {
+            splitCount = reader.Int();
+            splitID = reader.Short();
+            splitIndex = reader.Int();
+        }
+        // Конец заголовка
+
+        // Начало сырых данных
+        // Здесь он читает ВЕСЬ оставшийся пакет и создаёт под него необходимый объект. 
         var payload = reader.Read(payloadLength / 8);
         ConnectedPacket packet = payload.Span[0] switch {
             (int)ConnectedPacketType.ConnectedPing => new ConnectedPingPacket(),
@@ -71,16 +89,31 @@ public class ConnectedPacket {
             > 0x80 => new UserPacket(payload),
             _ => null,
         };
+        // Конец сырых данных
 
         if (packet is null) return null;
 
+        var length = payloadLength / 8;
+        if (hasSplit)
+        {
+            packet.hasSplit = hasSplit;
+            packet.splitCount = splitCount;
+            packet.splitID = splitID;
+            packet.splitIndex = splitIndex;
+        }
         packet.Reliability = reliability;
         packet.ReliableIndex = reliableIndex;
         packet.OrderingIndex = orderingIndex;
         packet.OrderingChannel = orderingChannel;
 
+
+        if (length <= 0 || orderingChannel >= 32 || (hasSplit == true && packet.splitIndex >= packet.splitCount)) return null;
+        
+
         var payloadReader = new DataReader(payload);
         packet.Decode(ref payloadReader);
+ 
+
 
         return packet;
     }
@@ -294,7 +327,7 @@ public class PlayerDisconnectPacket : ConnectedPacket {
 
 public class UserPacket : ConnectedPacket {
     public Memory<byte> Data;
-    public bool hasSplit = false;
+
 
     public UserPacket() => Data = new Memory<byte>();
     public UserPacket(Memory<byte> data) => Data = data;

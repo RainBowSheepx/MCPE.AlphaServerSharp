@@ -1147,6 +1147,7 @@ public class AdventureSettingsPacket : MinecraftPacket {
 public class UnknowPacket : MinecraftPacket
 {
     public int packetID = -1;
+    public byte[] buffer;
 
     public override void Decode(ref DataReader reader)
     {
@@ -1155,7 +1156,7 @@ public class UnknowPacket : MinecraftPacket
 
     public override void Encode(ref DataWriter writer)
     {
-        
+        writer.RawData(buffer); // Emulate raw buffer from PMMP
 
     }
 }

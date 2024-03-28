@@ -113,12 +113,7 @@ public class RakNetClient {
     public bool wait = false;
 
 
-    public int queueAndIndex(ConnectedPacket packet, bool justCheck = true, bool bronirovat = false, int indexes = 0)
-    {
 
-
-        return 0;
-    }
 
     internal async Task HandleOutgoing() {
         if (OutgoingPackets.Count < 1) {
@@ -142,130 +137,76 @@ public class RakNetClient {
             return;
         }
 
-        var writer = new DataWriter();
-        writer.Byte(UnconnectedPacket.IS_CONNECTED); 
-        writer.Triad(CurrentSequenceNumber++);
 
-        UnknowPacket newpacket = null;
- 
+
+        var writer = new DataWriter();
+        if (OutgoingPackets.Count < 1)
+        {
+            writer.Byte(UnconnectedPacket.IS_CONNECTED);
+            writer.Triad(CurrentSequenceNumber++);
+        }
+
+
+        int offsetMTU = 24;
         foreach (var packet in OutgoingPackets) {
+            writer = new DataWriter();
+            writer.Byte(UnconnectedPacket.IS_CONNECTED);
+            writer.Triad(CurrentSequenceNumber++);
             var packetWriter = new DataWriter();
             packet.Encode(ref packetWriter);
-            // Check split packet
-            // 1480 is my MTU. Hardcoded
-            int offsetMTU = 24; // 414 is default for pmmp. PMMP Bandwith is 1086
-            if (packetWriter.GetBytes().Length > this.mtuSize - offsetMTU)
+            if (packet.hasSplit)
             {
-                
+             //   Logger.Info("goo");
+            }
+            writer.Byte((byte)((packet.Reliability << 5) | (packet.hasSplit ? 0x10 : 0)));
+            writer.Short((short)(packetWriter.Length << 3));
 
+
+            switch (packet.Reliability)
+            {
+                case ConnectedPacket.RELIABLE:
+                    writer.Triad(packet.ReliableIndex);
+                    break;
+                case ConnectedPacket.RELIABLE_ORDERED:
+                    writer.Triad(packet.ReliableIndex);
+                    writer.Triad(packet.OrderingIndex);
+                    writer.Byte((byte)packet.OrderingChannel);
+                    break;
+            }
+
+            if (packet.hasSplit)
+            {
+                writer.Int(packet.splitCount);
+                writer.Short(packet.splitID);
+                writer.Int(packet.splitIndex);
+            }
+            writer.RawData(packetWriter.GetBytes());
+
+                var strss = string.Join(" ", writer.GetBytes());
+                //Logger.Info("test stack: "+strss + " Size: " + writer.GetBytes().Length);
+                await Server.UDP.SendAsync(writer.GetBytes(), IP);
                 writer = new DataWriter();
-                CurrentSequenceNumber--;
-                writer.Byte(UnconnectedPacket.IS_CONNECTED);
-                writer.Triad(CurrentSequenceNumber-1);
-                List<byte[]> fragmented_body = new List<byte[]>();
-                byte[] test = packetWriter.GetBytes();
                 try
                 {
-                    for (int i = 0; i < test.Length; i += this.mtuSize - offsetMTU)
-                    {
-                        if (i + (this.mtuSize - offsetMTU) > test.Length)
-                        {
-                            int t = (i + (this.mtuSize - offsetMTU)) - ((i + (this.mtuSize - offsetMTU)) - test.Length);
-                            
-                            fragmented_body.Add(test[i..t]);
-                        }
-                        else
-                        {
-                            fragmented_body.Add(test[i..(i + this.mtuSize - offsetMTU)]);
-                        }
-                            
-
-                        
-                    }
+                    OutgoingPackets.Remove(packet);
                 }
                 catch(Exception e)
                 {
                     Logger.Info(e.Message);
                 }
-
-
-                bigCnt = (bigCnt + 1) % 0x10000;
                 
-                for (int i = 0; i < fragmented_body.Count; i++)
-                {
-                    writer = new DataWriter();
-                    writer.Byte(UnconnectedPacket.IS_CONNECTED);
-                    writer.Triad(CurrentSequenceNumber++);
-                    newpacket = new UnknowPacket();
-                    newpacket.ReliableIndex = LastReliablePacketIndex++;
-                    newpacket.packetID = (byte)MinecraftPacketType.ChunkData;
-                    newpacket.hasSplit = true;
-                    newpacket.Reliability = 2;
-                    newpacket.splitID = (short)bigCnt;
-                    newpacket.splitCount = fragmented_body.Count;
-                    newpacket.splitIndex = i;
-                    
-
-                    writer.Byte((byte)((newpacket.Reliability << 5) | (newpacket.hasSplit ? 0x10 : 0)));
-                    writer.Short((short)(fragmented_body[i].Length * 8));
-                   // switch (newpacket.Reliability)
-                   // {
-                     //   case ConnectedPacket.RELIABLE:
-                            writer.Triad(newpacket.ReliableIndex); // TODO Add priority for reliable index
-                    //        break;
-                  //  }
-                    writer.Int(newpacket.splitCount);
-                    writer.Short(newpacket.splitID);
-                    writer.Int(newpacket.splitIndex);
-                    writer.RawData(fragmented_body[i]);
-                    var strss = string.Join(" ", writer.GetBytes());
-                  //  Logger.Info(strss + " Size: " + writer.GetBytes().Length);
-                    await Server.UDP.SendAsync(writer.GetBytes(), IP);
-                    
-
-
-
-                }
-                OutgoingPackets.Remove(packet);
-                wait = false;
                 return;
-            } 
-            else
-            {
-                writer.Byte((byte)(packet.Reliability << 5));
-                writer.Short((short)(packetWriter.Length << 3));
-                    
-                switch (packet.Reliability)
-                {
-                    case ConnectedPacket.RELIABLE:
-                        writer.Triad(packet.ReliableIndex);
-                        break;
-                    case ConnectedPacket.RELIABLE_ORDERED:
-                        writer.Triad(packet.ReliableIndex);
-                        writer.Triad(packet.OrderingIndex);
-                        writer.Byte((byte)packet.OrderingChannel);
-                        break;
-                }
-
-                writer.RawData(packetWriter.GetBytes());
-            }
             
-
         }
         var strs = string.Join(" ", writer.GetBytes());
-      //  Logger.Info(strs + " Size: " + writer.GetBytes().Length);
-        var str = string.Join(" ", writer.GetBytes());
+        Logger.Info(strs + " Size: " + writer.GetBytes().Length);
+        //var str = string.Join(" ", writer.GetBytes());
         if (writer.GetBytes().Length > this.mtuSize)
         {
             Logger.Info("Packet size is " + writer.GetBytes().Length);
             //     Logger.Info("Bigger packet!\n" + str);
-            OutgoingPackets.Clear();
-            return;
-        }
-        if(writer.GetBytes().Length == 4)
-        {
-            Logger.Info("FIXME");
-            OutgoingPackets.Clear();
+       //     OutgoingPackets.Clear();
+       //     return;
         }
         await Server.UDP.SendAsync(writer.GetBytes(), IP);
         OutgoingPackets.Clear();
@@ -274,41 +215,56 @@ public class RakNetClient {
 
     private List<ConnectedPacket> Queue = new List<ConnectedPacket>();
     public void Send(ConnectedPacket packet, int reliability = ConnectedPacket.RELIABLE) {
-
-
-
-
-        if (wait)
+        int offsetMTU = 24; // 414 is default for pmmp. PMMP Bandwith is 1086
+        var packetChecker = new DataWriter();
+        packet.Encode(ref packetChecker);
+        if (packetChecker.GetBytes().Length > this.mtuSize - offsetMTU)
         {
-            if (reliability == ConnectedPacket.RELIABLE)
+            List<byte[]> fragmented_body = new List<byte[]>();
+            byte[] test = packetChecker.GetBytes();
+            try
             {
-                packet.Reliability = reliability;
+                for (int i = 0; i < test.Length; i += this.mtuSize - offsetMTU)
+                {
+                    if (i + (this.mtuSize - offsetMTU) > test.Length)
+                    {
+                        int t = (i + (this.mtuSize - offsetMTU)) - ((i + (this.mtuSize - offsetMTU)) - test.Length);
+
+                        fragmented_body.Add(test[i..t]);
+                    }
+                    else
+                    {
+                        fragmented_body.Add(test[i..(i + this.mtuSize - offsetMTU)]);
+                    }
 
 
+
+                }
             }
-            Queue.Add(packet);
+            catch (Exception e)
+            {
+                Logger.Info(e.Message);
+            }
+
+
+            bigCnt = (bigCnt + 1) % 0x10000;
+
+            for (int i = 0; i < fragmented_body.Count; i++)
+            {
+                UnknowPacket newpacket = new UnknowPacket();
+                newpacket.ReliableIndex = LastReliablePacketIndex++;
+                //newpacket.packetID = (byte)MinecraftPacketType.ChunkData;
+                newpacket.hasSplit = true;
+                newpacket.Reliability = 2;
+                newpacket.splitID = (short)bigCnt;
+                newpacket.splitCount = fragmented_body.Count;
+                newpacket.splitIndex = i;
+                newpacket.buffer = fragmented_body[i];
+                OutgoingPackets.Add(newpacket);
+            }
         }
         else
         {
-            if (packet is ChunkDataPacket)
-            {
-                OutgoingPackets.Add(packet);
-                wait = true;
-                return;
-            }
-            if (Queue.Count != 0)
-            {
-                foreach(var packetQ in Queue)
-                {
-                    if (packetQ.Reliability == ConnectedPacket.RELIABLE)
-                    {
-                        packetQ.ReliableIndex = LastReliablePacketIndex++;
-                    }
-                    OutgoingPackets.Add(packetQ);
-                }
-                Queue.Clear();
-            }
-            
             if (reliability == ConnectedPacket.RELIABLE)
             {
                 packet.Reliability = reliability;
@@ -316,10 +272,8 @@ public class RakNetClient {
 
             }
             OutgoingPackets.Add(packet);
-
         }
 
-        
     }
 
     public override string ToString() => $"RakNetConnection(IP={IP}, LastPing={LastPing}, ClientID={ClientID})";
