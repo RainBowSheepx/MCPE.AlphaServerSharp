@@ -117,7 +117,53 @@ public class RakNetClient {
 
 
 
+    internal async Task HandleSplitPackets()
+    {
+        if (SplitPackets.Capacity < 1) return;
+        ConnectedPacket packet = SplitPackets.First();
+       // foreach (var packet in SplitPackets)
+     //   {
+            var writerSplit = new DataWriter();
+            writerSplit.Byte(UnconnectedPacket.IS_CONNECTED);
+            writerSplit.Triad(CurrentSequenceNumber++);
+            var packetWriter = new DataWriter();
+            packet.Encode(ref packetWriter);
+            /*            if (packet.hasSplit)
+                        {
+                            //   Logger.Info("goo");
+                        }*/
+            writerSplit.Byte((byte)((packet.Reliability << 5) | (packet.hasSplit ? 0x10 : 0)));
+            writerSplit.Short((short)(packetWriter.Length << 3));
 
+
+            switch (packet.Reliability)
+            {
+                case ConnectedPacket.RELIABLE:
+                    writerSplit.Triad(packet.ReliableIndex);
+                    break;
+                case ConnectedPacket.RELIABLE_ORDERED:
+                    writerSplit.Triad(packet.ReliableIndex);
+                    writerSplit.Triad(packet.OrderingIndex);
+                    writerSplit.Byte((byte)packet.OrderingChannel);
+                    break;
+            }
+
+            if (packet.hasSplit)
+            {
+                writerSplit.Int(packet.splitCount);
+                writerSplit.Short(packet.splitID);
+                writerSplit.Int(packet.splitIndex);
+            }
+            writerSplit.RawData(packetWriter.GetBytes());
+
+            var strss = string.Join(" ", writerSplit.GetBytes());
+
+            
+            Logger.Info("test stack: " + strss + " Size: " + writerSplit.GetBytes().Length);
+       // }
+        await Server.UDP.SendAsync(writerSplit.GetBytes(), IP);
+        SplitPackets.Remove(packet);
+    }
     internal async Task HandleOutgoing() {
         if (OutgoingPackets.Count < 1) {
             if (NeedsACK.Count < 1)
@@ -145,47 +191,9 @@ public class RakNetClient {
 
 
         
-        foreach (var packet in SplitPackets)
-        {
-            var writerSplit = new DataWriter();
-            writerSplit.Byte(UnconnectedPacket.IS_CONNECTED);
-            writerSplit.Triad(CurrentSequenceNumber++);
-            var packetWriter = new DataWriter();
-            packet.Encode(ref packetWriter);
-/*            if (packet.hasSplit)
-            {
-                //   Logger.Info("goo");
-            }*/
-            writerSplit.Byte((byte)((packet.Reliability << 5) | (packet.hasSplit ? 0x10 : 0)));
-            writerSplit.Short((short)(packetWriter.Length << 3));
 
 
-            switch (packet.Reliability)
-            {
-                case ConnectedPacket.RELIABLE:
-                    writerSplit.Triad(packet.ReliableIndex);
-                    break;
-                case ConnectedPacket.RELIABLE_ORDERED:
-                    writerSplit.Triad(packet.ReliableIndex);
-                    writerSplit.Triad(packet.OrderingIndex);
-                    writerSplit.Byte((byte)packet.OrderingChannel);
-                    break;
-            }
-
-            if (packet.hasSplit)
-            {
-                writerSplit.Int(packet.splitCount);
-                writerSplit.Short(packet.splitID);
-                writerSplit.Int(packet.splitIndex);
-            }
-            writerSplit.RawData(packetWriter.GetBytes());
-
-            var strss = string.Join(" ", writerSplit.GetBytes());
-            
-            await Server.UDP.SendAsync(writerSplit.GetBytes(), IP);
-            Logger.Info("test stack: " + strss + " Size: " + writerSplit.GetBytes().Length);
-        }
-        SplitPackets.Clear();
+        
         var writer = new DataWriter();
 
         writer.Byte(UnconnectedPacket.IS_CONNECTED);

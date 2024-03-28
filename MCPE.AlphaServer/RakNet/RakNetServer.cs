@@ -90,6 +90,13 @@ public class RakNetServer {
         foreach (var (_, connection) in Connections)
             await connection.HandleOutgoing();
 
+        foreach (var (_, connection) in Connections)
+        {
+            await connection.HandleSplitPackets();
+
+        }
+            
+
         foreach (var (endpoint, client) in Connections.Where(x => !x.Value.IsConnected)) {
             ConnectionHandler?.OnClose(client, client.IsTimedOut ? "Timed out" : "Disconnected");
             Connections.Remove(endpoint);
