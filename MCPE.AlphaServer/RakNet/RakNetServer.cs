@@ -9,10 +9,12 @@ using MCPE.AlphaServer.Utils;
 
 namespace MCPE.AlphaServer.RakNet;
 
-public class RakNetServer {
+public class RakNetServer
+{
     private readonly Dictionary<IPEndPoint, RakNetClient> Connections;
 
-    public RakNetServer(int port) {
+    public RakNetServer(int port)
+    {
         GUID = (ulong)Random.Shared.Next() & ((ulong)Random.Shared.Next() << 32);
         IP = new IPEndPoint(IPAddress.Any, port);
         UDP = new UdpClient(IP);
@@ -31,30 +33,35 @@ public class RakNetServer {
 
     public ulong TimeSinceStart => (ulong)(DateTime.Now - StartedOn).TotalMilliseconds;
 
-    public void Start(IConnectionHandler connectionHandler) {
+    public void Start(IConnectionHandler connectionHandler)
+    {
         ConnectionHandler = connectionHandler;
 
         StartRepeatingTask(HandlePackets, TimeSpan.Zero);
         StartRepeatingTask(HandleConnections, TimeSpan.FromMilliseconds(1));
     }
 
-    public void Stop() {
+    public void Stop()
+    {
         TaskCancellationToken.Cancel();
         UDP.Close();
     }
 
-    private async Task HandlePackets() {
+    private async Task HandlePackets()
+    {
         var receiveResult = await UDP.ReceiveAsync();
 
         // Try handling the connected packet, might fall through if the client reconnects?
-        if (Connections.TryGetValue(receiveResult.RemoteEndPoint, out var existingConnection)) {
-         //   Logger.Debug($"Letting {existingConnection} handle packet");
+        if (Connections.TryGetValue(receiveResult.RemoteEndPoint, out var existingConnection))
+        {
+            //   Logger.Debug($"Letting {existingConnection} handle packet");
             existingConnection.HandlePacket(receiveResult.Buffer);
             return;
         }
 
         // If we don't have a session for this IP yet.
-        switch (UnconnectedPacket.Parse(receiveResult.Buffer)) {
+        switch (UnconnectedPacket.Parse(receiveResult.Buffer))
+        {
             case UnconnectedPingPacket:
                 await Send(receiveResult.RemoteEndPoint,
                     new UnconnectedPongPacket(TimeSinceStart, GUID, $"MCCPP;Demo;{ServerName}")
@@ -63,12 +70,13 @@ public class RakNetServer {
             case OpenConnectionRequest1Packet openConnectionRequest1Packet:
                 Logger.Debug($"Received OpenConnectionRequest1Packet from {receiveResult.RemoteEndPoint} MTU: {openConnectionRequest1Packet.mtuSize}");
                 await Send(receiveResult.RemoteEndPoint,
-                    new OpenConnectionReply1Packet(GUID, false, (ushort) Math.Min(openConnectionRequest1Packet.mtuSize, 1480)) // TODO: MTU Is hardcoded.
+                    new OpenConnectionReply1Packet(GUID, false, (ushort)Math.Min(openConnectionRequest1Packet.mtuSize, 1480)) // TODO: MTU Is hardcoded.
                 );
                 break;
             case OpenConnectionRequest2Packet request:
                 Logger.Debug($"Handling connection request from {receiveResult.RemoteEndPoint} MTU: {request.MtuSize}");
-                var newConnetion = new RakNetClient(receiveResult.RemoteEndPoint, this) {
+                var newConnetion = new RakNetClient(receiveResult.RemoteEndPoint, this)
+                {
                     ClientID = request.ClientID,
                     mtuSize = request.MtuSize
                 };
@@ -86,7 +94,8 @@ public class RakNetServer {
         }
     }
 
-    private async Task HandleConnections() {
+    private async Task HandleConnections()
+    {
         foreach (var (_, connection) in Connections)
             await connection.HandleOutgoing();
 
@@ -95,29 +104,34 @@ public class RakNetServer {
             await connection.HandleSplitPackets();
 
         }
-            
 
-        foreach (var (endpoint, client) in Connections.Where(x => !x.Value.IsConnected)) {
+
+        foreach (var (endpoint, client) in Connections.Where(x => !x.Value.IsConnected))
+        {
             ConnectionHandler?.OnClose(client, client.IsTimedOut ? "Timed out" : "Disconnected");
             Connections.Remove(endpoint);
         }
 
         ConnectionHandler?.OnUpdate();
 
-        await Task.Delay(1);
+        //  await Task.Delay(1); // Uncomment if u have troubles
     }
 
-    private void StartRepeatingTask(Func<Task> action, TimeSpan interval) {
-        Task.Run(async () => {
-                while (!TaskCancellationToken.IsCancellationRequested) {
-                    await action();
-                    await Task.Delay(interval);
-                }
-            }, TaskCancellationToken.Token
+    private void StartRepeatingTask(Func<Task> action, TimeSpan interval)
+    {
+        Task.Run(async () =>
+        {
+            while (!TaskCancellationToken.IsCancellationRequested)
+            {
+                await action();
+                await Task.Delay(interval);
+            }
+        }, TaskCancellationToken.Token
         );
     }
 
-    private async Task Send(IPEndPoint endPoint, UnconnectedPacket packet) {
+    private async Task Send(IPEndPoint endPoint, UnconnectedPacket packet)
+    {
         var writer = new DataWriter();
         packet.Encode(ref writer);
         var buffer = writer.GetBytes();

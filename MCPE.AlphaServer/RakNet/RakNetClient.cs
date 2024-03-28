@@ -10,15 +10,18 @@ using MCPE.AlphaServer.Utils;
 
 namespace MCPE.AlphaServer.RakNet;
 
-public class RakNetClient {
-    public enum ConnectionStatus {
+public class RakNetClient
+{
+    public enum ConnectionStatus
+    {
         CONNECTING,
         CONNECTED,
         DISCONNECTING,
         DISCONNECTED
     }
 
-    public RakNetClient(IPEndPoint endPoint, RakNetServer server) {
+    public RakNetClient(IPEndPoint endPoint, RakNetServer server)
+    {
         IP = endPoint;
         LastPing = DateTime.Now;
         Status = ConnectionStatus.CONNECTING;
@@ -48,12 +51,13 @@ public class RakNetClient {
     public bool IsTimedOut => DateTime.Now - LastPing > TimeSpan.FromSeconds(5);
     public bool IsConnected => !IsTimedOut && Status != ConnectionStatus.DISCONNECTED;
 
-    internal void HandlePacket(byte[] data) {
+    internal void HandlePacket(byte[] data)
+    {
         LastPing = DateTime.Now;
 
-    //    Logger.Debug(
-     //           $"{IP} PreProcess: IsACK={data[0] & UnconnectedPacket.IS_ACK}, IsNAK={data[0] & UnconnectedPacket.IS_NAK}, IsConnected={data[0] & UnconnectedPacket.IS_CONNECTED}");
-     //    Logger.Debug(Formatters.AsHex(data));
+        //    Logger.Debug(
+        //           $"{IP} PreProcess: IsACK={data[0] & UnconnectedPacket.IS_ACK}, IsNAK={data[0] & UnconnectedPacket.IS_NAK}, IsConnected={data[0] & UnconnectedPacket.IS_CONNECTED}");
+        //    Logger.Debug(Formatters.AsHex(data));
 
         var reader = new DataReader(data);
         if ((data[0] & UnconnectedPacket.IS_ACK) != 0)
@@ -64,35 +68,42 @@ public class RakNetClient {
             HandleConnected(ref reader);
     }
 
-    private void HandleACK(ref DataReader reader) {
+    private void HandleACK(ref DataReader reader)
+    {
         var packet = ConnectedPacket.ParseMeta(ref reader);
-        //Logger.Warn($"TODO: HandleACK {packet}");
+        // Logger.Warn($"TODO: HandleACK {packet}");
     }
 
-    private void HandleNAK(ref DataReader reader) {
+    private void HandleNAK(ref DataReader reader)
+    {
         var packet = ConnectedPacket.ParseMeta(ref reader);
         Logger.Warn($"TODO: HandleNAK {packet}");
     }
 
-    private void HandleConnected(ref DataReader reader) {
+    private void HandleConnected(ref DataReader reader)
+    {
         reader.Byte();
         var sequenceNumber = reader.Triad();
         NeedsACK.Add(sequenceNumber);
 
-        do {
-            switch (ConnectedPacket.Parse(ref reader)) {
+        do
+        {
+            switch (ConnectedPacket.Parse(ref reader))
+            {
                 case ConnectedPingPacket ping:
-                    Send(new ConnectedPongPacket {
-                            TimeSinceStart = ping.TimeSinceStart,
-                            TimeSinceServerStart = 0,
-                        }, ConnectedPacket.RELIABLE
+                    Send(new ConnectedPongPacket
+                    {
+                        TimeSinceStart = ping.TimeSinceStart,
+                        TimeSinceServerStart = 0,
+                    }, ConnectedPacket.RELIABLE
                     );
                     break;
                 case ConnectionRequestPacket:
-                    Send(new ConnectionRequestAcceptedPacket {
-                            EndPoint = IP,
-                            TimeSinceStart = 0 // TODO: Fix.
-                        }, ConnectedPacket.RELIABLE
+                    Send(new ConnectionRequestAcceptedPacket
+                    {
+                        EndPoint = IP,
+                        TimeSinceStart = 0 // TODO: Fix.
+                    }, ConnectedPacket.RELIABLE
                     );
                     break;
                 case NewIncomingConnectionPacket:
@@ -119,53 +130,8 @@ public class RakNetClient {
 
     internal async Task HandleSplitPackets()
     {
-        if (SplitPackets.Capacity < 1) return;
-        ConnectedPacket packet = SplitPackets.First();
-       // foreach (var packet in SplitPackets)
-     //   {
-            var writerSplit = new DataWriter();
-            writerSplit.Byte(UnconnectedPacket.IS_CONNECTED);
-            writerSplit.Triad(CurrentSequenceNumber++);
-            var packetWriter = new DataWriter();
-            packet.Encode(ref packetWriter);
-            /*            if (packet.hasSplit)
-                        {
-                            //   Logger.Info("goo");
-                        }*/
-            writerSplit.Byte((byte)((packet.Reliability << 5) | (packet.hasSplit ? 0x10 : 0)));
-            writerSplit.Short((short)(packetWriter.Length << 3));
-
-
-            switch (packet.Reliability)
-            {
-                case ConnectedPacket.RELIABLE:
-                    writerSplit.Triad(packet.ReliableIndex);
-                    break;
-                case ConnectedPacket.RELIABLE_ORDERED:
-                    writerSplit.Triad(packet.ReliableIndex);
-                    writerSplit.Triad(packet.OrderingIndex);
-                    writerSplit.Byte((byte)packet.OrderingChannel);
-                    break;
-            }
-
-            if (packet.hasSplit)
-            {
-                writerSplit.Int(packet.splitCount);
-                writerSplit.Short(packet.splitID);
-                writerSplit.Int(packet.splitIndex);
-            }
-            writerSplit.RawData(packetWriter.GetBytes());
-
-            var strss = string.Join(" ", writerSplit.GetBytes());
-
-            
-            Logger.Info("test stack: " + strss + " Size: " + writerSplit.GetBytes().Length);
-       // }
-        await Server.UDP.SendAsync(writerSplit.GetBytes(), IP);
-        SplitPackets.Remove(packet);
-    }
-    internal async Task HandleOutgoing() {
-        if (OutgoingPackets.Count < 1) {
+        if (SplitPackets.Count < 1)
+        {
             if (NeedsACK.Count < 1)
                 return;
 
@@ -175,7 +141,66 @@ public class RakNetClient {
 
             // TODO: Use the range feature from RakNet?
             ackWriter.Short((short)NeedsACK.Count);
-            foreach (var sequence in NeedsACK) {
+            foreach (var sequence in NeedsACK)
+            {
+                ackWriter.Byte(1); // Min == max.
+                ackWriter.Triad(sequence);
+            }
+
+            await Server.UDP.SendAsync(ackWriter.GetBytes(), IP);
+            NeedsACK.Clear();
+            return;
+        }
+
+        ConnectedPacket packet = SplitPackets.First();
+        var writerSplit = new DataWriter();
+        writerSplit.Byte(UnconnectedPacket.IS_CONNECTED);
+        writerSplit.Triad(CurrentSequenceNumber++);
+        var packetWriter = new DataWriter();
+        packet.Encode(ref packetWriter);
+        writerSplit.Byte((byte)((packet.Reliability << 5) | (packet.hasSplit ? 0x10 : 0)));
+        writerSplit.Short((short)(packetWriter.Length << 3));
+
+
+        switch (packet.Reliability)
+        {
+            case ConnectedPacket.RELIABLE:
+                writerSplit.Triad(packet.ReliableIndex);
+                break;
+            case ConnectedPacket.RELIABLE_ORDERED:
+                writerSplit.Triad(packet.ReliableIndex);
+                writerSplit.Triad(packet.OrderingIndex);
+                writerSplit.Byte((byte)packet.OrderingChannel);
+                break;
+        }
+        writerSplit.Int(packet.splitCount);
+        writerSplit.Short(packet.splitID);
+        writerSplit.Int(packet.splitIndex);
+
+        writerSplit.RawData(packetWriter.GetBytes());
+
+        var strss = string.Join(" ", writerSplit.GetBytes());
+
+
+        //   Logger.Info("test stack: " + strss + " Size: " + writerSplit.GetBytes().Length);
+        await Server.UDP.SendAsync(writerSplit.GetBytes(), IP);
+        SplitPackets.Remove(packet);
+    }
+    internal async Task HandleOutgoing()
+    {
+        if (OutgoingPackets.Count < 1)
+        {
+            if (NeedsACK.Count < 1)
+                return;
+
+            // Send ACKs.
+            var ackWriter = new DataWriter();
+            ackWriter.Byte(UnconnectedPacket.IS_CONNECTED | UnconnectedPacket.IS_ACK);
+
+            // TODO: Use the range feature from RakNet?
+            ackWriter.Short((short)NeedsACK.Count);
+            foreach (var sequence in NeedsACK)
+            {
                 ackWriter.Byte(1); // Min == max.
                 ackWriter.Triad(sequence);
             }
@@ -187,25 +212,15 @@ public class RakNetClient {
         }
 
 
-
-
-
-        
-
-
-        
         var writer = new DataWriter();
 
         writer.Byte(UnconnectedPacket.IS_CONNECTED);
         writer.Triad(CurrentSequenceNumber++);
-        foreach (var packet in OutgoingPackets) {
+        foreach (var packet in OutgoingPackets)
+        {
             var packetWriter = new DataWriter();
             packet.Encode(ref packetWriter);
-            if (packet.hasSplit)
-            {
-             //   Logger.Info("goo");
-            }
-            writer.Byte((byte)((packet.Reliability << 5))); //| (packet.hasSplit ? 0x10 : 0)));
+            writer.Byte((byte)((packet.Reliability << 5)));
             writer.Short((short)(packetWriter.Length << 3));
 
 
@@ -220,24 +235,14 @@ public class RakNetClient {
                     writer.Byte((byte)packet.OrderingChannel);
                     break;
             }
-
- /*           if (packet.hasSplit)
-            {
-                writer.Int(packet.splitCount);
-                writer.Short(packet.splitID);
-                writer.Int(packet.splitIndex);
-            }*/
             writer.RawData(packetWriter.GetBytes());
         }
         var strs = string.Join(" ", writer.GetBytes());
         Logger.Info(strs + " Size: " + writer.GetBytes().Length);
-        //var str = string.Join(" ", writer.GetBytes());
+
         if (writer.GetBytes().Length > this.mtuSize)
         {
-            Logger.Info("Packet size is " + writer.GetBytes().Length);
-            //     Logger.Info("Bigger packet!\n" + str);
-       //     OutgoingPackets.Clear();
-       //     return;
+            Logger.Warn("Packet size is too big! Maybe connection troubles! ");
         }
         await Server.UDP.SendAsync(writer.GetBytes(), IP);
         OutgoingPackets.Clear();
@@ -245,8 +250,9 @@ public class RakNetClient {
 
 
     private List<ConnectedPacket> Queue = new List<ConnectedPacket>();
-    public void Send(ConnectedPacket packet, int reliability = ConnectedPacket.RELIABLE) {
-        int offsetMTU = 24; // 414 is default for pmmp. PMMP Bandwith is 1086
+    public void Send(ConnectedPacket packet, int reliability = ConnectedPacket.RELIABLE)
+    {
+        int offsetMTU = 0; // 414 is default for pmmp. PMMP Bandwith is 1086 // Increase if you have connection trouble
         var packetChecker = new DataWriter();
         packet.Encode(ref packetChecker);
         if (packetChecker.GetBytes().Length > this.mtuSize - offsetMTU)
@@ -292,7 +298,7 @@ public class RakNetClient {
                 newpacket.splitIndex = i;
                 newpacket.buffer = fragmented_body[i];
                 SplitPackets.Add(newpacket);
-               // Logger.Info("Sending " + fragmented_body[i].Length);
+                // Logger.Info("Sending " + fragmented_body[i].Length);
             }
         }
         else
