@@ -49,7 +49,7 @@ public class ConnectedPacket {
     }
 
     public static ConnectedPacket Parse(ref DataReader reader) {
-        // Начало заголовка (Первый байт ISCONNECTED и sequenceNumber уже пройдены)
+        // РќР°С‡Р°Р»Рѕ Р·Р°РіРѕР»РѕРІРєР° (РџРµСЂРІС‹Р№ Р±Р°Р№С‚ ISCONNECTED Рё sequenceNumber СѓР¶Рµ РїСЂРѕР№РґРµРЅС‹)
         var flags = reader.Byte();
         var reliability = (flags & 0xE0) >> 5;
         var hasSplit = (flags & 0b00010000) > 0;
@@ -64,7 +64,7 @@ public class ConnectedPacket {
         };
 
 
-        // Информация о split должна читаться именно в этот момент.
+        // РРЅС„РѕСЂРјР°С†РёСЏ Рѕ split РґРѕР»Р¶РЅР° С‡РёС‚Р°С‚СЊСЃСЏ РёРјРµРЅРЅРѕ РІ СЌС‚РѕС‚ РјРѕРјРµРЅС‚.
         var splitCount = 0;
         short splitID = 0;
         var splitIndex = 0;
@@ -74,10 +74,10 @@ public class ConnectedPacket {
             splitID = reader.Short();
             splitIndex = reader.Int();
         }
-        // Конец заголовка
+        // РљРѕРЅРµС† Р·Р°РіРѕР»РѕРІРєР°
 
-        // Начало сырых данных
-        // Здесь он читает ВЕСЬ оставшийся пакет и создаёт под него необходимый объект. 
+        // РќР°С‡Р°Р»Рѕ СЃС‹СЂС‹С… РґР°РЅРЅС‹С…
+        // Р—РґРµСЃСЊ РѕРЅ С‡РёС‚Р°РµС‚ Р’Р•РЎР¬ РѕСЃС‚Р°РІС€РёР№СЃСЏ РїР°РєРµС‚ Рё СЃРѕР·РґР°С‘С‚ РїРѕРґ РЅРµРіРѕ РЅРµРѕР±С…РѕРґРёРјС‹Р№ РѕР±СЉРµРєС‚. 
         var payload = reader.Read(payloadLength / 8);
         ConnectedPacket packet = payload.Span[0] switch {
             (int)ConnectedPacketType.ConnectedPing => new ConnectedPingPacket(),
@@ -89,7 +89,7 @@ public class ConnectedPacket {
             > 0x80 => new UserPacket(payload),
             _ => null,
         };
-        // Конец сырых данных
+        // РљРѕРЅРµС† СЃС‹СЂС‹С… РґР°РЅРЅС‹С…
 
         if (packet is null) return null;
 

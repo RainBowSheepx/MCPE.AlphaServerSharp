@@ -23,6 +23,7 @@ public class RakNetClient {
         LastPing = DateTime.Now;
         Status = ConnectionStatus.CONNECTING;
         OutgoingPackets = new List<ConnectedPacket>();
+        SplitPackets = new List<ConnectedPacket>();
         NeedsACK = new SortedSet<int>();
         CurrentSequenceNumber = 0;
         LastReliablePacketIndex = 0;
@@ -35,6 +36,8 @@ public class RakNetClient {
     public ConnectionStatus Status { get; set; }
 
     private List<ConnectedPacket> OutgoingPackets { get; }
+
+    private List<ConnectedPacket> SplitPackets { get; }
     private SortedSet<int> NeedsACK { get; }
     private int CurrentSequenceNumber;
     private int LastReliablePacketIndex;
@@ -139,26 +142,62 @@ public class RakNetClient {
 
 
 
-        var writer = new DataWriter();
-        if (OutgoingPackets.Count < 1)
+
+
+        
+        foreach (var packet in SplitPackets)
         {
-            writer.Byte(UnconnectedPacket.IS_CONNECTED);
-            writer.Triad(CurrentSequenceNumber++);
+            var writerSplit = new DataWriter();
+            writerSplit.Byte(UnconnectedPacket.IS_CONNECTED);
+            writerSplit.Triad(CurrentSequenceNumber++);
+            var packetWriter = new DataWriter();
+            packet.Encode(ref packetWriter);
+/*            if (packet.hasSplit)
+            {
+                //   Logger.Info("goo");
+            }*/
+            writerSplit.Byte((byte)((packet.Reliability << 5) | (packet.hasSplit ? 0x10 : 0)));
+            writerSplit.Short((short)(packetWriter.Length << 3));
+
+
+            switch (packet.Reliability)
+            {
+                case ConnectedPacket.RELIABLE:
+                    writerSplit.Triad(packet.ReliableIndex);
+                    break;
+                case ConnectedPacket.RELIABLE_ORDERED:
+                    writerSplit.Triad(packet.ReliableIndex);
+                    writerSplit.Triad(packet.OrderingIndex);
+                    writerSplit.Byte((byte)packet.OrderingChannel);
+                    break;
+            }
+
+            if (packet.hasSplit)
+            {
+                writerSplit.Int(packet.splitCount);
+                writerSplit.Short(packet.splitID);
+                writerSplit.Int(packet.splitIndex);
+            }
+            writerSplit.RawData(packetWriter.GetBytes());
+
+            var strss = string.Join(" ", writerSplit.GetBytes());
+            
+            await Server.UDP.SendAsync(writerSplit.GetBytes(), IP);
+            Logger.Info("test stack: " + strss + " Size: " + writerSplit.GetBytes().Length);
         }
+        SplitPackets.Clear();
+        var writer = new DataWriter();
 
-
-        int offsetMTU = 24;
+        writer.Byte(UnconnectedPacket.IS_CONNECTED);
+        writer.Triad(CurrentSequenceNumber++);
         foreach (var packet in OutgoingPackets) {
-            writer = new DataWriter();
-            writer.Byte(UnconnectedPacket.IS_CONNECTED);
-            writer.Triad(CurrentSequenceNumber++);
             var packetWriter = new DataWriter();
             packet.Encode(ref packetWriter);
             if (packet.hasSplit)
             {
              //   Logger.Info("goo");
             }
-            writer.Byte((byte)((packet.Reliability << 5) | (packet.hasSplit ? 0x10 : 0)));
+            writer.Byte((byte)((packet.Reliability << 5))); //| (packet.hasSplit ? 0x10 : 0)));
             writer.Short((short)(packetWriter.Length << 3));
 
 
@@ -174,29 +213,13 @@ public class RakNetClient {
                     break;
             }
 
-            if (packet.hasSplit)
+ /*           if (packet.hasSplit)
             {
                 writer.Int(packet.splitCount);
                 writer.Short(packet.splitID);
                 writer.Int(packet.splitIndex);
-            }
+            }*/
             writer.RawData(packetWriter.GetBytes());
-
-                var strss = string.Join(" ", writer.GetBytes());
-                //Logger.Info("test stack: "+strss + " Size: " + writer.GetBytes().Length);
-                await Server.UDP.SendAsync(writer.GetBytes(), IP);
-                writer = new DataWriter();
-                try
-                {
-                    OutgoingPackets.Remove(packet);
-                }
-                catch(Exception e)
-                {
-                    Logger.Info(e.Message);
-                }
-                
-                return;
-            
         }
         var strs = string.Join(" ", writer.GetBytes());
         Logger.Info(strs + " Size: " + writer.GetBytes().Length);
@@ -260,7 +283,8 @@ public class RakNetClient {
                 newpacket.splitCount = fragmented_body.Count;
                 newpacket.splitIndex = i;
                 newpacket.buffer = fragmented_body[i];
-                OutgoingPackets.Add(newpacket);
+                SplitPackets.Add(newpacket);
+               // Logger.Info("Sending " + fragmented_body[i].Length);
             }
         }
         else
