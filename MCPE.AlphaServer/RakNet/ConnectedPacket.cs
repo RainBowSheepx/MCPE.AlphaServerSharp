@@ -6,7 +6,8 @@ using MCPE.AlphaServer.Utils;
 
 namespace MCPE.AlphaServer.RakNet;
 
-public enum ConnectedPacketType : byte {
+public enum ConnectedPacketType : byte
+{
     ConnectedPing = 0x0,
     ConnectedPong = 0x3,
     ConnectionRequest = 0x9,
@@ -15,7 +16,8 @@ public enum ConnectedPacketType : byte {
     PlayerDisconnect = 0x15
 }
 
-public class ConnectedPacket {
+public class ConnectedPacket
+{
     public const int UNRELIABLE = 0;
     public const int UNRELIABLE_SEQUENCED = 1;
     public const int RELIABLE = 2;
@@ -36,7 +38,8 @@ public class ConnectedPacket {
     internal short splitID;
     internal int splitIndex;
 
-    public ConnectedPacket() {
+    public ConnectedPacket()
+    {
         Reliability = UNRELIABLE;
         ReliableIndex = 0;
         OrderingIndex = 0;
@@ -48,7 +51,8 @@ public class ConnectedPacket {
         splitIndex = 0;
     }
 
-    public static ConnectedPacket Parse(ref DataReader reader) {
+    public static ConnectedPacket Parse(ref DataReader reader)
+    {
         // Начало заголовка (Первый байт ISCONNECTED и sequenceNumber уже пройдены)
         var flags = reader.Byte();
         var reliability = (flags & 0xE0) >> 5;
@@ -56,7 +60,8 @@ public class ConnectedPacket {
 
         var payloadLength = reader.Short();
         // reliableIndex = messageIndex pmmp moment
-        var (reliableIndex, orderingIndex, orderingChannel) = reliability switch {
+        var (reliableIndex, orderingIndex, orderingChannel) = reliability switch
+        {
             RELIABLE => (reader.Triad(), 0, 0),
             RELIABLE_ORDERED => (reader.Triad(), reader.Triad(), reader.Byte()),
             RELIABLE_SEQUENCED => (reader.Triad(), reader.Triad(), 0),
@@ -79,7 +84,8 @@ public class ConnectedPacket {
         // Начало сырых данных
         // Здесь он читает ВЕСЬ оставшийся пакет и создаёт под него необходимый объект. 
         var payload = reader.Read(payloadLength / 8);
-        ConnectedPacket packet = payload.Span[0] switch {
+        ConnectedPacket packet = payload.Span[0] switch
+        {
             (int)ConnectedPacketType.ConnectedPing => new ConnectedPingPacket(),
             (int)ConnectedPacketType.ConnectedPong => new ConnectedPongPacket(),
             (int)ConnectedPacketType.ConnectionRequest => new ConnectionRequestPacket(),
@@ -108,17 +114,18 @@ public class ConnectedPacket {
 
 
         if (length <= 0 || orderingChannel >= 32 || (hasSplit == true && packet.splitIndex >= packet.splitCount)) return null;
-        
+
 
         var payloadReader = new DataReader(payload);
         packet.Decode(ref payloadReader);
- 
+
 
 
         return packet;
     }
 
-    public static ConnectedMetaPacket ParseMeta(ref DataReader reader) {
+    public static ConnectedMetaPacket ParseMeta(ref DataReader reader)
+    {
         var metaPacket = new ConnectedMetaPacket();
         metaPacket.Decode(ref reader);
         return metaPacket;
@@ -131,33 +138,43 @@ public class ConnectedPacket {
         $"ConnectedPacket(Reliability={Reliability}{Reliability switch { RELIABLE => $", ReliableIndex={ReliableIndex}", RELIABLE_SEQUENCED => $", ReliableIndex={ReliableIndex}, OrderingIndex={OrderingIndex}, OrderingChannel={OrderingChannel}", _ => "" }})";
 }
 
-public class ConnectedMetaPacket : ConnectedPacket, IEnumerable {
+public class ConnectedMetaPacket : ConnectedPacket, IEnumerable
+{
     public bool IsACK { get; set; }
     public (int Min, int Max)[] Ranges { get; set; }
 
-    public override void Decode(ref DataReader reader) {
+    public override void Decode(ref DataReader reader)
+    {
         IsACK = (reader.Byte() & UnconnectedPacket.IS_ACK) != 0;
 
         var rangeCount = reader.Short();
         Ranges = new (int Min, int Max)[rangeCount];
-        for (var i = 0; i < rangeCount; i++) {
+        for (var i = 0; i < rangeCount; i++)
+        {
             var minIsMax = reader.Byte() != 0;
-            if (minIsMax) {
+            if (minIsMax)
+            {
                 var sequence = reader.Triad();
                 Ranges[i] = (sequence, sequence);
-            } else Ranges[i] = (reader.Triad(), reader.Triad());
+            }
+            else Ranges[i] = (reader.Triad(), reader.Triad());
         }
     }
 
-    public override void Encode(ref DataWriter writer) {
+    public override void Encode(ref DataWriter writer)
+    {
         writer.Byte(IsACK ? (byte)UnconnectedPacket.IS_ACK : (byte)UnconnectedPacket.IS_NAK);
 
         writer.Short((short)Ranges.Length);
-        foreach (var (min, max) in Ranges) {
-            if (min == max) {
+        foreach (var (min, max) in Ranges)
+        {
+            if (min == max)
+            {
                 writer.Byte(1);
                 writer.Triad(min);
-            } else {
+            }
+            else
+            {
                 writer.Byte(0);
                 writer.Triad(min);
                 writer.Triad(max);
@@ -172,18 +189,21 @@ public class ConnectedMetaPacket : ConnectedPacket, IEnumerable {
         $"ConnectedMetaPacket(IsACK={IsACK}, Ranges={string.Join(", ", Ranges.Select(range => $"{range.Min}-{range.Max}"))})";
 }
 
-public class ConnectedPingPacket : ConnectedPacket {
+public class ConnectedPingPacket : ConnectedPacket
+{
     public ulong TimeSinceStart;
 
     public ConnectedPingPacket() => Type = (int)ConnectedPacketType.ConnectedPing;
 
-    public override void Decode(ref DataReader reader) {
+    public override void Decode(ref DataReader reader)
+    {
         base.Decode(ref reader);
 
         TimeSinceStart = reader.ULong();
     }
 
-    public override void Encode(ref DataWriter writer) {
+    public override void Encode(ref DataWriter writer)
+    {
         base.Encode(ref writer);
 
         writer.ULong(TimeSinceStart);
@@ -192,20 +212,23 @@ public class ConnectedPingPacket : ConnectedPacket {
     public override string ToString() => $"ConnectedPingPacket(TimeSinceStart={TimeSinceStart})";
 }
 
-public class ConnectedPongPacket : ConnectedPacket {
+public class ConnectedPongPacket : ConnectedPacket
+{
     public ulong TimeSinceStart;
     public ulong TimeSinceServerStart;
 
     public ConnectedPongPacket() => Type = (int)ConnectedPacketType.ConnectedPong;
 
-    public override void Decode(ref DataReader reader) {
+    public override void Decode(ref DataReader reader)
+    {
         base.Decode(ref reader);
 
         TimeSinceStart = reader.ULong();
         TimeSinceServerStart = reader.ULong();
     }
 
-    public override void Encode(ref DataWriter writer) {
+    public override void Encode(ref DataWriter writer)
+    {
         base.Encode(ref writer);
 
         writer.ULong(TimeSinceStart);
@@ -216,14 +239,16 @@ public class ConnectedPongPacket : ConnectedPacket {
         $"ConnectedPingPacket(TimeSinceStart={TimeSinceStart}, TimeSinceServerStart={TimeSinceServerStart})";
 }
 
-public class ConnectionRequestPacket : ConnectedPacket {
+public class ConnectionRequestPacket : ConnectedPacket
+{
     public ulong ClientID;
     public ulong TimeSinceStart;
     public byte UseEncryption;
 
     public ConnectionRequestPacket() => Type = (int)ConnectedPacketType.ConnectionRequest;
 
-    public override void Decode(ref DataReader reader) {
+    public override void Decode(ref DataReader reader)
+    {
         base.Decode(ref reader);
 
         ClientID = reader.ULong();
@@ -231,7 +256,8 @@ public class ConnectionRequestPacket : ConnectedPacket {
         UseEncryption = reader.Byte();
     }
 
-    public override void Encode(ref DataWriter writer) {
+    public override void Encode(ref DataWriter writer)
+    {
         base.Encode(ref writer);
 
         writer.ULong(ClientID);
@@ -243,13 +269,15 @@ public class ConnectionRequestPacket : ConnectedPacket {
         $"ConnectionRequestPacket(ClientID={ClientID}, TimeSinceStart={TimeSinceStart}, UseEncryption={UseEncryption})";
 }
 
-public class ConnectionRequestAcceptedPacket : ConnectedPacket {
+public class ConnectionRequestAcceptedPacket : ConnectedPacket
+{
     public IPEndPoint EndPoint;
     public ulong TimeSinceStart;
 
     public ConnectionRequestAcceptedPacket() => Type = (int)ConnectedPacketType.ConnectionRequestAccepted;
 
-    public override void Decode(ref DataReader reader) {
+    public override void Decode(ref DataReader reader)
+    {
         base.Decode(ref reader);
 
         EndPoint = reader.IPEndPoint();
@@ -263,7 +291,8 @@ public class ConnectionRequestAcceptedPacket : ConnectedPacket {
         reader.ULong(); // Another time since start
     }
 
-    public override void Encode(ref DataWriter writer) {
+    public override void Encode(ref DataWriter writer)
+    {
         base.Encode(ref writer);
 
         writer.IPEndPoint(EndPoint);
@@ -283,14 +312,16 @@ public class ConnectionRequestAcceptedPacket : ConnectedPacket {
         $"ConnectionRequestAcceptedPacket(EndPoint={EndPoint}, TimeSinceStart={TimeSinceStart})";
 }
 
-public class NewIncomingConnectionPacket : ConnectedPacket {
+public class NewIncomingConnectionPacket : ConnectedPacket
+{
     public IPEndPoint EndPoint;
     public ulong TimeSinceStart1;
     public ulong TimeSinceStart2;
 
     public NewIncomingConnectionPacket() => Type = (int)ConnectedPacketType.NewIncomingConnection;
 
-    public override void Decode(ref DataReader reader) {
+    public override void Decode(ref DataReader reader)
+    {
         base.Decode(ref reader);
 
         EndPoint = reader.IPEndPoint();
@@ -303,7 +334,8 @@ public class NewIncomingConnectionPacket : ConnectedPacket {
         TimeSinceStart2 = reader.ULong();
     }
 
-    public override void Encode(ref DataWriter writer) {
+    public override void Encode(ref DataWriter writer)
+    {
         base.Encode(ref writer);
 
         writer.IPEndPoint(EndPoint);
@@ -321,11 +353,13 @@ public class NewIncomingConnectionPacket : ConnectedPacket {
         $"NewIncomingConnectionPacket(EndPoint={EndPoint}, TimeSinceStart1={TimeSinceStart1}, TimeSinceStart2={TimeSinceStart2})";
 }
 
-public class PlayerDisconnectPacket : ConnectedPacket {
+public class PlayerDisconnectPacket : ConnectedPacket
+{
     public override string ToString() => "PlayerDisconnectPacket()";
 }
 
-public class UserPacket : ConnectedPacket {
+public class UserPacket : ConnectedPacket
+{
     public Memory<byte> Data;
 
 
