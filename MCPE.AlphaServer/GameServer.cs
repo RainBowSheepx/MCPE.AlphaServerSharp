@@ -11,12 +11,15 @@ using SpoongePE.Core.Utils;
 namespace SpoongePE.Core;
 
 public class GameServer : IConnectionHandler {
-    const int PROTOCOL = 14;
+    const int PROTOCOL = 14; // Beta 1.7.3 moment
 
     private readonly List<string> BadUsernames = new() {
         "server",
         "rcon",
         "console",
+        "herobrine",
+        "gameherobrine",
+        "astolfo",
     };
 
     private readonly ServerWorld ServerWorld;
@@ -54,7 +57,7 @@ public class GameServer : IConnectionHandler {
     public virtual void HandleLoginRequest(RakNetClient client, LoginRequestPacket packet) {
         var responseStatus = LoginResponsePacket.StatusFor(packet.Protocol1, packet.Protocol2, PROTOCOL);
         var shouldRejectLogin = BadUsernames.Contains(packet.Username.ToLower())
-                                || ServerWorld.GetByName(packet.Username) != null; // Already logged in.
+                                || ServerWorld.GetByName(packet.Username) != null || ServerWorld.Players.Count() >= RakNetServer.Properties.maxPlayers; // Already logged in.
 
         if (shouldRejectLogin) responseStatus = LoginResponsePacket.LoginStatus.ClientOutdated;
 
@@ -69,7 +72,7 @@ public class GameServer : IConnectionHandler {
                 Seed = ServerWorld.World.Seed,
                 Pos = newPlayer.Position,
                 EntityId = newPlayer.EntityID,
-                Gamemode = 0,
+                Gamemode = RakNetServer.Properties.gamemode ? 1 : 0,
             }
         );
     }
@@ -106,15 +109,9 @@ public class GameServer : IConnectionHandler {
         );
 
         client.Send(new SetTimePacket {
-                Time = 333333,
+                Time = (int)ServerWorld.World.worldTime,
             }
         );
-        for (int x = 0; x < 16; x++)
-        {
-            for (int z = 0; z < 16; z++) { }
-        }
-    //    ServerWorld.SendChunk(client, 6, 6);
-        // TODO: SetTime, maybe other things?
     }
 
     public virtual void HandleMessage(RakNetClient client, MessagePacket packet) => ServerWorld.SendAll(packet);
@@ -139,7 +136,7 @@ public class GameServer : IConnectionHandler {
     //public virtual void HandleTileEvent(RakNetClient client, TileEventPacket packet) { }
     //public virtual void HandleEntityEvent(RakNetClient client, EntityEventPacket packet) { }
     public virtual void HandleRequestChunk(RakNetClient client, RequestChunkPacket rcp) =>
-        ServerWorld.SendChunk(client, rcp.X, rcp.Z);
+        ServerWorld.SendChunkFromRequest(client, rcp);
     //public virtual void HandleChunkData(RakNetClient client, ChunkDataPacket packet) { }
     //public virtual void HandlePlayerEquipment(RakNetClient client, PlayerEquipmentPacket packet) { }
     //public virtual void HandlePlayerArmorEquipment(RakNetClient client, PlayerArmorEquipmentPacket packet) { }

@@ -36,11 +36,8 @@ internal static class Program
 
 
         Logger.Info("SpoongePE.Core starting.");
-
-        new RakNetServer(prop.serverPort)
-        {
-            Properties = prop
-        }.Start(new GameServer(mainWorld));
+        RakNetServer.Properties = prop;
+        new RakNetServer(prop.serverPort).Start(new GameServer(mainWorld));
 
         Logger.Info("SpoongePE.Core started.");
 

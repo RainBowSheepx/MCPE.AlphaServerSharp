@@ -25,10 +25,10 @@ public class RakNetServer
     public ulong GUID { get; }
     public IPEndPoint IP { get; }
     internal UdpClient UDP { get; }
-    public ServerProperties Properties { get; set; }
+    public static ServerProperties Properties { get; set; }
 
     private IConnectionHandler ConnectionHandler { get; set; }
-    private CancellationTokenSource TaskCancellationToken { get; }
+    private static CancellationTokenSource TaskCancellationToken { get; set; }
     private DateTime StartedOn { get; } = DateTime.Now;
 
     public ulong TimeSinceStart => (ulong)(DateTime.Now - StartedOn).TotalMilliseconds;
@@ -84,7 +84,7 @@ public class RakNetServer
                 Connections.Add(receiveResult.RemoteEndPoint, newConnetion);
 
                 await Send(receiveResult.RemoteEndPoint,
-                    new OpenConnectionReply2Packet(GUID, newConnetion.IP, 1480, false) // TODO: MTU Is hardcoded.
+                    new OpenConnectionReply2Packet(GUID, newConnetion.IP, request.MtuSize, false)
                 );
 
                 break;
@@ -114,7 +114,8 @@ public class RakNetServer
         //  await Task.Delay(1); // Uncomment if u have troubles
     }
 
-    private void StartRepeatingTask(Func<Task> action, TimeSpan interval)
+    // Public async task creator xd
+    public static void StartRepeatingTask(Func<Task> action, TimeSpan interval)
     {
         Task.Run(async () =>
         {

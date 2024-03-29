@@ -9,8 +9,10 @@ using SpoongePE.Core.Game.utils;
 using SpoongePE.Core.Game.utils.random;
 using SpoongePE.Core.NBT;
 using SpoongePE.Core.Network;
+using SpoongePE.Core.Utils;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
 public class World {
   //  private Chunk[,] _chunks;
@@ -318,12 +320,11 @@ public class World {
         }
         return -1;
     }
-    public void tick()
+    public async Task tick()
     {
 
         /*Timer*/
-        this.worldTime++;
-
+        this.worldTime += 1000; // blyat
         //Normal Ticking: Water/Lava
         int ticksAmount = scheduledTickTreeSet.Count;
         if (ticksAmount > 1000) ticksAmount = 1000;
@@ -341,7 +342,8 @@ public class World {
                 int id = this.getBlockIDAt(tick.posX, tick.posY, tick.posZ);
                 if (id > 0 && id == tick.blockID)
                 {
-                    Block.blocks[id].tick(this, tick.posX, tick.posY, tick.posZ, random);
+                    // Async moment
+                   await Task.Run(() => Block.blocks[id].tick(this, tick.posX, tick.posY, tick.posZ, random));
                 }
             }
         }
@@ -364,7 +366,7 @@ public class World {
                     int id = c.BlockData[x,z,y] & 0xff;
                     if (Block.shouldTick[id])
                     {
-                        Block.blocks[id].tick(this, x + (c.posX << 4), y, z + (c.posZ << 4), random);
+                        await Task.Run(() => Block.blocks[id].tick(this, x + (c.posX << 4), y, z + (c.posZ << 4), random));
                     }
                 } while (++l1 <= 80);
             }
