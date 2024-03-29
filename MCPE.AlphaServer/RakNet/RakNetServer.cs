@@ -25,7 +25,7 @@ public class RakNetServer
     public ulong GUID { get; }
     public IPEndPoint IP { get; }
     internal UdpClient UDP { get; }
-    public string ServerName { get; set; } = "gaming 2 real? ";
+    public ServerProperties Properties { get; set; }
 
     private IConnectionHandler ConnectionHandler { get; set; }
     private CancellationTokenSource TaskCancellationToken { get; }
@@ -64,7 +64,7 @@ public class RakNetServer
         {
             case UnconnectedPingPacket:
                 await Send(receiveResult.RemoteEndPoint,
-                    new UnconnectedPongPacket(TimeSinceStart, GUID, $"MCCPP;Demo;{ServerName}")
+                    new UnconnectedPongPacket(TimeSinceStart, GUID, $"MCCPP;Demo;{Properties.serverName} [{Connections.Count}/{Properties.maxPlayers}]")
                 );
                 break;
             case OpenConnectionRequest1Packet openConnectionRequest1Packet:

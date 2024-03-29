@@ -2,7 +2,7 @@
 
     <PropertyGroup>
         <OutputType>Exe</OutputType>
-        <RootNamespace>MCPE.AlphaServer</RootNamespace>
+        <RootNamespace>SpoongePE.Core</RootNamespace>
         <TargetFramework>net6.0</TargetFramework>
     </PropertyGroup>
 
@@ -19,5 +19,6 @@
     <ItemGroup>
         <PackageReference Include="Serilog" Version="2.11.1-dev-01397" />
         <PackageReference Include="Serilog.Sinks.Console" Version="4.0.2-dev-00890" />
+        <PackageReference Include="YamlDotNet" Version="15.1.2" />
     </ItemGroup>
 </Project>

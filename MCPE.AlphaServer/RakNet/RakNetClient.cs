@@ -252,7 +252,7 @@ public class RakNetClient
     private List<ConnectedPacket> Queue = new List<ConnectedPacket>();
     public void Send(ConnectedPacket packet, int reliability = ConnectedPacket.RELIABLE)
     {
-        int offsetMTU = 0; // 414 is default for pmmp. PMMP Bandwith is 1086 // Increase if you have connection trouble
+        int offsetMTU = Server.Properties.offsetMTU; // 414 is default for pmmp. PMMP Bandwith is 1086 // Increase if you have connection trouble
         var packetChecker = new DataWriter();
         packet.Encode(ref packetChecker);
         if (packetChecker.GetBytes().Length > this.mtuSize - offsetMTU)

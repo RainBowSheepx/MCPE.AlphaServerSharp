@@ -20,28 +20,29 @@ internal static class Program
         //#if DEBUG
         // Directory.SetCurrentDirectory("work");
         //#endif
-
+        ServerProperties prop = new YmlProp().LoadServerProp();
         var mainWorld = new World(666);
         Block.init();
-        FlatWorldGenerator.generateChunks(mainWorld);
         Logger.LogBackend = new LoggerConfiguration()
         .WriteTo.Console(theme: SystemConsoleTheme.Colored)
         .MinimumLevel.Debug()
         .CreateLogger();
+        FlatWorldGenerator.generateChunks(mainWorld);
+
         //   mainWorld.PrintEntitiesData();
         Console.WriteLine("Level Data:");
         mainWorld.PrintLevelData();
 
 
 
-        Logger.Info("MCPE.AlphaServer starting.");
+        Logger.Info("SpoongePE.Core starting.");
 
-        new RakNetServer(19132)
+        new RakNetServer(prop.serverPort)
         {
-            ServerName = "MCPE.AlphaServer"
+            Properties = prop
         }.Start(new GameServer(mainWorld));
 
-        Logger.Info("MCPE.AlphaServer started.");
+        Logger.Info("SpoongePE.Core started.");
 
         await Task.Delay(Timeout.Infinite);
     }
