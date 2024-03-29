@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace MCPE.AlphaServer.Game.biome.impl
+namespace SpoongePE.Core.Game.biome.impl
 {
     public class FlatBiome : Biome
     {

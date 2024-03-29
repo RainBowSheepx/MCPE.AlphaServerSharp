@@ -1,12 +1,12 @@
-﻿using MCPE.AlphaServer.Game.feature;
-using MCPE.AlphaServer.Game.utils.random;
+﻿using SpoongePE.Core.Game.feature;
+using SpoongePE.Core.Game.utils.random;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace MCPE.AlphaServer.Game.biome.impl
+namespace SpoongePE.Core.Game.biome.impl
 {
     public class TaigaBiome : Biome
     {

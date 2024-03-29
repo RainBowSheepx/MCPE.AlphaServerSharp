@@ -2,7 +2,7 @@
 using System.Text;
 using JetBrains.Annotations;
 
-namespace MCPE.AlphaServer.NBT {
+namespace SpoongePE.Core.NBT {
     /// <summary> A tag containing a double-precision floating point number. </summary>
     public sealed class NbtDouble : NbtTag {
         /// <summary> Type of this tag (Double). </summary>

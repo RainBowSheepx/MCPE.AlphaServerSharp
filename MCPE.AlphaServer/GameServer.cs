@@ -3,12 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
 using System.Reflection;
-using MCPE.AlphaServer.Game;
-using MCPE.AlphaServer.Network;
-using MCPE.AlphaServer.RakNet;
-using MCPE.AlphaServer.Utils;
+using SpoongePE.Core.Game;
+using SpoongePE.Core.Network;
+using SpoongePE.Core.RakNet;
+using SpoongePE.Core.Utils;
 
-namespace MCPE.AlphaServer;
+namespace SpoongePE.Core;
 
 public class GameServer : IConnectionHandler {
     const int PROTOCOL = 14;

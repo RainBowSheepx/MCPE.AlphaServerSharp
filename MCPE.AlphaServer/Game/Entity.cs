@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace MCPE.AlphaServer.Game;
+namespace SpoongePE.Core.Game;
 
 public abstract class Entity {
     private static int LastEntityID = 1;

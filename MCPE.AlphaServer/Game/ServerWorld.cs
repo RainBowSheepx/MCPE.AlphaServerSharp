@@ -3,11 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http.Headers;
 using System.Numerics;
-using MCPE.AlphaServer.Network;
-using MCPE.AlphaServer.RakNet;
-using MCPE.AlphaServer.Utils;
+using SpoongePE.Core.Network;
+using SpoongePE.Core.RakNet;
+using SpoongePE.Core.Utils;
 
-namespace MCPE.AlphaServer.Game;
+namespace SpoongePE.Core.Game;
 
 public class ServerWorld {
     private readonly Dictionary<RakNetClient, Player> ConnectionMap = new();

@@ -1,7 +1,7 @@
 ﻿using System;
 using JetBrains.Annotations;
 
-namespace MCPE.AlphaServer.NBT {
+namespace SpoongePE.Core.NBT {
     /// <summary> Exception thrown when a format violation is detected while
     /// parsing or serializing an NBT file. </summary>
     [Serializable]

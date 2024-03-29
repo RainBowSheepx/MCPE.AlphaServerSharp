@@ -4,7 +4,7 @@ using System.IO;
 using System.Text;
 using JetBrains.Annotations;
 
-namespace MCPE.AlphaServer.NBT {
+namespace SpoongePE.Core.NBT {
     /// <summary> Represents a reader that provides fast, non-cached, forward-only access to NBT data.
     /// Each instance of NbtReader reads one complete file. </summary>
     public class NbtReader {

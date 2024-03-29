@@ -3,7 +3,7 @@ using System.IO;
 using System.Text;
 using JetBrains.Annotations;
 
-namespace MCPE.AlphaServer.NBT {
+namespace SpoongePE.Core.NBT {
     /// <summary> A tag containing an array of bytes. </summary>
     public sealed class NbtByteArray : NbtTag {
         /// <summary> Type of this tag (ByteArray). </summary>

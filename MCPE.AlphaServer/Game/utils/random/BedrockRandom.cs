@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace MCPE.AlphaServer.Game.utils.random
+namespace SpoongePE.Core.Game.utils.random
 {
     public class BedrockRandom
     {

@@ -1,6 +1,6 @@
 using Serilog;
 
-namespace MCPE.AlphaServer.Utils;
+namespace SpoongePE.Core.Utils;
 
 public static class Logger {
     public static ILogger LogBackend;

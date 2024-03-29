@@ -1,11 +1,11 @@
-﻿using MCPE.AlphaServer.Game.biome;
+﻿using SpoongePE.Core.Game.biome;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace MCPE.AlphaServer.Game.Generator
+namespace SpoongePE.Core.Game.Generator
 {
     public interface LevelSource
     {

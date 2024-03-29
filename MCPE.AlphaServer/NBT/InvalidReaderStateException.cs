@@ -1,7 +1,7 @@
 ﻿using System;
 using JetBrains.Annotations;
 
-namespace MCPE.AlphaServer.NBT {
+namespace SpoongePE.Core.NBT {
     /// <summary> Exception thrown when an operation is attempted on an NbtReader that
     /// cannot recover from a previous parsing error. </summary>
     [Serializable]

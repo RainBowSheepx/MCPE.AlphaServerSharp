@@ -1,12 +1,12 @@
-﻿using MCPE.AlphaServer.Game.utils.random;
-using MCPE.AlphaServer.Utils;
+﻿using SpoongePE.Core.Game.utils.random;
+using SpoongePE.Core.Utils;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace MCPE.AlphaServer.Game.utils.noise
+namespace SpoongePE.Core.Game.utils.noise
 {
     public class ImprovedNoise
     {

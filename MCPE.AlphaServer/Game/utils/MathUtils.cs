@@ -5,7 +5,7 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace MCPE.AlphaServer.Game.utils
+namespace SpoongePE.Core.Game.utils
 {
     public class MathUtils
     {

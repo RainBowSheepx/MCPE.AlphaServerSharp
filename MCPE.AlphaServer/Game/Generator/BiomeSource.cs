@@ -1,13 +1,13 @@
-﻿using MCPE.AlphaServer.Game.biome;
-using MCPE.AlphaServer.Game.utils.noise;
-using MCPE.AlphaServer.Game.utils.random;
+﻿using SpoongePE.Core.Game.biome;
+using SpoongePE.Core.Game.utils.noise;
+using SpoongePE.Core.Game.utils.random;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace MCPE.AlphaServer.Game.Generator
+namespace SpoongePE.Core.Game.Generator
 {
     public class BiomeSource
     {

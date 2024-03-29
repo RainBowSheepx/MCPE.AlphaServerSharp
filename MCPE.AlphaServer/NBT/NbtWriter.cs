@@ -4,7 +4,7 @@ using System.Diagnostics;
 using System.IO;
 using JetBrains.Annotations;
 
-namespace MCPE.AlphaServer.NBT {
+namespace SpoongePE.Core.NBT {
     /// <summary> An efficient writer for writing NBT data directly to streams.
     /// Each instance of NbtWriter writes one complete file. 
     /// NbtWriter enforces all constraints of the NBT file format

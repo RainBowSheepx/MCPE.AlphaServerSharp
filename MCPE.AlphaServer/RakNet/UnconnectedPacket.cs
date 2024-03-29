@@ -1,7 +1,7 @@
 using System.Net;
-using MCPE.AlphaServer.Utils;
+using SpoongePE.Core.Utils;
 
-namespace MCPE.AlphaServer.RakNet;
+namespace SpoongePE.Core.RakNet;
 
 internal enum UnconnectedPacketType : byte {
     UnconnectedPing = 0x01,

@@ -1,6 +1,6 @@
-﻿using MCPE.AlphaServer.Game;
-using MCPE.AlphaServer.RakNet;
-using MCPE.AlphaServer.Utils;
+﻿using SpoongePE.Core.Game;
+using SpoongePE.Core.RakNet;
+using SpoongePE.Core.Utils;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,7 +8,7 @@ using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace MCPE.AlphaServer.Network;
+namespace SpoongePE.Core.Network;
 
 public class LoginRequestPacket : MinecraftPacket {
     public string Username;

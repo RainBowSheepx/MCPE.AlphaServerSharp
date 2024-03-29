@@ -3,7 +3,7 @@ using System.IO;
 using System.Text;
 using JetBrains.Annotations;
 
-namespace MCPE.AlphaServer.NBT {
+namespace SpoongePE.Core.NBT {
     /// <summary> BinaryWriter wrapper that writes NBT primitives to a stream,
     /// while taking care of endianness and string encoding, and counting bytes written. </summary>
     internal sealed unsafe class NbtBinaryWriter {

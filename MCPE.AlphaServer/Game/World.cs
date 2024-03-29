@@ -1,14 +1,14 @@
 using System;
 using System.IO;
 
-namespace MCPE.AlphaServer.Game;
+namespace SpoongePE.Core.Game;
 
-using MCPE.AlphaServer.Game.Generator;
-using MCPE.AlphaServer.Game.material;
-using MCPE.AlphaServer.Game.utils;
-using MCPE.AlphaServer.Game.utils.random;
-using MCPE.AlphaServer.NBT;
-using MCPE.AlphaServer.Network;
+using SpoongePE.Core.Game.Generator;
+using SpoongePE.Core.Game.material;
+using SpoongePE.Core.Game.utils;
+using SpoongePE.Core.Game.utils.random;
+using SpoongePE.Core.NBT;
+using SpoongePE.Core.Network;
 using System.Collections.Generic;
 using System.Linq;
 

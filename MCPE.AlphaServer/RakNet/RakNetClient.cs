@@ -5,10 +5,10 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
-using MCPE.AlphaServer.Network;
-using MCPE.AlphaServer.Utils;
+using SpoongePE.Core.Network;
+using SpoongePE.Core.Utils;
 
-namespace MCPE.AlphaServer.RakNet;
+namespace SpoongePE.Core.RakNet;
 
 public class RakNetClient
 {

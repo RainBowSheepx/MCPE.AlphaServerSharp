@@ -4,7 +4,7 @@ using System.IO;
 using System.IO.Compression;
 using JetBrains.Annotations;
 
-namespace MCPE.AlphaServer.NBT {
+namespace SpoongePE.Core.NBT {
     /// <summary> Represents a complete NBT file. </summary>
     public sealed class NbtFile {
         // Size of buffers that are used to avoid frequent reads from / writes to compressed streams

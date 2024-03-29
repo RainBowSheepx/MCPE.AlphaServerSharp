@@ -1,4 +1,4 @@
-﻿namespace MCPE.AlphaServer.Game;
+﻿namespace SpoongePE.Core.Game;
 
 public class ItemInstance {
     public int ItemID;

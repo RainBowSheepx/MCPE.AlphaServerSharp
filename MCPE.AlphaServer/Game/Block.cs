@@ -1,12 +1,12 @@
-using MCPE.AlphaServer.Game.BlockBase;
-using MCPE.AlphaServer.Game.BlockBase.impl;
-using MCPE.AlphaServer.Game.material;
-using MCPE.AlphaServer.Game.utils.random;
-using MCPE.AlphaServer.Network;
-using MCPE.AlphaServer.Utils;
+using SpoongePE.Core.Game.BlockBase;
+using SpoongePE.Core.Game.BlockBase.impl;
+using SpoongePE.Core.Game.material;
+using SpoongePE.Core.Game.utils.random;
+using SpoongePE.Core.Network;
+using SpoongePE.Core.Utils;
 using System;
 
-namespace MCPE.AlphaServer.Game;
+namespace SpoongePE.Core.Game;
 
 public abstract class Block {
 

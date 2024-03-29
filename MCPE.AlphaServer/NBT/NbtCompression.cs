@@ -1,4 +1,4 @@
-﻿namespace MCPE.AlphaServer.NBT;
+﻿namespace SpoongePE.Core.NBT;
 
 public enum NbtCompression {
     AutoDetect,

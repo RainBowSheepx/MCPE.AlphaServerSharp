@@ -1,4 +1,4 @@
-﻿namespace MCPE.AlphaServer.Network;
+﻿namespace SpoongePE.Core.Network;
 
 public enum MinecraftPacketType : byte {
     Unknown = 0x00,

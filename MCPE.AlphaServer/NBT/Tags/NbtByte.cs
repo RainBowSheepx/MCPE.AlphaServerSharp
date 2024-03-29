@@ -2,7 +2,7 @@
 using System.Text;
 using JetBrains.Annotations;
 
-namespace MCPE.AlphaServer.NBT {
+namespace SpoongePE.Core.NBT {
     /// <summary> A tag containing a single byte. </summary>
     public sealed class NbtByte : NbtTag {
         /// <summary> Type of this tag (Byte). </summary>

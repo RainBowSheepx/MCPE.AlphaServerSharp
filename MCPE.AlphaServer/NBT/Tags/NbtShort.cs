@@ -2,7 +2,7 @@
 using System.Text;
 using JetBrains.Annotations;
 
-namespace MCPE.AlphaServer.NBT {
+namespace SpoongePE.Core.NBT {
     /// <summary> A tag containing a single signed 16-bit integer. </summary>
     public sealed class NbtShort : NbtTag {
         /// <summary> Type of this tag (Short). </summary>

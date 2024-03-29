@@ -1,4 +1,4 @@
-﻿namespace MCPE.AlphaServer.NBT {
+﻿namespace SpoongePE.Core.NBT {
     // Represents state of a node in the NBT file tree, used by NbtWriter
     internal sealed class NbtWriterNode {
         public NbtTagType ParentType;

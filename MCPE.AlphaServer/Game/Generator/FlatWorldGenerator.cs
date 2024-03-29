@@ -1,11 +1,11 @@
-﻿using MCPE.AlphaServer.Utils;
+﻿using SpoongePE.Core.Utils;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace MCPE.AlphaServer.Game.Generator
+namespace SpoongePE.Core.Game.Generator
 {
     public class FlatWorldGenerator
     {

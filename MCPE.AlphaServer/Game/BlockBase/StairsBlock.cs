@@ -1,13 +1,13 @@
-﻿using MCPE.AlphaServer.Game.material;
+﻿using SpoongePE.Core.Game.material;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using MCPE.AlphaServer.Utils;
-using MCPE.AlphaServer.Game.utils;
+using SpoongePE.Core.Utils;
+using SpoongePE.Core.Game.utils;
 
-namespace MCPE.AlphaServer.Game.BlockBase
+namespace SpoongePE.Core.Game.BlockBase
 {
     public class StairsBlock : Block
     {

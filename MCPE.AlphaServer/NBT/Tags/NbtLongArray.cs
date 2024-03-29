@@ -2,7 +2,7 @@ using System;
 using System.Text;
 using JetBrains.Annotations;
 
-namespace MCPE.AlphaServer.NBT {
+namespace SpoongePE.Core.NBT {
     /// <summary> A tag containing an array of signed 64-bit integers. </summary>
     public sealed class NbtLongArray : NbtTag {
         /// <summary> Type of this tag (LongArray). </summary>

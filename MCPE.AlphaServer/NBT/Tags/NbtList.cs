@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Text;
 using JetBrains.Annotations;
 
-namespace MCPE.AlphaServer.NBT {
+namespace SpoongePE.Core.NBT {
     /// <summary> A tag containing a list of unnamed tags, all of the same kind. </summary>
     public sealed class NbtList : NbtTag, IList<NbtTag>, IList {
         /// <summary> Type of this tag (List). </summary>

@@ -2,9 +2,9 @@ using System;
 using System.Collections;
 using System.Linq;
 using System.Net;
-using MCPE.AlphaServer.Utils;
+using SpoongePE.Core.Utils;
 
-namespace MCPE.AlphaServer.RakNet;
+namespace SpoongePE.Core.RakNet;
 
 public enum ConnectedPacketType : byte
 {

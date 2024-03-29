@@ -1,13 +1,13 @@
-﻿using MCPE.AlphaServer.Game.biome.impl;
-using MCPE.AlphaServer.Game.feature;
-using MCPE.AlphaServer.Game.utils.random;
+﻿using SpoongePE.Core.Game.biome.impl;
+using SpoongePE.Core.Game.feature;
+using SpoongePE.Core.Game.utils.random;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace MCPE.AlphaServer.Game.biome
+namespace SpoongePE.Core.Game.biome
 {
     public class Biome
     {

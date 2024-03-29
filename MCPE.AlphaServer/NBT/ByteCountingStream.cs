@@ -2,7 +2,7 @@
 using System.IO;
 using JetBrains.Annotations;
 
-namespace MCPE.AlphaServer.NBT {
+namespace SpoongePE.Core.NBT {
     // Class used to count bytes read-from/written-to non-seekable streams.
     internal class ByteCountingStream : Stream {
         readonly Stream baseStream;

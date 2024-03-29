@@ -6,9 +6,9 @@ using System.Net;
 using System.Net.Sockets;
 using System.Numerics;
 using System.Text;
-using MCPE.AlphaServer.RakNet;
+using SpoongePE.Core.RakNet;
 
-namespace MCPE.AlphaServer.Utils;
+namespace SpoongePE.Core.Utils;
 
 public class DataWriter {
     private readonly MemoryStream stream;

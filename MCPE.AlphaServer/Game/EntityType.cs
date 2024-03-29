@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace MCPE.AlphaServer.Game;
+namespace SpoongePE.Core.Game;
 
 internal enum EntityType : byte {
     Chicken = 0xA,

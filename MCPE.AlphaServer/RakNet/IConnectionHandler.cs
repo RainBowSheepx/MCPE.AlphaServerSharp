@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace MCPE.AlphaServer.RakNet;
+namespace SpoongePE.Core.RakNet;
 
 public interface IConnectionHandler {
     public void OnOpen(RakNetClient address);

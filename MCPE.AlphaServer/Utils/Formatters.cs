@@ -4,7 +4,7 @@ using System.Globalization;
 using System.Linq;
 using System.Text;
 
-namespace MCPE.AlphaServer.Utils;
+namespace SpoongePE.Core.Utils;
 
 internal class Formatters {
     public static string AsHex(ReadOnlySpan<byte> data) {

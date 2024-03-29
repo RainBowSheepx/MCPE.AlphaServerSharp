@@ -1,4 +1,4 @@
-using MCPE.AlphaServer.Game;
+using SpoongePE.Core.Game;
 using System;
 using System.Buffers.Binary;
 using System.IO;
@@ -7,7 +7,7 @@ using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Text;
 
-namespace MCPE.AlphaServer.Utils;
+namespace SpoongePE.Core.Utils;
 
 public class DataReader {
     private readonly MemoryStream stream;

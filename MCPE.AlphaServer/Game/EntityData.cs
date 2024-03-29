@@ -1,4 +1,4 @@
-﻿using MCPE.AlphaServer.Utils;
+﻿using SpoongePE.Core.Utils;
 using System;
 using System.Buffers.Binary;
 using System.Collections.Generic;
@@ -7,7 +7,7 @@ using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace MCPE.AlphaServer.Game;
+namespace SpoongePE.Core.Game;
 
 public enum EntityDataType {
     Byte = 0,

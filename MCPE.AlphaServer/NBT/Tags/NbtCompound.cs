@@ -5,7 +5,7 @@ using System.Diagnostics;
 using System.Text;
 using JetBrains.Annotations;
 
-namespace MCPE.AlphaServer.NBT {
+namespace SpoongePE.Core.NBT {
     /// <summary> A tag containing a set of other named tags. Order is not guaranteed. </summary>
     public sealed class NbtCompound : NbtTag, ICollection<NbtTag>, ICollection {
         /// <summary> Type of this tag (Compound). </summary>

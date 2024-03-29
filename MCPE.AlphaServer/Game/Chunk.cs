@@ -2,7 +2,7 @@ using System;
 using System.Diagnostics;
 using System.IO;
 
-namespace MCPE.AlphaServer.Game;
+namespace SpoongePE.Core.Game;
 
 public class Chunk {
     private const int SectorSize = 0x1000;

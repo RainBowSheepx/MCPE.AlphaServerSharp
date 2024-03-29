@@ -3,7 +3,7 @@ using System.Globalization;
 using System.Text;
 using JetBrains.Annotations;
 
-namespace MCPE.AlphaServer.NBT {
+namespace SpoongePE.Core.NBT {
     /// <summary> Base class for different kinds of named binary tags. </summary>
     public abstract class NbtTag : ICloneable {
         /// <summary> Parent compound tag, either NbtList or NbtCompound, if any.
