@@ -255,7 +255,7 @@ public class RakNetClient
             writer.RawData(packetWriter.GetBytes());
         }
         var strs = string.Join(" ", writer.GetBytes());
-        Logger.Info(strs + " Size: " + writer.GetBytes().Length);
+       // Logger.Info(strs + " Size: " + writer.GetBytes().Length);
 
         if (writer.GetBytes().Length > this.mtuSize)
         {

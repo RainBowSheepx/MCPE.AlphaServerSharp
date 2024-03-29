@@ -97,7 +97,7 @@ public class MessagePacket : MinecraftPacket {
 
 public class SetTimePacket : MinecraftPacket {
     public int Time;
-
+    public bool started = true; // From PMMP
     public override void Decode(ref DataReader reader) {
         reader.Byte(); // Packet type.
         Time = reader.Int();
@@ -106,6 +106,7 @@ public class SetTimePacket : MinecraftPacket {
     public override void Encode(ref DataWriter writer) {
         writer.Byte((byte)MinecraftPacketType.SetTime);
         writer.Int(Time);
+        writer.Byte(started == true ? (byte)0x80 : (byte)0x00); // From PMMP
     }
 }
 

@@ -324,7 +324,7 @@ public class World {
     {
 
         /*Timer*/
-        this.worldTime += 1000; // blyat
+        this.worldTime++;
         //Normal Ticking: Water/Lava
         int ticksAmount = scheduledTickTreeSet.Count;
         if (ticksAmount > 1000) ticksAmount = 1000;

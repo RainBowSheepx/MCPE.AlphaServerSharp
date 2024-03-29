@@ -24,15 +24,16 @@ public class ServerWorld
         Server = server;
         World = world;
         // Activate World ticking
-        // 1 tick is 50ms
-        RakNetServer.StartRepeatingTask(world.tick, TimeSpan.FromMilliseconds(50));
-        RakNetServer.StartRepeatingTask(HandleTick, TimeSpan.FromMilliseconds(50));
+        // 1 tick is 45ms
+        RakNetServer.StartRepeatingTask(world.tick, TimeSpan.FromMilliseconds(45));
+        RakNetServer.StartRepeatingTask(HandleTick, TimeSpan.FromMilliseconds(2000));
     }
 
     public IEnumerable<Player> Players => ConnectionMap.Values;
 
     public async Task HandleTick()
     {
+
         SendAll(new SetTimePacket
         {
             Time = (int) World.worldTime,

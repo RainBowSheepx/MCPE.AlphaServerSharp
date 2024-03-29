@@ -110,6 +110,7 @@ public class GameServer : IConnectionHandler {
 
         client.Send(new SetTimePacket {
                 Time = (int)ServerWorld.World.worldTime,
+                
             }
         );
     }
