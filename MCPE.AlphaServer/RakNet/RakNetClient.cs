@@ -45,6 +45,7 @@ public class RakNetClient
     private int CurrentSequenceNumber;
     private int LastReliablePacketIndex;
     public ushort mtuSize;
+    public Dictionary<int, ConnectedPacket> resendQueue = new Dictionary<int, ConnectedPacket>();
 
     internal RakNetServer Server;
 
@@ -148,43 +149,59 @@ public class RakNetClient
             }
 
             await Server.UDP.SendAsync(ackWriter.GetBytes(), IP);
+
             NeedsACK.Clear();
             return;
         }
 
+
         ConnectedPacket packet = SplitPackets.First();
         var writerSplit = new DataWriter();
-        writerSplit.Byte(UnconnectedPacket.IS_CONNECTED);
-        writerSplit.Triad(CurrentSequenceNumber++);
+        int sequenceNumber = 0;
         var packetWriter = new DataWriter();
-        packet.Encode(ref packetWriter);
-        writerSplit.Byte((byte)((packet.Reliability << 5) | (packet.hasSplit ? 0x10 : 0)));
-        writerSplit.Short((short)(packetWriter.Length << 3));
 
-
-        switch (packet.Reliability)
+        for (int i = 0; i < SplitPackets.Count; i++)
         {
-            case ConnectedPacket.RELIABLE:
-                writerSplit.Triad(packet.ReliableIndex);
-                break;
-            case ConnectedPacket.RELIABLE_ORDERED:
-                writerSplit.Triad(packet.ReliableIndex);
-                writerSplit.Triad(packet.OrderingIndex);
-                writerSplit.Byte((byte)packet.OrderingChannel);
-                break;
+            packet = SplitPackets[i];
+            writerSplit = new DataWriter();
+            writerSplit.Byte(UnconnectedPacket.IS_CONNECTED);
+            sequenceNumber = CurrentSequenceNumber++;
+            writerSplit.Triad(sequenceNumber);
+            packetWriter = new DataWriter();
+            packet.Encode(ref packetWriter);
+            writerSplit.Byte((byte)((packet.Reliability << 5) | (packet.hasSplit ? 0x10 : 0)));
+            writerSplit.Short((short)(packetWriter.Length << 3));
+
+            switch (packet.Reliability)
+            {
+                case ConnectedPacket.RELIABLE_WITH_ACK_RECEIPT:
+                    this.resendQueue.Add(sequenceNumber, packet);
+                    writerSplit.Triad(packet.ReliableIndex);
+                    break;
+                case ConnectedPacket.RELIABLE:
+                    writerSplit.Triad(packet.ReliableIndex);
+                    break;
+                case ConnectedPacket.RELIABLE_ORDERED:
+                    writerSplit.Triad(packet.ReliableIndex);
+                    writerSplit.Triad(packet.OrderingIndex);
+                    writerSplit.Byte((byte)packet.OrderingChannel);
+                    break;
+            }
+            writerSplit.Int(packet.splitCount);
+            writerSplit.Short(packet.splitID);
+            writerSplit.Int(packet.splitIndex);
+
+            writerSplit.RawData(packetWriter.GetBytes());
+
+            var test2 = string.Join(" ", writerSplit.GetBytes());
+
+
+            //Logger.Info("test stack: " + test2 + " Size: " + writerSplit.GetBytes().Length);
+            await Server.UDP.SendAsync(writerSplit.GetBytes(), IP);
+            SplitPackets.Remove(packet);
+
         }
-        writerSplit.Int(packet.splitCount);
-        writerSplit.Short(packet.splitID);
-        writerSplit.Int(packet.splitIndex);
 
-        writerSplit.RawData(packetWriter.GetBytes());
-
-        var strss = string.Join(" ", writerSplit.GetBytes());
-
-
-        //   Logger.Info("test stack: " + strss + " Size: " + writerSplit.GetBytes().Length);
-        await Server.UDP.SendAsync(writerSplit.GetBytes(), IP);
-        SplitPackets.Remove(packet);
     }
     internal async Task HandleOutgoing()
     {
@@ -206,7 +223,7 @@ public class RakNetClient
             }
 
             await Server.UDP.SendAsync(ackWriter.GetBytes(), IP);
-
+            //   
             NeedsACK.Clear();
             return;
         }
@@ -292,7 +309,7 @@ public class RakNetClient
                 newpacket.ReliableIndex = LastReliablePacketIndex++;
                 //newpacket.packetID = (byte)MinecraftPacketType.ChunkData;
                 newpacket.hasSplit = true;
-                newpacket.Reliability = 2;
+                newpacket.Reliability = ConnectedPacket.RELIABLE;
                 newpacket.splitID = (short)bigCnt;
                 newpacket.splitCount = fragmented_body.Count;
                 newpacket.splitIndex = i;

@@ -24,6 +24,14 @@ public class ConnectedPacket
     public const int RELIABLE_ORDERED = 3;
     public const int RELIABLE_SEQUENCED = 4;
 
+
+    //  --https://github.com/GameHerobrine/MCPE.AlphaServerSharp/commit/43deefcc1cf088ee66691e06ea31ff34d8234f71
+    public const int UNRELIABLE_WITH_ACK_RECEIPT = 5;
+    // seems to not exists in original public const int UNRELIABLE_SEQUENCED_WITH_ACK_RECEIPT = 6;
+    public const int RELIABLE_WITH_ACK_RECEIPT = 6;
+    public const int RELIABLE_ORDERED_WITH_ACK_RECEIPT = 7;
+
+
     internal byte Type;
     internal int OrderingChannel;
     internal int OrderingIndex;
