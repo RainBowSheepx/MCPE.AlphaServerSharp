@@ -13,7 +13,7 @@ using Serilog.Sinks.SystemConsole.Themes;
 
 namespace SpoongePE.Core;
 
-internal static class Program
+internal static class Starter
 {
     private static async Task Main(string[] _)
     {
