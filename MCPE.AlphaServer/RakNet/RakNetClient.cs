@@ -191,49 +191,49 @@ public class RakNetClient
         for (int i = 0; i < ResendPackets.Count; i++)
         {
             ConnectedPacket packet = ResendPackets[i];
-            var writerSplit = new DataWriter();
+            var writerResend = new DataWriter();
             int sequenceNumber = 0;
             var packetWriter = new DataWriter();
 
-            writerSplit = new DataWriter();
-            writerSplit.Byte(UnconnectedPacket.IS_CONNECTED);
+            writerResend = new DataWriter();
+            writerResend.Byte(UnconnectedPacket.IS_CONNECTED);
             sequenceNumber = CurrentSequenceNumber++;
-            writerSplit.Triad(sequenceNumber);
+            writerResend.Triad(sequenceNumber);
             packetWriter = new DataWriter();
             packet.Encode(ref packetWriter);
-            writerSplit.Byte((byte)((packet.Reliability << 5) | (packet.hasSplit ? 0x10 : 0)));
-            writerSplit.Short((short)(packetWriter.Length << 3));
+            writerResend.Byte((byte)((packet.Reliability << 5) | (packet.hasSplit ? 0x10 : 0)));
+            writerResend.Short((short)(packetWriter.Length << 3));
 
             switch (packet.Reliability)
             {
                 case ConnectedPacket.RELIABLE_WITH_ACK_RECEIPT:
                     this.resendQueue.Add(sequenceNumber, packet);
-                    writerSplit.Triad(packet.ReliableIndex);
+                    writerResend.Triad(packet.ReliableIndex);
                     break;
                 case ConnectedPacket.RELIABLE:
-                    writerSplit.Triad(packet.ReliableIndex);
+                    writerResend.Triad(packet.ReliableIndex);
                     break;
                 case ConnectedPacket.RELIABLE_ORDERED:
-                    writerSplit.Triad(packet.ReliableIndex);
-                    writerSplit.Triad(packet.OrderingIndex);
-                    writerSplit.Byte((byte)packet.OrderingChannel);
+                    writerResend.Triad(packet.ReliableIndex);
+                    writerResend.Triad(packet.OrderingIndex);
+                    writerResend.Byte((byte)packet.OrderingChannel);
                     break;
             }
             if (packet.hasSplit)
             {
-                writerSplit.Int(packet.splitCount);
-                writerSplit.Short(packet.splitID);
-                writerSplit.Int(packet.splitIndex);
+                writerResend.Int(packet.splitCount);
+                writerResend.Short(packet.splitID);
+                writerResend.Int(packet.splitIndex);
             }
 
 
-            writerSplit.RawData(packetWriter.GetBytes());
+            writerResend.RawData(packetWriter.GetBytes());
 
-            var test2 = string.Join(" ", writerSplit.GetBytes());
+            var test2 = string.Join(" ", writerResend.GetBytes());
 
 
             //Logger.Info("test stack: " + test2 + " Size: " + writerSplit.GetBytes().Length);
-            await Server.UDP.SendAsync(writerSplit.GetBytes(), IP);
+            await Server.UDP.SendAsync(writerResend.GetBytes(), IP);
             resendQueue.Add(sequenceNumber, packet);
             ResendPackets.Remove(packet);
         }

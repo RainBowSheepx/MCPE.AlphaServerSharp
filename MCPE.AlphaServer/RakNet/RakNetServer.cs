@@ -96,26 +96,35 @@ public class RakNetServer
 
     private async Task HandleConnections()
     {
-        foreach (var (_, connection) in Connections)
-            await connection.HandleResendPacketInstantly();
-
-        foreach (var (_, connection) in Connections)
-            await connection.HandleOutgoing();
-
-        foreach (var (_, connection) in Connections)
-            await connection.HandleSplitPackets();
-
-
-
-        foreach (var (endpoint, client) in Connections.Where(x => !x.Value.IsConnected))
+        try
         {
-            ConnectionHandler?.OnClose(client, client.IsTimedOut ? "Timed out" : "Disconnected");
-            Connections.Remove(endpoint);
+            foreach (var (_, connection) in Connections)
+                await connection.HandleResendPacketInstantly();
+
+            foreach (var (_, connection) in Connections)
+                await connection.HandleOutgoing();
+
+            foreach (var (_, connection) in Connections)
+                await connection.HandleSplitPackets();
+
+
+
+            foreach (var (endpoint, client) in Connections.Where(x => !x.Value.IsConnected))
+            {
+                ConnectionHandler?.OnClose(client, client.IsTimedOut ? "Timed out" : "Disconnected");
+                Connections.Remove(endpoint);
+            }
+
+            ConnectionHandler?.OnUpdate();
+
+            //await Task.Delay(1); // Uncomment if u have troubles
+        }
+        catch(Exception e)
+        {
+            Logger.Error(e.Message);
+            Logger.Error(e.StackTrace);
         }
 
-        ConnectionHandler?.OnUpdate();
-
-          await Task.Delay(1); // Uncomment if u have troubles
     }
 
     // Public async task creator xd
