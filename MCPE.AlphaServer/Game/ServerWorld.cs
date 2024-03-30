@@ -26,8 +26,8 @@ public class ServerWorld
         World = world;
         // Activate World ticking
         // 1 tick is 45ms, i think
-        RakNetServer.StartRepeatingTask(world.tick, TimeSpan.FromMilliseconds(45));
-        RakNetServer.StartRepeatingTask(HandleTick, TimeSpan.FromMilliseconds(15000));
+        RakNetServer.StartRepeatingTask(world.tick, TimeSpan.FromMilliseconds(50));
+        RakNetServer.StartRepeatingTask(HandleTick, TimeSpan.FromMilliseconds(2000));
     }
 
     public IEnumerable<Player> Players => ConnectionMap.Values;
@@ -44,8 +44,8 @@ public class ServerWorld
 
     public void KickAll()
     {
-        // А как блять?
-      //  SendAll(new )
+        //Хуёво работает блять
+        SendAll(new PlayerDisconnectPacket());
     }
 
     public void SendAll(ConnectedPacket packet, ulong except = 0)
@@ -53,6 +53,7 @@ public class ServerWorld
         foreach (var player in Players)
             if (player.PlayerID != except)
                 player.Send(packet);
+ 
     }
 
     public Player GetByName(string name)

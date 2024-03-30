@@ -47,10 +47,12 @@ internal static class Starter
         await Task.Delay(Timeout.Infinite);
     }
 
-    private static void Shutdown(RakNetServer rak, GameServer handler)
+    private static async void Shutdown(RakNetServer rak, GameServer handler)
     {
         handler.ServerWorld.KickAll();
+      //  await Task.Delay(100);
         rak.Stop();
+
        // handler.ServerWorld.World.
         Logger.Info("Server is stopped!");
     }

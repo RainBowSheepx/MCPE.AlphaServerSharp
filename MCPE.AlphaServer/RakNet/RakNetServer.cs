@@ -49,49 +49,56 @@ public class RakNetServer
 
     private async Task HandlePackets()
     {
-        var receiveResult = await UDP.ReceiveAsync();
-
-        // Try handling the connected packet, might fall through if the client reconnects?
-        if (Connections.TryGetValue(receiveResult.RemoteEndPoint, out var existingConnection))
+        try
         {
-            //   Logger.Debug($"Letting {existingConnection} handle packet");
-            existingConnection.HandlePacket(receiveResult.Buffer);
-            return;
+            var receiveResult = await UDP.ReceiveAsync();
+
+            // Try handling the connected packet, might fall through if the client reconnects?
+            if (Connections.TryGetValue(receiveResult.RemoteEndPoint, out var existingConnection))
+            {
+                //   Logger.Debug($"Letting {existingConnection} handle packet");
+                existingConnection.HandlePacket(receiveResult.Buffer);
+                return;
+            }
+
+            // If we don't have a session for this IP yet.
+            switch (UnconnectedPacket.Parse(receiveResult.Buffer))
+            {
+                case UnconnectedPingPacket:
+                    await Send(receiveResult.RemoteEndPoint,
+                        new UnconnectedPongPacket(TimeSinceStart, GUID, $"MCCPP;Demo;{Properties.serverName} [{Connections.Count}/{Properties.maxPlayers}]")
+                    );
+                    break;
+                case OpenConnectionRequest1Packet openConnectionRequest1Packet:
+                    Logger.Debug($"Received OpenConnectionRequest1Packet from {receiveResult.RemoteEndPoint} MTU: {openConnectionRequest1Packet.mtuSize}");
+                    await Send(receiveResult.RemoteEndPoint,
+                        new OpenConnectionReply1Packet(GUID, false, (ushort)Math.Min(openConnectionRequest1Packet.mtuSize, 1480)) // TODO: MTU Is hardcoded.
+                    );
+                    break;
+                case OpenConnectionRequest2Packet request:
+                    Logger.Debug($"Handling connection request from {receiveResult.RemoteEndPoint} MTU: {request.MtuSize}");
+                    var newConnetion = new RakNetClient(receiveResult.RemoteEndPoint, this)
+                    {
+                        ClientID = request.ClientID,
+                        mtuSize = request.MtuSize
+                    };
+
+                    Connections.Add(receiveResult.RemoteEndPoint, newConnetion);
+
+                    await Send(receiveResult.RemoteEndPoint,
+                        new OpenConnectionReply2Packet(GUID, newConnetion.IP, request.MtuSize, false)
+                    );
+
+                    break;
+                case { } packet:
+                    Logger.Warn($"Got unhandled unconnected packet {packet}? This is probably a bug.");
+                    break;
+            }
+        }catch(Exception e)
+        {
+            Logger.Error(e.ToString());
         }
 
-        // If we don't have a session for this IP yet.
-        switch (UnconnectedPacket.Parse(receiveResult.Buffer))
-        {
-            case UnconnectedPingPacket:
-                await Send(receiveResult.RemoteEndPoint,
-                    new UnconnectedPongPacket(TimeSinceStart, GUID, $"MCCPP;Demo;{Properties.serverName} [{Connections.Count}/{Properties.maxPlayers}]")
-                );
-                break;
-            case OpenConnectionRequest1Packet openConnectionRequest1Packet:
-                Logger.Debug($"Received OpenConnectionRequest1Packet from {receiveResult.RemoteEndPoint} MTU: {openConnectionRequest1Packet.mtuSize}");
-                await Send(receiveResult.RemoteEndPoint,
-                    new OpenConnectionReply1Packet(GUID, false, (ushort)Math.Min(openConnectionRequest1Packet.mtuSize, 1480)) // TODO: MTU Is hardcoded.
-                );
-                break;
-            case OpenConnectionRequest2Packet request:
-                Logger.Debug($"Handling connection request from {receiveResult.RemoteEndPoint} MTU: {request.MtuSize}");
-                var newConnetion = new RakNetClient(receiveResult.RemoteEndPoint, this)
-                {
-                    ClientID = request.ClientID,
-                    mtuSize = request.MtuSize
-                };
-
-                Connections.Add(receiveResult.RemoteEndPoint, newConnetion);
-
-                await Send(receiveResult.RemoteEndPoint,
-                    new OpenConnectionReply2Packet(GUID, newConnetion.IP, request.MtuSize, false)
-                );
-
-                break;
-            case { } packet:
-                Logger.Warn($"Got unhandled unconnected packet {packet}? This is probably a bug.");
-                break;
-        }
     }
 
     private async Task HandleConnections()
@@ -100,12 +107,13 @@ public class RakNetServer
         {
             foreach (var (_, connection) in Connections)
                 await connection.HandleResendPacketInstantly();
-
-            foreach (var (_, connection) in Connections)
-                await connection.HandleOutgoing();
-
             foreach (var (_, connection) in Connections)
                 await connection.HandleSplitPackets();
+            foreach (var (_, connection) in Connections)
+                await connection.HandleOutgoing();
+            foreach (var (_, connection) in Connections)
+                await connection.SendACKs();
+
 
 
 
@@ -116,14 +124,15 @@ public class RakNetServer
             }
 
             ConnectionHandler?.OnUpdate();
-
-            //await Task.Delay(1); // Uncomment if u have troubles
-        }
-        catch(Exception e)
+        } catch(Exception e)
         {
-            Logger.Error(e.Message);
-            Logger.Error(e.StackTrace);
+            Logger.Error(e.ToString());
+
         }
+
+
+        //await Task.Delay(1); // Uncomment if u have troubles
+
 
     }
 
