@@ -37,10 +37,21 @@ internal static class Starter
 
         Logger.Info("SpoongePE.Core starting.");
         RakNetServer.Properties = prop;
-        new RakNetServer(prop.serverPort).Start(new GameServer(mainWorld));
+        RakNetServer rak = new RakNetServer(prop.serverPort);
+        GameServer handler = new GameServer(mainWorld);
+        rak.Start(handler);
+        AppDomain.CurrentDomain.ProcessExit += (s, e) => Shutdown(rak, handler);
 
         Logger.Info("SpoongePE.Core started.");
 
         await Task.Delay(Timeout.Infinite);
+    }
+
+    private static void Shutdown(RakNetServer rak, GameServer handler)
+    {
+        handler.ServerWorld.KickAll();
+        rak.Stop();
+       // handler.ServerWorld.World.
+        Logger.Info("Server is stopped!");
     }
 }

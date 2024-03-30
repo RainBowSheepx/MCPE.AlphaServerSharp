@@ -97,10 +97,14 @@ public class RakNetServer
     private async Task HandleConnections()
     {
         foreach (var (_, connection) in Connections)
+            await connection.HandleResendPacketInstantly();
+
+        foreach (var (_, connection) in Connections)
             await connection.HandleOutgoing();
 
         foreach (var (_, connection) in Connections)
             await connection.HandleSplitPackets();
+
 
 
         foreach (var (endpoint, client) in Connections.Where(x => !x.Value.IsConnected))
@@ -111,7 +115,7 @@ public class RakNetServer
 
         ConnectionHandler?.OnUpdate();
 
-        //  await Task.Delay(1); // Uncomment if u have troubles
+          await Task.Delay(1); // Uncomment if u have troubles
     }
 
     // Public async task creator xd

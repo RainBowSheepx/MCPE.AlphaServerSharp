@@ -57,7 +57,7 @@ public class World {
             _levelDat = new NbtFile(),
             _entitiesDat = new NbtFile()
         };
-
+        
         world._levelDat.LoadFromFileWithOffset(Path.Combine(folder, "level.dat"), 8);
         world._entitiesDat.LoadFromFileWithOffset(Path.Combine(folder, "entities.dat"), 12);
         

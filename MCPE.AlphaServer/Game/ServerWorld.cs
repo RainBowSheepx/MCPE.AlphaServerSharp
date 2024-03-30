@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http.Headers;
+using System.Net.Sockets;
 using System.Numerics;
 using System.Threading.Tasks;
 using SpoongePE.Core.Network;
@@ -24,9 +25,9 @@ public class ServerWorld
         Server = server;
         World = world;
         // Activate World ticking
-        // 1 tick is 45ms
+        // 1 tick is 45ms, i think
         RakNetServer.StartRepeatingTask(world.tick, TimeSpan.FromMilliseconds(45));
-        RakNetServer.StartRepeatingTask(HandleTick, TimeSpan.FromMilliseconds(2000));
+        RakNetServer.StartRepeatingTask(HandleTick, TimeSpan.FromMilliseconds(15000));
     }
 
     public IEnumerable<Player> Players => ConnectionMap.Values;
@@ -39,6 +40,12 @@ public class ServerWorld
             Time = (int) World.worldTime,
         }
         );
+    }
+
+    public void KickAll()
+    {
+        // А как блять?
+      //  SendAll(new )
     }
 
     public void SendAll(ConnectedPacket packet, ulong except = 0)
@@ -74,6 +81,11 @@ public class ServerWorld
 
         World.addPlayer(newPlayer);
         ConnectionMap.Add(client, newPlayer);
+        SendAll(new ChatPacket
+        {
+            Message = $"{newPlayer.Username} joined the game!"
+        }
+);
         return ConnectionMap[client];
     }
 

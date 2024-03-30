@@ -21,4 +21,8 @@
         <PackageReference Include="Serilog.Sinks.Console" Version="4.0.2-dev-00890" />
         <PackageReference Include="YamlDotNet" Version="15.1.2" />
     </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="Game\DataFiles\" />
+    </ItemGroup>
 </Project>

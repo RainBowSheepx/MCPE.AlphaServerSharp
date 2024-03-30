@@ -21,12 +21,12 @@ namespace SpoongePE.Core.Utils
                 var ysml = "";
                 try
                 {
-                   ysml = File.ReadAllText("server.properties");
+                    ysml = File.ReadAllText("server.properties");
                     var deserializer = new DeserializerBuilder().Build();
 
                     prop = deserializer.Deserialize<ServerProperties>(ysml);
                 }
-                catch(Exception e)
+                catch (Exception e)
                 {
                     Console.WriteLine(e.Message);
                     prop = new ServerProperties();
@@ -57,6 +57,7 @@ namespace SpoongePE.Core.Utils
     {
         public string serverName { get; set; } = "SpoongePE";
         public string description { get; set; } = "Best C# Core Ever";
+        public string motd { get; set; } = "Welcome @player to @servername server!";
 
         public int serverPort { get; set; } = 19132;
 
@@ -70,6 +71,8 @@ namespace SpoongePE.Core.Utils
         public string levelType { get; set; } = "flat";
 
         public int offsetMTU { get; set; } = 24;
+
+
 
 
     }

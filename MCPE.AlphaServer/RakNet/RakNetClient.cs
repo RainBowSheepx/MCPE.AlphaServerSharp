@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Net.Sockets;
 using System.Threading.Tasks;
 using SpoongePE.Core.Network;
 using SpoongePE.Core.Utils;
@@ -27,6 +28,7 @@ public class RakNetClient
         Status = ConnectionStatus.CONNECTING;
         OutgoingPackets = new List<ConnectedPacket>();
         SplitPackets = new List<ConnectedPacket>();
+        ResendPackets = new List<ConnectedPacket>();
         NeedsACK = new SortedSet<int>();
         CurrentSequenceNumber = 0;
         LastReliablePacketIndex = 0;
@@ -41,6 +43,8 @@ public class RakNetClient
     private List<ConnectedPacket> OutgoingPackets { get; }
 
     private List<ConnectedPacket> SplitPackets { get; }
+
+    private List<ConnectedPacket> ResendPackets { get; }
     private SortedSet<int> NeedsACK { get; }
     private int CurrentSequenceNumber;
     private int LastReliablePacketIndex;
@@ -73,12 +77,57 @@ public class RakNetClient
     {
         var packet = ConnectedPacket.ParseMeta(ref reader);
         // Logger.Warn($"TODO: HandleACK {packet}");
+        for (int i = 0; i < packet.Ranges.Length; ++i)
+        {
+            (int min, int max) = packet.Ranges[i];
+            for (; min <= max; ++min)
+            {
+                if (!this.resendQueue.Remove(min))
+                {
+                    Logger.Warn($"HandleACK Failed to remove {min} from resendQueue {packet}");
+                }
+            }
+        }
     }
 
     private void HandleNAK(ref DataReader reader)
     {
         var packet = ConnectedPacket.ParseMeta(ref reader);
         Logger.Warn($"TODO: HandleNAK {packet}");
+        for (int i = 0; i < packet.Ranges.Length; ++i)
+        {
+            (int min, int max) = packet.Ranges[i];
+            if(min == max)
+            {
+                var pk = this.resendQueue.GetValueOrDefault(min, null);
+                if (pk == null)
+                {
+                    Logger.Warn($"HandleNAK Failed to resend {min} from resendQueue because it doesnt exist. {packet}");
+                }
+                else
+                {
+                    Logger.Warn($"Resending {min}");
+
+                    this.ResendPackets.Add(pk); //TODO can send not only split? yez
+                }
+                return;
+            }
+            for (; min <= max; ++min)
+            {
+                var pk = this.resendQueue.GetValueOrDefault(min, null);
+                if (pk == null)
+                {
+                    Logger.Warn($"HandleNAK Failed to resend {min} from resendQueue because it doesnt exist. {packet}");
+                }
+                else
+                {
+                    Logger.Warn($"Resending {min}");
+
+                    this.ResendPackets.Add(pk); //TODO can send not only split? yez
+                }
+            }
+        }
+
     }
 
     private void HandleConnected(ref DataReader reader)
@@ -127,30 +176,91 @@ public class RakNetClient
 
     public bool wait = false;
 
+    private async Task SendACKs()
+    {
+        if (NeedsACK.Count < 1)
+            return;
 
+        // Send ACKs.
+        var ackWriter = new DataWriter();
+        ackWriter.Byte(UnconnectedPacket.IS_CONNECTED | UnconnectedPacket.IS_ACK);
+
+        // TODO: Use the range feature from RakNet?
+        ackWriter.Short((short)NeedsACK.Count);
+        foreach (var sequence in NeedsACK)
+        {
+            ackWriter.Byte(1); // Min == max.
+            ackWriter.Triad(sequence);
+        }
+
+        await Server.UDP.SendAsync(ackWriter.GetBytes(), IP);
+        //   
+        NeedsACK.Clear();
+    }
+
+    internal async Task HandleResendPacketInstantly()
+    {
+        if (ResendPackets.Count < 1) {
+            await SendACKs();
+            return;
+        }
+        for (int i = 0; i < ResendPackets.Count; i++)
+        {
+            ConnectedPacket packet = ResendPackets[i];
+            var writerSplit = new DataWriter();
+            int sequenceNumber = 0;
+            var packetWriter = new DataWriter();
+
+            writerSplit = new DataWriter();
+            writerSplit.Byte(UnconnectedPacket.IS_CONNECTED);
+            sequenceNumber = CurrentSequenceNumber++;
+            writerSplit.Triad(sequenceNumber);
+            packetWriter = new DataWriter();
+            packet.Encode(ref packetWriter);
+            writerSplit.Byte((byte)((packet.Reliability << 5) | (packet.hasSplit ? 0x10 : 0)));
+            writerSplit.Short((short)(packetWriter.Length << 3));
+
+            switch (packet.Reliability)
+            {
+                case ConnectedPacket.RELIABLE_WITH_ACK_RECEIPT:
+                    this.resendQueue.Add(sequenceNumber, packet);
+                    writerSplit.Triad(packet.ReliableIndex);
+                    break;
+                case ConnectedPacket.RELIABLE:
+                    writerSplit.Triad(packet.ReliableIndex);
+                    break;
+                case ConnectedPacket.RELIABLE_ORDERED:
+                    writerSplit.Triad(packet.ReliableIndex);
+                    writerSplit.Triad(packet.OrderingIndex);
+                    writerSplit.Byte((byte)packet.OrderingChannel);
+                    break;
+            }
+            if (packet.hasSplit)
+            {
+                writerSplit.Int(packet.splitCount);
+                writerSplit.Short(packet.splitID);
+                writerSplit.Int(packet.splitIndex);
+            }
+
+
+            writerSplit.RawData(packetWriter.GetBytes());
+
+            var test2 = string.Join(" ", writerSplit.GetBytes());
+
+
+            //Logger.Info("test stack: " + test2 + " Size: " + writerSplit.GetBytes().Length);
+            await Server.UDP.SendAsync(writerSplit.GetBytes(), IP);
+            resendQueue.Add(sequenceNumber, packet);
+            ResendPackets.Remove(packet);
+        }
+   
+    }
 
     internal async Task HandleSplitPackets()
     {
         if (SplitPackets.Count < 1)
         {
-            if (NeedsACK.Count < 1)
-                return;
-
-            // Send ACKs.
-            var ackWriter = new DataWriter();
-            ackWriter.Byte(UnconnectedPacket.IS_CONNECTED | UnconnectedPacket.IS_ACK);
-
-            // TODO: Use the range feature from RakNet?
-            ackWriter.Short((short)NeedsACK.Count);
-            foreach (var sequence in NeedsACK)
-            {
-                ackWriter.Byte(1); // Min == max.
-                ackWriter.Triad(sequence);
-            }
-
-            await Server.UDP.SendAsync(ackWriter.GetBytes(), IP);
-
-            NeedsACK.Clear();
+            await SendACKs();
             return;
         }
 
@@ -159,7 +269,6 @@ public class RakNetClient
         var writerSplit = new DataWriter();
         int sequenceNumber = 0;
         var packetWriter = new DataWriter();
-
         for (int i = 0; i < SplitPackets.Count; i++)
         {
             packet = SplitPackets[i];
@@ -198,6 +307,7 @@ public class RakNetClient
 
             //Logger.Info("test stack: " + test2 + " Size: " + writerSplit.GetBytes().Length);
             await Server.UDP.SendAsync(writerSplit.GetBytes(), IP);
+            resendQueue.Add(sequenceNumber, packet);
             SplitPackets.Remove(packet);
 
         }
@@ -207,24 +317,7 @@ public class RakNetClient
     {
         if (OutgoingPackets.Count < 1)
         {
-            if (NeedsACK.Count < 1)
-                return;
-
-            // Send ACKs.
-            var ackWriter = new DataWriter();
-            ackWriter.Byte(UnconnectedPacket.IS_CONNECTED | UnconnectedPacket.IS_ACK);
-
-            // TODO: Use the range feature from RakNet?
-            ackWriter.Short((short)NeedsACK.Count);
-            foreach (var sequence in NeedsACK)
-            {
-                ackWriter.Byte(1); // Min == max.
-                ackWriter.Triad(sequence);
-            }
-
-            await Server.UDP.SendAsync(ackWriter.GetBytes(), IP);
-            //   
-            NeedsACK.Clear();
+            await SendACKs();
             return;
         }
 
@@ -232,7 +325,8 @@ public class RakNetClient
         var writer = new DataWriter();
 
         writer.Byte(UnconnectedPacket.IS_CONNECTED);
-        writer.Triad(CurrentSequenceNumber++);
+        int seq = CurrentSequenceNumber++;
+        writer.Triad(seq);
         foreach (var packet in OutgoingPackets)
         {
             var packetWriter = new DataWriter();
@@ -255,13 +349,16 @@ public class RakNetClient
             writer.RawData(packetWriter.GetBytes());
         }
         var strs = string.Join(" ", writer.GetBytes());
-       // Logger.Info(strs + " Size: " + writer.GetBytes().Length);
+        // Logger.Info(strs + " Size: " + writer.GetBytes().Length);
 
         if (writer.GetBytes().Length > this.mtuSize)
         {
             Logger.Warn("Packet size is too big! Maybe connection troubles! ");
         }
+        UnknowPacket pak = new UnknowPacket();
+        pak.buffer = writer.GetBytes();
         await Server.UDP.SendAsync(writer.GetBytes(), IP);
+        resendQueue.Add(seq, pak);
         OutgoingPackets.Clear();
     }
 
