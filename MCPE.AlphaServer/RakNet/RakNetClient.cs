@@ -6,6 +6,8 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
+using System.Security.Cryptography;
+using System.Threading;
 using System.Threading.Tasks;
 using SpoongePE.Core.Network;
 using SpoongePE.Core.Utils;
@@ -53,7 +55,7 @@ public class RakNetClient
     public Dictionary<int, ConnectedPacket> resendQueueResend = new Dictionary<int, ConnectedPacket>();
     public Dictionary<int, ConnectedPacket> resendQueueSplit = new Dictionary<int, ConnectedPacket>();
     public Dictionary<int, ConnectedPacket> resendQueueOutGoing = new Dictionary<int, ConnectedPacket>();
-
+    private ReaderWriterLockSlim dictLock = new ReaderWriterLockSlim();
 
     internal RakNetServer Server;
 
@@ -86,31 +88,40 @@ public class RakNetClient
             (int min, int max) = packet.Ranges[i];
             for (; min <= max; ++min)
             {
-                if (this.resendQueueResend.ContainsKey(min))
+                try
                 {
-                    if (!this.resendQueueResend.Remove(min))
+                    dictLock.EnterWriteLock();
+                    if (this.resendQueueResend.ContainsKey(min))
                     {
-                        Logger.Warn($"HandleACK Failed to remove {min} from resendQueueResend {packet}");
+                        if (!this.resendQueueResend.Remove(min))
+                        {
+                            Logger.Warn($"HandleACK Failed to remove {min} from resendQueueResend {packet}");
+                        }
+                    }
+                    else if (this.resendQueueSplit.ContainsKey(min))
+                    {
+                        if (!this.resendQueueSplit.Remove(min))
+                        {
+                            Logger.Warn($"HandleACK Failed to remove {min} from resendQueueSplit {packet}");
+                        }
+                    }
+                    else if (this.resendQueueOutGoing.ContainsKey(min))
+                    {
+                        if (!this.resendQueueOutGoing.Remove(min))
+                        {
+                            Logger.Warn($"HandleACK Failed to remove {min} from resendQueueOutGoing {packet}");
+                        }
+                    }
+                    else
+                    {
+                        Logger.Warn($"HandleACK Failed to remove {min} from all resendQueues {packet}");
                     }
                 }
-                else if (this.resendQueueSplit.ContainsKey(min))
+                finally
                 {
-                    if (!this.resendQueueSplit.Remove(min))
-                    {
-                        Logger.Warn($"HandleACK Failed to remove {min} from resendQueueSplit {packet}");
-                    }
+                    dictLock.ExitWriteLock();
                 }
-                else if (this.resendQueueOutGoing.ContainsKey(min))
-                {
-                    if (!this.resendQueueOutGoing.Remove(min))
-                    {
-                        Logger.Warn($"HandleACK Failed to remove {min} from resendQueueOutGoing {packet}");
-                    }
-                }
-                else
-                {
-                    Logger.Warn($"HandleACK Failed to remove {min} from all resendQueues {packet}");
-                }
+
             }
         }
     }
@@ -124,51 +135,57 @@ public class RakNetClient
             (int min, int max) = packet.Ranges[i];
             for (; min <= max; ++min)
             {
-                
-                if (this.resendQueueResend.ContainsKey(min))
+                try
                 {
-                    var pk = this.resendQueueResend.GetValueOrDefault(min, null);
-                    if (pk == null)
+                    dictLock.EnterWriteLock();
+                    if (this.resendQueueResend.ContainsKey(min))
                     {
-                        Logger.Warn($"HandleNAK Failed to resend {min} from resendQueue because it doesnt exist. {packet}");
+                        var pk = this.resendQueueResend.GetValueOrDefault(min, null);
+                        if (pk == null)
+                        {
+                            Logger.Warn($"HandleNAK Failed to resend {min} from resendQueue because it doesnt exist. {packet}");
+                        }
+                        else
+                        {
+                            Logger.Warn($"Resending {min}");
+                            this.ResendPackets.Add(pk); // yez
+                        }
+                    }
+                    else if (this.resendQueueSplit.ContainsKey(min))
+                    {
+                        var pk = this.resendQueueSplit.GetValueOrDefault(min, null);
+                        if (pk == null)
+                        {
+                            Logger.Warn($"HandleNAK Failed to resend {min} from resendQueue because it doesnt exist. {packet}");
+                        }
+                        else
+                        {
+                            Logger.Warn($"Resending {min}");
+                            this.ResendPackets.Add(pk); // yez
+                        }
+                    }
+                    else if (this.resendQueueOutGoing.ContainsKey(min))
+                    {
+                        var pk = this.resendQueueOutGoing.GetValueOrDefault(min, null);
+                        if (pk == null)
+                        {
+                            Logger.Warn($"HandleNAK Failed to resend {min} from resendQueue because it doesnt exist. {packet}");
+                        }
+                        else
+                        {
+                            Logger.Warn($"Resending {min}");
+                            this.ResendPackets.Add(pk); // yez
+                        }
                     }
                     else
                     {
-                        Logger.Warn($"Resending {min}");
-                        this.ResendPackets.Add(pk); // yez
+                        Logger.Warn($"HandleNAK Failed to resend {min} from all resendQueues because it doesnt exist. {packet}");
                     }
                 }
-                else if (this.resendQueueSplit.ContainsKey(min))
+                finally
                 {
-                    var pk = this.resendQueueSplit.GetValueOrDefault(min, null);
-                    if (pk == null)
-                    {
-                        Logger.Warn($"HandleNAK Failed to resend {min} from resendQueue because it doesnt exist. {packet}");
-                    }
-                    else
-                    {
-                        Logger.Warn($"Resending {min}");
-                        this.ResendPackets.Add(pk); // yez
-                    }
+                    dictLock.ExitWriteLock();
                 }
-                else if (this.resendQueueOutGoing.ContainsKey(min))
-                {
-                    var pk = this.resendQueueOutGoing.GetValueOrDefault(min, null);
-                    if (pk == null)
-                    {
-                        Logger.Warn($"HandleNAK Failed to resend {min} from resendQueue because it doesnt exist. {packet}");
-                    }
-                    else
-                    {
-                        Logger.Warn($"Resending {min}");
-                        this.ResendPackets.Add(pk); // yez
-                    }
-                }
-                else
-                {
-                    Logger.Warn($"HandleNAK Failed to resend {min} from all resendQueues because it doesnt exist. {packet}");
-                }
-
             }
         }
 
@@ -231,10 +248,19 @@ public class RakNetClient
 
         // TODO: Use the range feature from RakNet?
         ackWriter.Short((short)NeedsACK.Count);
-        foreach (var sequence in NeedsACK)
+        for (int sequence = 0; sequence < NeedsACK.Count; sequence++)
         {
             ackWriter.Byte(1); // Min == max.
-            ackWriter.Triad(sequence);
+            try
+            {
+                dictLock.EnterReadLock();
+                ackWriter.Triad(NeedsACK.ElementAt(sequence));
+            }
+            finally
+            {
+                dictLock.ExitReadLock();
+            }
+            
         }
 
         await Server.UDP.SendAsync(ackWriter.GetBytes(), IP);
@@ -296,10 +322,19 @@ public class RakNetClient
                 //Logger.Info("test stack: " + test2 + " Size: " + writerSplit.GetBytes().Length);
 
                 ResendPackets.Remove(packet);
-                if (!resendQueueResend.TryAdd(sequenceNumber, packet))
+                try
                 {
-                    Logger.Error("Can't add packet " + sequenceNumber + " from resend \n" + packet.ToString());
+                    dictLock.EnterWriteLock();
+                    if (!resendQueueResend.TryAdd(sequenceNumber, packet))
+                    {
+                        Logger.Error("Can't add packet " + sequenceNumber + " from resend \n" + packet.ToString());
+                    }
                 }
+                finally
+                {
+                    dictLock.ExitWriteLock();
+                }
+
                 await Server.UDP.SendAsync(writerResend.GetBytes(), IP);
 
 
@@ -323,13 +358,12 @@ public class RakNetClient
             }
 
 
-            ConnectedPacket packet = SplitPackets.First();
             var writerSplit = new DataWriter();
             int sequenceNumber = 0;
             var packetWriter = new DataWriter();
             for (int i = 0; i < SplitPackets.Count; i++)
             {
-                packet = SplitPackets[i];
+                var packet = SplitPackets[i];
                 writerSplit = new DataWriter();
                 writerSplit.Byte(UnconnectedPacket.IS_CONNECTED);
                 sequenceNumber = CurrentSequenceNumber++;
@@ -338,7 +372,7 @@ public class RakNetClient
                 packet.Encode(ref packetWriter);
                 writerSplit.Byte((byte)((packet.Reliability << 5) | (packet.hasSplit ? 0x10 : 0)));
                 writerSplit.Short((short)(packetWriter.Length << 3));
-
+                
                 switch (packet.Reliability)
                 {
                     case ConnectedPacket.RELIABLE_WITH_ACK_RECEIPT:
@@ -363,10 +397,19 @@ public class RakNetClient
                 var test2 = string.Join(" ", writerSplit.GetBytes());
 
                 SplitPackets.Remove(packet);
-                if (!resendQueueSplit.TryAdd(sequenceNumber, packet))
+                try
                 {
-                    Logger.Error("Can't add packet " + sequenceNumber + " from split \n" + packet.ToString());
+                    dictLock.EnterWriteLock();
+                    if (!resendQueueSplit.TryAdd(sequenceNumber, packet))
+                    {
+                        Logger.Error("Can't add packet " + sequenceNumber + " from split \n" + packet.ToString());
+                    }
                 }
+                finally
+                {
+                    dictLock.ExitWriteLock();
+                }
+
                 //Logger.Info("test stack: " + test2 + " Size: " + writerSplit.GetBytes().Length);
                 await Server.UDP.SendAsync(writerSplit.GetBytes(), IP);
 
@@ -387,7 +430,7 @@ public class RakNetClient
         {
             if (OutgoingPackets.Count < 1)
             {
-               
+
                 return;
             }
 
@@ -397,8 +440,9 @@ public class RakNetClient
             writer.Byte(UnconnectedPacket.IS_CONNECTED);
             int seq = CurrentSequenceNumber++;
             writer.Triad(seq);
-            foreach (var packet in OutgoingPackets)
+            for (int i = 0; i < OutgoingPackets.Count; i++)
             {
+                var packet = OutgoingPackets[i];
                 var packetWriter = new DataWriter();
                 packet.Encode(ref packetWriter);
                 writer.Byte((byte)((packet.Reliability << 5)));
@@ -428,13 +472,21 @@ public class RakNetClient
             UnknowPacket pak = new UnknowPacket();
             pak.buffer = writer.GetBytes();
             OutgoingPackets.Clear();
-            if (!resendQueueOutGoing.TryAdd(seq, pak))
+            try
             {
-                Logger.Error("Can't add packet " + seq + " from out \n" + pak.ToString());
+                dictLock.EnterWriteLock();
+                if (!resendQueueOutGoing.TryAdd(seq, pak))
+                {
+                    Logger.Error("Can't add packet " + seq + " from out \n" + pak.ToString());
+                }
+            }
+            finally
+            {
+                dictLock.ExitWriteLock();
             }
             await Server.UDP.SendAsync(writer.GetBytes(), IP);
 
-            
+
 
         }
         catch (Exception e)
