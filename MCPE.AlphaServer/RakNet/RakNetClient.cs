@@ -97,21 +97,6 @@ public class RakNetClient
         for (int i = 0; i < packet.Ranges.Length; ++i)
         {
             (int min, int max) = packet.Ranges[i];
-            if(min == max)
-            {
-                var pk = this.resendQueue.GetValueOrDefault(min, null);
-                if (pk == null)
-                {
-                    Logger.Warn($"HandleNAK Failed to resend {min} from resendQueue because it doesnt exist. {packet}");
-                }
-                else
-                {
-                    Logger.Warn($"Resending {min}");
-
-                    this.ResendPackets.Add(pk); //TODO can send not only split? yez
-                }
-                return;
-            }
             for (; min <= max; ++min)
             {
                 var pk = this.resendQueue.GetValueOrDefault(min, null);
@@ -123,7 +108,7 @@ public class RakNetClient
                 {
                     Logger.Warn($"Resending {min}");
 
-                    this.ResendPackets.Add(pk); //TODO can send not only split? yez
+                    this.ResendPackets.Add(pk); // yez
                 }
             }
         }
@@ -194,7 +179,6 @@ public class RakNetClient
         }
 
         await Server.UDP.SendAsync(ackWriter.GetBytes(), IP);
-        //   
         NeedsACK.Clear();
     }
 
