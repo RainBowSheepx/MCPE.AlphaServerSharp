@@ -5,6 +5,7 @@ using System.Net;
 using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
+using SpoongePE.Core.Network;
 using SpoongePE.Core.Utils;
 
 namespace SpoongePE.Core.RakNet;
@@ -22,6 +23,7 @@ public class RakNetServer
         TaskCancellationToken = new CancellationTokenSource();
     }
 
+    public GameServer GameHandler { get; set; }
     public ulong GUID { get; }
     public IPEndPoint IP { get; }
     internal UdpClient UDP { get; }
@@ -52,7 +54,21 @@ public class RakNetServer
         try
         {
             var receiveResult = await UDP.ReceiveAsync();
-
+            if(receiveResult.Buffer[0] == 254 & receiveResult.Buffer[1] == 253)
+            {
+                string sts = "";
+                foreach(byte b in receiveResult.Buffer)
+                {
+                    sts += b + " ";
+                }
+                Logger.Debug("Query detected!");
+                QueryHandler query = new QueryHandler(receiveResult.RemoteEndPoint, this);
+                DataReader reader = new DataReader(receiveResult.Buffer[2..(receiveResult.Buffer.Length)]);
+                query.handle(reader);
+                
+                return;
+            }
+                
             // Try handling the connected packet, might fall through if the client reconnects?
             if (Connections.TryGetValue(receiveResult.RemoteEndPoint, out var existingConnection))
             {

@@ -39,6 +39,8 @@ internal static class Starter
         RakNetServer.Properties = prop;
         RakNetServer rak = new RakNetServer(prop.serverPort);
         GameServer handler = new GameServer(mainWorld);
+        rak.GameHandler = handler;
+        
         rak.Start(handler);
         AppDomain.CurrentDomain.ProcessExit += (s, e) => Shutdown(rak, handler);
 

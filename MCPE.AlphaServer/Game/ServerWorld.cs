@@ -82,11 +82,6 @@ public class ServerWorld
 
         World.addPlayer(newPlayer);
         ConnectionMap.Add(client, newPlayer);
-        SendAll(new ChatPacket
-        {
-            Message = $"{newPlayer.Username} joined the game!"
-        }
-);
         return ConnectionMap[client];
     }
 

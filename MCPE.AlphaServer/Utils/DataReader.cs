@@ -30,7 +30,15 @@ public class DataReader {
             throw new EndOfStreamException();
         return memory;
     }
-
+    public Memory<byte> ReadAll()
+    {
+        Memory<byte> memory = new byte[stream.Length - stream.Position];
+        while (IsEof)
+        {
+            stream.Read(memory.Span);
+        }
+        return memory;
+    }
     public byte Byte() => (byte)stream.ReadByte();
 
     public short Short() => BinaryPrimitives.ReadInt16BigEndian(Get<short>());
