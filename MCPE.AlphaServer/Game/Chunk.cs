@@ -1,14 +1,16 @@
+using Serilog.Core;
 using System;
 using System.Diagnostics;
 using System.IO;
 
 namespace SpoongePE.Core.Game;
 
-public class Chunk {
+public class Chunk
+{
     private const int SectorSize = 0x1000;
 
     private byte[,,] _blockData = new byte[16, 16, 128];
-    private byte[,,] _blockMetadata = new byte[16,16, 128];
+    private byte[,,] _blockMetadata = new byte[16, 16, 128];
     private byte[,,] _blockLight = new byte[16, 16, 128];
     private byte[,,] _skyLight = new byte[16, 16, 128];
     private byte[,] _heightMap = new byte[16, 16];
@@ -40,7 +42,7 @@ public class Chunk {
     }
     public void setBlockID(int x, int y, int z, byte id)
     {
-        this.BlockData[x,z,y] = id;
+        this.BlockData[x, z, y] = id;
         if (id != 0 && this.HeightMap[x, z] < y)
         {
             this.HeightMap[x, z] = (byte)y;
@@ -54,8 +56,8 @@ public class Chunk {
 
     public void setBlock(int x, int y, int z, byte id, byte meta = 0)
     {
-        this.BlockData[x,z,y] = id;
-        this.BlockMetadata[x,z,y] = meta;
+        this.BlockData[x, z, y] = id;
+        this.BlockMetadata[x, z, y] = meta;
         if (id != 0 && this.HeightMap[x, z] < y)
         {
             this.HeightMap[x, z] = (byte)y;
@@ -77,25 +79,27 @@ public class Chunk {
         }
     }
 
-    public static int[,] ReadMetadata(BinaryReader reader) {
+    public static int[,] ReadMetadata(BinaryReader reader)
+    {
         var metadata = new int[16, 16];
-        for (var offset = 0; offset < SectorSize; offset += 4) {
+        for (var offset = 0; offset < SectorSize; offset += 4)
+        {
             var chunkMetadata = reader.ReadInt32();
             if (chunkMetadata == 0)
                 continue;
-
             var x = (offset >> 2) % 32;
             var z = (offset >> 2) / 32;
-
             metadata[x, z] = (chunkMetadata >> 8) * SectorSize;
         }
 
         return metadata;
     }
 
-    private static void DecompressBlockMetadata(byte[] buffer, Array destination) {
+    private static void DecompressBlockMetadata(byte[] buffer, Array destination)
+    {
         var outputBuffer = new byte[32768];
-        for (var offset = 0; offset < outputBuffer.Length / 2; offset += 2) {
+        for (var offset = 0; offset < outputBuffer.Length / 2; offset += 2)
+        {
             var inputByte = buffer[offset / 2];
             outputBuffer[offset] = (byte)(inputByte & 0x0F);
             outputBuffer[offset + 1] = (byte)(inputByte >> 4);
@@ -103,13 +107,29 @@ public class Chunk {
 
         Buffer.BlockCopy(outputBuffer, 0, destination, 0, outputBuffer.Length);
     }
+    public static byte[] CompressBlockMetadata(Array source)
+    {
+        byte[] buffer = new byte[16384];
+        var inputBuffer = new byte[source.Length];
+        Buffer.BlockCopy(source, 0, inputBuffer, 0, source.Length);
 
-    public static Chunk From(BinaryReader reader) {
+        for (var offset = 0; offset < inputBuffer.Length; offset += 2)
+        {
+            var outputByte = (byte)(inputBuffer[offset] | (inputBuffer[offset + 1] << 4));
+            buffer[offset / 2] = outputByte;
+        }
+        return buffer;
+    }
+
+
+    public static Chunk From(BinaryReader reader)
+    {
         Debug.Assert(reader.ReadInt32() == 82180);
 
         var chunkBuffer = reader.ReadBytes(82176);
 
-        var chunk = new Chunk {
+        var chunk = new Chunk
+        {
             _blockData = new byte[16, 16, 128],
             _blockMetadata = new byte[16, 16, 128],
             _blockLight = new byte[16, 16, 128],

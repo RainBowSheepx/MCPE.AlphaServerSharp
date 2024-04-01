@@ -63,10 +63,10 @@ public class GameServer : IConnectionHandler
     {
         var responseStatus = LoginResponsePacket.StatusFor(packet.Protocol1, packet.Protocol2, PROTOCOL);
         var shouldRejectLogin = BadUsernames.Contains(packet.Username.ToLower())
-                                || ServerWorld.GetByName(packet.Username) != null 
+                                || ServerWorld.GetByName(packet.Username) != null // Already logged in.
                                 || ServerWorld.Players.Count() >= RakNetServer.Properties.maxPlayers
-                                || packet.Username.Length > 16; // Already logged in.
-        foreach(char c in packet.Username)
+                                || packet.Username.Length > 16;
+        foreach (char c in packet.Username)
         {
             if (!Char.IsAscii(c))
             {
@@ -160,8 +160,12 @@ public class GameServer : IConnectionHandler
     public virtual void HandleMovePlayer(RakNetClient client, MovePlayerPacket packet) =>
         ServerWorld.MovePlayer(client, packet.Pos, packet.Rot);
 
-    //public virtual void HandlePlaceBlock(RakNetClient client, PlaceBlockPacket packet) { }
-    //public virtual void HandleRemoveBlock(RakNetClient client, RemoveBlockPacket packet) { }
+    public virtual void HandlePlaceBlock(RakNetClient client, PlaceBlockPacket packet) => ServerWorld.World.placeBlockAndNotifyNearby(packet.X, packet.Y, packet.Z, packet.Block, packet.Meta);
+
+
+    public virtual void HandleRemoveBlock(RakNetClient client, RemoveBlockPacket packet) => ServerWorld.World.removeBlock(packet.X, packet.Y, packet.Z);
+
+
     //public virtual void HandleUpdateBlock(RakNetClient client, UpdateBlockPacket packet) { }
     //public virtual void HandleAddPainting(RakNetClient client, AddPaintingPacket packet) { }
     //public virtual void HandleExplode(RakNetClient client, ExplodePacket packet) { }

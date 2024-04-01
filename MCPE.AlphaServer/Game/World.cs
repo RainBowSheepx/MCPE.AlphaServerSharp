@@ -16,10 +16,10 @@ using System.Threading.Tasks;
 
 public class World {
   //  private Chunk[,] _chunks;
-    private NbtFile _levelDat;
-    private NbtFile _entitiesDat;
+    public NbtFile _levelDat;
+    public NbtFile _entitiesDat;
 
-    public string LevelName { get; private set; }
+    public string LevelName => name;
     public int Seed => worldSeed;
     public int SpawnX => spawnX;
     public int SpawnY => spawnY;
@@ -38,7 +38,7 @@ public class World {
     public Chunk[,] _chunks = new Chunk[16,16];
     public bool instantScheduledUpdate = false, editingBlocks = false;
     public int spawnX, spawnY, spawnZ;
-    public String name = "world";
+    public string name = "unknown";
     public long worldTime = 0;
     public int saveTime = 0;
     public int[,] locationTable;
@@ -59,11 +59,12 @@ public class World {
         };
         
         world._levelDat.LoadFromFileWithOffset(Path.Combine(folder, "level.dat"), 8);
+
         world._entitiesDat.LoadFromFileWithOffset(Path.Combine(folder, "entities.dat"), 12);
         
         using var chunksDat = File.OpenRead(Path.Combine(folder, "chunks.dat"));
         using var chunkReader = new BinaryReader(chunksDat);
-
+   
         var chunkMetadata = Chunk.ReadMetadata(chunkReader);
 
         for (var xz = 0; xz < 16 * 16; xz++) {
@@ -80,7 +81,7 @@ public class World {
 
         var levelRootTag = world._levelDat.RootTag;
         
-        world.LevelName = levelRootTag["LevelName"].StringValue;
+        world.name = levelRootTag["LevelName"].StringValue;
         world.worldSeed = (int)levelRootTag["RandomSeed"].LongValue;
         world.spawnX = levelRootTag["SpawnX"].IntValue;
         world.spawnY = levelRootTag["SpawnY"].IntValue;
@@ -90,6 +91,22 @@ public class World {
 
         return world;
     }
+/*
+    public void SaveWorld(BinaryWriter writer)
+    {
+        for (var xz = 0; xz < 16 * 16; xz++)
+        {
+            var x = xz % 16;
+            var z = xz / 16;
+
+            var offset = chunkMetadata[x, z];
+            if (offset == 0)
+                continue;
+
+            chunksDat.Seek(offset, SeekOrigin.Begin);
+            world._chunks[x, z] = Chunk.From(chunkReader);
+        }
+    }*/
     public World() { }
     public void PrintLevelData() {
         foreach (var data in _levelDat.RootTag)
@@ -130,7 +147,24 @@ public class World {
     }
 
 
-
+    public World(string name, int seed)
+    {
+        this.name = name;
+        this.worldSeed = seed;
+        this.random = new BedrockRandom(seed);
+        this.biomeSource = new BiomeSource(this);
+        this.levelSource = new RandomLevelSource(this, seed); //TODO API
+        this.scheduledTickTreeSet = new SortedSet<TickNextTickData>();
+        this.scheduledTickSet = new HashSet<TickNextTickData>();
+        this.randInt1 = 0x283AE83; //it is static in 0.1
+        this.randInt2 = 0x3C6EF35F;
+        _levelDat = new NbtFile();
+        _entitiesDat = new NbtFile();
+        if (Directory.Exists(name))
+        {
+            new WorldSaver().LoadAll(this);
+        }
+    }
 
 
 
@@ -152,6 +186,7 @@ public class World {
             this._chunks[x >> 4,z >> 4].BlockMetadata[x & 0xf,z & 0xf,y] = 0;
 
             this.notifyNearby(x, y, z, 0);
+            sendBlockPlace(x, y, z, 0);
         }
     }
     public void notifyNeighbor(int x, int y, int z, int cid)
@@ -159,6 +194,7 @@ public class World {
         if (!editingBlocks)
         {
             int id = this.getBlockIDAt(x, y, z);
+            if (id == 0) return;
             if (Block.blocks[id].GetType() == typeof(Block)) {
                 Block.blocks[id].onNeighborBlockChanged(this, x, y, z, cid);
             }
@@ -175,7 +211,7 @@ public class World {
         if (x > 255 || y > 127 || z > 255 || y < 0 || z < 0 || x < 0) return 0;
         return this._chunks[x >> 4,z >> 4].BlockData[x & 0xf,z & 0xf,y];
     }
-    public void sendBlockPlace(int x, int y, int z, byte id, byte meta)
+    public void sendBlockPlace(int x, int y, int z, byte id, byte meta = 0)
     {
         UpdateBlockPacket pk = new UpdateBlockPacket();
         pk.X = x;
@@ -184,22 +220,19 @@ public class World {
         pk.Block = id;
         pk.Meta = meta;
 
-        foreach (Player p in this.players.Values)
-        {
-            p.Send(pk);
-        }
+        broadcastPacket(pk);
     }
-    internal void placeBlockAndNotifyNearby(int x, int y, int z, byte id)
+    internal void placeBlockAndNotifyNearby(int x, int y, int z, byte id, byte meta = 0)
     {
         if (x < 256 && y < 128 && z < 256 && y >= 0 && x >= 0 && z >= 0)
         {
             Chunk c = this._chunks[x >> 4,z >> 4];
-            c.setBlock(x & 0xf, y, z & 0xf, id, (byte)0);
+            c.setBlock(x & 0xf, y, z & 0xf, id, meta);
 
             if (id > 0) Block.blocks[id].onBlockAdded(this, x, y, z);
 
             this.notifyNearby(x, y, z, id);
-            this.sendBlockPlace(x, y, z, id, (byte)0);
+            this.sendBlockPlace(x, y, z, id, meta);
         }
     }
 
@@ -209,7 +242,7 @@ public class World {
         if (x < 256 && y < 128 && z < 256 && y >= 0 && x >= 0 && z >= 0)
         {
             Chunk c = this._chunks[x >> 4, z >> 4];
-            c.setBlock(x & 0xf, y, z & 0xf, id, (byte)0);
+            c.setBlock(x & 0xf, y, z & 0xf, id, meta);
 
             if (id > 0) Block.blocks[id].onBlockAdded(this, x, y, z);
 

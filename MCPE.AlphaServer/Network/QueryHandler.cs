@@ -59,14 +59,14 @@ namespace SpoongePE.Core.Network
             string temp = "";
 
             this.query["numplayers"] = Server.GameHandler.ServerWorld.Players.Count().ToString();
-            foreach(string key in query.Keys)
+            foreach (string key in query.Keys)
             {
                 temp += key + "\x00" + query[key] + "\x00";
             }
             temp += "\x00\x01player_\x00\x00";
             foreach (Player pl in Server.GameHandler.ServerWorld.Players)
             {
-                if(pl.Username != "")
+                if (pl.Username != "")
                 {
                     temp += pl.Username + "\x00";
                 }
@@ -78,7 +78,7 @@ namespace SpoongePE.Core.Network
         {
             QueryPacket pk = new QueryPacket();
             pk.Decode(ref reader);
-            if(pk.packetType == QueryPacket.HANDSHAKE)
+            if (pk.packetType == QueryPacket.HANDSHAKE)
             {
                 QueryPacket pkk = new QueryPacket();
                 pkk.packetType = QueryPacket.HANDSHAKE;
@@ -94,7 +94,7 @@ namespace SpoongePE.Core.Network
                 this.Server.UDP.Send(dataWriter.GetBytes(), dataWriter.GetBytes().Length, IP);
                 Logger.Info("[Query] Sent handshake to " + IP.Address);
                 var test2 = string.Join(" ", dataWriter.GetBytes());
-           //     Logger.Info("test stack: " + test2 + " Size: " + dataWriter.GetBytes().Length);
+                //     Logger.Info("test stack: " + test2 + " Size: " + dataWriter.GetBytes().Length);
             }
             else if (pk.packetType == QueryPacket.STATISTICS)
             {
@@ -105,6 +105,7 @@ namespace SpoongePE.Core.Network
                 List<byte> temp = new List<byte>();
                 foreach (char c in regenerateInfo())
                 {
+                    if (!Char.IsAscii(c)) break;
                     temp.Add(System.Convert.ToByte(c));
                 }
                 pkk.payload = temp.ToArray();
@@ -113,11 +114,11 @@ namespace SpoongePE.Core.Network
                 this.Server.UDP.Send(dataWriter.GetBytes(), dataWriter.GetBytes().Length, IP);
                 Logger.Info("[Query] Sent stats to " + IP.Address);
                 var test2 = string.Join(" ", dataWriter.GetBytes());
-             //   Logger.Info("test stack: " + test2 + " Size: " + dataWriter.GetBytes().Length);
+                //   Logger.Info("test stack: " + test2 + " Size: " + dataWriter.GetBytes().Length);
             }
             else
             {
-                Logger.Warn("Unknow message was get in query! " + pk.packetType);
+                Logger.Warn("[Query] Unknown message was get in query! " + pk.packetType);
             }
         }
     }
@@ -135,7 +136,7 @@ namespace SpoongePE.Core.Network
         {
             this.packetType = reader.Byte();
             this.sessionID = reader.Int();
-            if(!reader.IsEof)
+            if (!reader.IsEof)
                 this.payload = reader.ReadAll().ToArray();
         }
         public void Encode(ref DataWriter writer)

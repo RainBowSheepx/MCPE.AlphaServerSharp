@@ -24,14 +24,27 @@ internal static class Starter
         // Directory.SetCurrentDirectory("work");
         //#endif
         ServerProperties prop = new YmlProp().LoadServerProp();
-        var mainWorld = new World(SpoongePE.Core.Game.utils.Utils.stringHash("nyan"));
+
         Block.init();
         Biome.recalc();
+        var mainWorld = new World("world", SpoongePE.Core.Game.utils.Utils.stringHash("nyan")); //TODO: Get seed from properties
         Logger.LogBackend = new LoggerConfiguration()
-        .WriteTo.Console(theme: SystemConsoleTheme.Colored)
-        .MinimumLevel.Debug()
-        .CreateLogger();
-        NormalWorldGenerator.generateChunks(mainWorld);
+.WriteTo.Console(theme: SystemConsoleTheme.Colored)
+.MinimumLevel.Debug()
+.CreateLogger();
+        if (!Directory.Exists(mainWorld.name))
+        {
+            switch (prop.levelType.ToLower())
+            {
+                case "flat":
+                    FlatWorldGenerator.generateChunks(mainWorld);
+                    break;
+                case "normal":
+                    NormalWorldGenerator.generateChunks(mainWorld);
+                    break;
+            }
+        }
+
 
         //   mainWorld.PrintEntitiesData();
         Console.WriteLine("Level Data:");
@@ -44,7 +57,7 @@ internal static class Starter
         RakNetServer rak = new RakNetServer(prop.serverPort);
         GameServer handler = new GameServer(mainWorld);
         rak.GameHandler = handler;
-        
+
         rak.Start(handler);
         AppDomain.CurrentDomain.ProcessExit += (s, e) => Shutdown(rak, handler);
 
@@ -56,10 +69,11 @@ internal static class Starter
     private static async void Shutdown(RakNetServer rak, GameServer handler)
     {
         handler.ServerWorld.KickAll();
-      //  await Task.Delay(100);
+        new WorldSaver().SaveAll(handler.ServerWorld.World);
+        //  await Task.Delay(100);
         rak.Stop();
 
-       // handler.ServerWorld.World.
+        // handler.ServerWorld.World.
         Logger.Info("Server is stopped!");
     }
 }
