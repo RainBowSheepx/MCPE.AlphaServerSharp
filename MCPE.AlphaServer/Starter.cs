@@ -24,7 +24,7 @@ internal static class Starter
         // Directory.SetCurrentDirectory("work");
         //#endif
         ServerProperties prop = new YmlProp().LoadServerProp();
-        var mainWorld = new World(666);
+        var mainWorld = new World(SpoongePE.Core.Game.utils.Utils.stringHash("nyan"));
         Block.init();
         Biome.recalc();
         Logger.LogBackend = new LoggerConfiguration()

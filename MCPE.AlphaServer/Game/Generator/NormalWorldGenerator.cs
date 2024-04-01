@@ -25,7 +25,7 @@ namespace SpoongePE.Core.Game.Generator
                 Logger.Info("Populating " + x + ": [0-15] chunks");
                 for (int z = 0; z < 16; ++z)
                 {
-                    //TODO w.levelSource.postProcess(x, z);
+                    w.levelSource.postProcess(x, z);
                 }
             }
             w.locationTable = new int[32, 32]; //TODO comp with vanilla

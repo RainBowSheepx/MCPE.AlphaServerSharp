@@ -62,7 +62,7 @@ public abstract class Block {
     public static SolidBlock clay = new SolidBlock(82, Material.clay);
     public static PlantBlock reeds = new PlantBlock(83, Material.plant);
     public static SolidBlock invisibleBedrock = new SolidBlock(95,Material.stone); //TODO destructible/indestructible
-    public static WoolBlock wool = new WoolBlock(35, -1);
+    public static WoolBlock wool = new WoolBlock(35, -1); //TODO make use of meta, it is not 0.1.3
     public static WoolBlock wool_f = new WoolBlock(101, 0xf); //using ids instead of meta =/
     public static WoolBlock wool_e = new WoolBlock(102, 0xe);
     public static WoolBlock wool_d = new WoolBlock(103, 0xd);
@@ -83,8 +83,8 @@ public abstract class Block {
     public static DecorationBlock fire = new DecorationBlock(51, Material.fire);
 
 
-    public void onNeighborBlockChanged(World world, int x, int y, int z, int meta) { }
-    public void onBlockRemoved(World world, int x, int y, int z)
+    public virtual void onNeighborBlockChanged(World world, int x, int y, int z, int meta) { }
+    public virtual void onBlockRemoved(World world, int x, int y, int z)
     {
         world.removeBlock(x, y, z);
         UpdateBlockPacket pk = new UpdateBlockPacket();
@@ -95,17 +95,17 @@ public abstract class Block {
         pk.Meta = 0;
         world.broadcastPacket(pk);
     }
-    public void onBlockRemovedByPlayer(World world, int x, int y, int z, Player player)
+    public virtual void onBlockRemovedByPlayer(World world, int x, int y, int z, Player player)
     {
         world.removeBlock(x, y, z);
     }
 
-    public void tick(World world, int x, int y, int z, BedrockRandom random)
+    public virtual void tick(World world, int x, int y, int z, BedrockRandom random)
     {
 
     }
 
-    public void onBlockAdded(World world, int x, int y, int z)
+    public virtual void onBlockAdded(World world, int x, int y, int z)
     {
 
     }
@@ -114,12 +114,12 @@ public abstract class Block {
         this.name = name;
         return this;
     }
-    public bool canSurvive(World world, int x, int y, int z)
+    public virtual bool canSurvive(World world, int x, int y, int z)
     {
         return true;
     }
 
-    public void onBlockPlacedByPlayer(World world, int x, int y, int z, int face, Player player)
+    public virtual void onBlockPlacedByPlayer(World world, int x, int y, int z, int face, Player player)
     {
         world.placeBlockAndNotifyNearby(x, y, z, (byte)this.blockID);
     }

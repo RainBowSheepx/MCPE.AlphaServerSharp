@@ -72,9 +72,11 @@ public class GameServer : IConnectionHandler
         if (responseStatus != LoginResponsePacket.LoginStatus.VersionsMatch)
             return;
 
-        // We can log in, start the game.
+        // We can log in, start the game. 
         var newPlayer = ServerWorld.AddPlayer(client, packet.ClientId, packet.Username);
-        newPlayer.Position.Y = 128;
+        newPlayer.Position.Y = 128; //TODO please implement safe spawn search
+        newPlayer.Position.X = 128;
+        newPlayer.Position.Z = 128;
         client.Send(new StartGamePacket
         {
             Seed = ServerWorld.World.Seed,
@@ -83,8 +85,6 @@ public class GameServer : IConnectionHandler
             Gamemode = RakNetServer.Properties.gamemode ? 1 : 0,
         }
         );
-
-        Console.WriteLine(newPlayer.Position);
 
         client.Send(new ChatPacket
         {
