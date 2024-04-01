@@ -63,8 +63,17 @@ public class GameServer : IConnectionHandler
     {
         var responseStatus = LoginResponsePacket.StatusFor(packet.Protocol1, packet.Protocol2, PROTOCOL);
         var shouldRejectLogin = BadUsernames.Contains(packet.Username.ToLower())
-                                || ServerWorld.GetByName(packet.Username) != null || ServerWorld.Players.Count() >= RakNetServer.Properties.maxPlayers; // Already logged in.
-
+                                || ServerWorld.GetByName(packet.Username) != null 
+                                || ServerWorld.Players.Count() >= RakNetServer.Properties.maxPlayers
+                                || packet.Username.Length > 16; // Already logged in.
+        foreach(char c in packet.Username)
+        {
+            if (!Char.IsAscii(c))
+            {
+                shouldRejectLogin = true;
+                break;
+            }
+        }
         if (shouldRejectLogin) responseStatus = LoginResponsePacket.LoginStatus.ClientOutdated;
 
         client.Send(new LoginResponsePacket { Status = responseStatus });

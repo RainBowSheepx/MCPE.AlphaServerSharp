@@ -92,7 +92,7 @@ namespace SpoongePE.Core.Network
                 DataWriter dataWriter = new DataWriter();
                 pkk.Encode(ref dataWriter);
                 this.Server.UDP.Send(dataWriter.GetBytes(), dataWriter.GetBytes().Length, IP);
-                Logger.Info("Sent handshake to " + IP.Address);
+                Logger.Info("[Query] Sent handshake to " + IP.Address);
                 var test2 = string.Join(" ", dataWriter.GetBytes());
            //     Logger.Info("test stack: " + test2 + " Size: " + dataWriter.GetBytes().Length);
             }
@@ -111,7 +111,7 @@ namespace SpoongePE.Core.Network
                 DataWriter dataWriter = new DataWriter();
                 pkk.Encode(ref dataWriter);
                 this.Server.UDP.Send(dataWriter.GetBytes(), dataWriter.GetBytes().Length, IP);
-                Logger.Info("Sent stats to " + IP.Address);
+                Logger.Info("[Query] Sent stats to " + IP.Address);
                 var test2 = string.Join(" ", dataWriter.GetBytes());
              //   Logger.Info("test stack: " + test2 + " Size: " + dataWriter.GetBytes().Length);
             }

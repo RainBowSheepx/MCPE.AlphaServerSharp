@@ -61,7 +61,6 @@ public class RakNetServer
                 {
                     sts += b + " ";
                 }
-                Logger.Debug("Query detected!");
                 QueryHandler query = new QueryHandler(receiveResult.RemoteEndPoint, this);
                 DataReader reader = new DataReader(receiveResult.Buffer[2..(receiveResult.Buffer.Length)]);
                 query.handle(reader);
