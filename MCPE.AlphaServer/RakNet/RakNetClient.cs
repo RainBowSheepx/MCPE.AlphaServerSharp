@@ -93,26 +93,26 @@ public class RakNetClient
                 {
                     if (!this.resendQueueResend.Remove(min, out _))
                     {
-                        Logger.Warn($"HandleACK Failed to remove {min} from resendQueueResend {packet}");
+                        Logger.PError($"Failed to remove {min} from resendQueueResend {packet}");
                     }
                 }
                 else if (this.resendQueueSplit.ContainsKey(min))
                 {
                     if (!this.resendQueueSplit.Remove(min, out _))
                     {
-                        Logger.Warn($"HandleACK Failed to remove {min} from resendQueueSplit {packet}");
+                        Logger.PError($"Failed to remove {min} from resendQueueSplit {packet}");
                     }
                 }
                 else if (this.resendQueueOutGoing.ContainsKey(min))
                 {
                     if (!this.resendQueueOutGoing.Remove(min, out _))
                     {
-                        Logger.Warn($"HandleACK Failed to remove {min} from resendQueueOutGoing {packet}");
+                        Logger.PError($"Failed to remove {min} from resendQueueOutGoing {packet}");
                     }
                 }
                 else
                 {
-                    Logger.Warn($"HandleACK Failed to remove {min} from all resendQueues {packet}");
+                    Logger.PError($"Failed to remove {min} from all resendQueues {packet}");
                 }
 
 
@@ -134,11 +134,11 @@ public class RakNetClient
                     var pk = this.resendQueueResend.GetValueOrDefault(min, null);
                     if (pk == null)
                     {
-                        Logger.Warn($"HandleNAK Failed to resend {min} from resendQueue because it doesnt exist. {packet}");
+                        Logger.PError($"Failed to resend {min} from resendQueue because it doesnt exist. {packet}");
                     }
                     else
                     {
-                        Logger.Warn($"Resending {min}");
+                        Logger.PWarn($"Resending {min}");
                         this.ResendPackets.Add(pk); // yez
                     }
                 }
@@ -147,11 +147,11 @@ public class RakNetClient
                     var pk = this.resendQueueSplit.GetValueOrDefault(min, null);
                     if (pk == null)
                     {
-                        Logger.Warn($"HandleNAK Failed to resend {min} from resendQueue because it doesnt exist. {packet}");
+                        Logger.PError($"Failed to resend {min} from resendQueue because it doesnt exist. {packet}");
                     }
                     else
                     {
-                        Logger.Warn($"Resending {min}");
+                        Logger.PWarn($"Resending {min}");
                         this.ResendPackets.Add(pk); // yez
                     }
                 }
@@ -160,17 +160,17 @@ public class RakNetClient
                     var pk = this.resendQueueOutGoing.GetValueOrDefault(min, null);
                     if (pk == null)
                     {
-                        Logger.Warn($"HandleNAK Failed to resend {min} from resendQueue because it doesnt exist. {packet}");
+                        Logger.PError($"Failed to resend {min} from resendQueue because it doesnt exist. {packet}");
                     }
                     else
                     {
-                        Logger.Warn($"Resending {min}");
+                        Logger.PWarn($"Resending {min}");
                         this.ResendPackets.Add(pk); // yez
                     }
                 }
                 else
                 {
-                    Logger.Warn($"HandleNAK Failed to resend {min} from all resendQueues because it doesnt exist. {packet}");
+                    Logger.PError($"Failed to resend {min} from all resendQueues because it doesnt exist. {packet}");
                 }
             }
         }

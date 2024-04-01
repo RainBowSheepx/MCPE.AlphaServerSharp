@@ -27,11 +27,12 @@ internal static class Starter
 
         Block.init();
         Biome.recalc();
-        var mainWorld = new World("world", SpoongePE.Core.Game.utils.Utils.stringHash("nyan")); //TODO: Get seed from properties
         Logger.LogBackend = new LoggerConfiguration()
 .WriteTo.Console(theme: SystemConsoleTheme.Colored)
 .MinimumLevel.Debug()
 .CreateLogger();
+        var mainWorld = new World("world", SpoongePE.Core.Game.utils.Utils.stringHash("nyan")); //TODO: Get seed from properties
+
         if (!Directory.Exists(mainWorld.name))
         {
             switch (prop.levelType.ToLower())
@@ -69,7 +70,7 @@ internal static class Starter
     private static async void Shutdown(RakNetServer rak, GameServer handler)
     {
         handler.ServerWorld.KickAll();
-        new WorldSaver().SaveAll(handler.ServerWorld.World);
+        handler.ServerWorld.World.Saver.SaveAll();
         //  await Task.Delay(100);
         rak.Stop();
 

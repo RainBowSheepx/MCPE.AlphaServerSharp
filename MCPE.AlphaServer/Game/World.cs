@@ -46,7 +46,7 @@ public class World {
     public BiomeSource biomeSource;
     public LevelSource levelSource;
     public int randInt1, randInt2;
-
+    public WorldSaver Saver;
     public SortedSet<TickNextTickData> scheduledTickTreeSet;
     public HashSet<TickNextTickData> scheduledTickSet;
     public static World From(string folder) {
@@ -160,9 +160,10 @@ public class World {
         this.randInt2 = 0x3C6EF35F;
         _levelDat = new NbtFile();
         _entitiesDat = new NbtFile();
+        Saver = new WorldSaver(this);
         if (Directory.Exists(name))
         {
-            new WorldSaver().LoadAll(this);
+            Saver.LoadAll();
         }
     }
 

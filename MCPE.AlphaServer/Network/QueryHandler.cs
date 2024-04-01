@@ -74,7 +74,7 @@ namespace SpoongePE.Core.Network
             temp += "\x00";
             return temp;
         }
-        public void handle(DataReader reader)
+        public void QueryHandle(DataReader reader)
         {
             QueryPacket pk = new QueryPacket();
             pk.Decode(ref reader);
@@ -92,7 +92,7 @@ namespace SpoongePE.Core.Network
                 DataWriter dataWriter = new DataWriter();
                 pkk.Encode(ref dataWriter);
                 this.Server.UDP.Send(dataWriter.GetBytes(), dataWriter.GetBytes().Length, IP);
-                Logger.Info("[Query] Sent handshake to " + IP.Address);
+                Logger.PInfo("Sent handshake to " + IP.Address);
                 var test2 = string.Join(" ", dataWriter.GetBytes());
                 //     Logger.Info("test stack: " + test2 + " Size: " + dataWriter.GetBytes().Length);
             }
@@ -112,13 +112,13 @@ namespace SpoongePE.Core.Network
                 DataWriter dataWriter = new DataWriter();
                 pkk.Encode(ref dataWriter);
                 this.Server.UDP.Send(dataWriter.GetBytes(), dataWriter.GetBytes().Length, IP);
-                Logger.Info("[Query] Sent stats to " + IP.Address);
+                Logger.PInfo("Sent stats to " + IP.Address);
                 var test2 = string.Join(" ", dataWriter.GetBytes());
                 //   Logger.Info("test stack: " + test2 + " Size: " + dataWriter.GetBytes().Length);
             }
             else
             {
-                Logger.Warn("[Query] Unknown message was get in query! " + pk.packetType);
+                Logger.PWarn("Unknown message was get in query! " + pk.packetType);
             }
         }
     }

@@ -1,4 +1,4 @@
-﻿using Serilog.Core;
+﻿
 using SpoongePE.Core.NBT;
 using System;
 using System.Collections.Generic;
@@ -6,13 +6,13 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-
+using SpoongePE.Core.Utils;
 namespace SpoongePE.Core.Game
 {
     public class WorldSaver
     {
         // --https://github.com/GameHerobrine/Minecraft013-Server/blob/main/src/net/skidcode/gh/server/world/parser/vanilla/ChunkDataParser.java
-        public Chunk[] chunks = new Chunk[256];
+        private Chunk[] chunks = new Chunk[256];
         public static int[,] locTable = new int[,] { //TODO understand how it works and what it means
 		{0x115, 0x1615, 0x2B15, 0x4015, 0x5515, 0x6A15, 0x7F15, 0x9415, 0xA915, 0xBE15, 0xD315, 0xE815, 0xFD15, 0x11215, 0x12715, 0x13C15, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000},
         {0x15115, 0x16615, 0x17B15, 0x19015, 0x1A515, 0x1BA15, 0x1CF15, 0x1E415, 0x1F915, 0x20E15, 0x22315, 0x23815, 0x24D15, 0x26215, 0x27715, 0x28C15, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000},
@@ -48,8 +48,13 @@ namespace SpoongePE.Core.Game
         {0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000}
     };
         public static int CHUNK_HEADER = 71368960;
+        private World world;
 
-        public void SaveChunks(World world, FileStream outputFile)
+        public WorldSaver(World w)
+        {
+            this.world = w;
+        }
+        public void SaveChunks(FileStream outputFile)
         {
 
 
@@ -90,12 +95,18 @@ namespace SpoongePE.Core.Game
                     writer.Write(Chunk.CompressBlockMetadata(c.BlockLight));
                     //       writer.Seek(64, SeekOrigin.Current);
 
-
+                    for (int x = 0; x < 16; ++x)
+                    { //taken from 0.1.0 decomp project (ReMinecraftPE)
+                        for (int z = 0; z < 16; ++z)
+                        {
+                            writer.Write((byte)0xff);
+                        }
+                    }
                 }
             }
             writer.Flush();
         }
-        public void SaveLevelDat(World world, FileStream outputFile)
+        public void SaveLevelDat(FileStream outputFile)
         {
             //   if(world._levelDat.RootTag.Count == 0)
             //  {
@@ -115,20 +126,25 @@ namespace SpoongePE.Core.Game
             //}
         }
 
-        public void SaveAll(World world)
+        public void SaveAll()
         {
             if (world.name.ToLower().Contains("unknown")) return;
             if (!Directory.Exists(world.LevelName)) Directory.CreateDirectory(world.LevelName);
+            Logger.PInfo("Saving " + world.LevelName + "...");
             FileStream chunksDat = File.OpenWrite(Path.Combine(world.LevelName, "chunks.dat"));
             FileStream levelDat = File.OpenWrite(Path.Combine(world.LevelName, "level.dat"));
 
-            SaveChunks(world, chunksDat);
-            SaveLevelDat(world, levelDat);
+            SaveChunks(chunksDat);
+            SaveLevelDat(levelDat);
+
+            chunksDat.Dispose();
+            levelDat.Dispose();
+            Logger.PInfo(world.LevelName + " is saved!");
         }
 
 
 
-        public void LoadChunks(World world, FileStream inputFile)
+        public void LoadChunks(FileStream inputFile)
         {
 
             BinaryReader chunkReader = new BinaryReader(inputFile);
@@ -149,7 +165,7 @@ namespace SpoongePE.Core.Game
                 world._chunks[x, z] = Chunk.From(chunkReader);
             }
         }
-        public void LoadLevelDat(World world, FileStream inputFile)
+        public void LoadLevelDat(FileStream inputFile)
         {
             world._levelDat = new NbtFile();
 
@@ -165,13 +181,20 @@ namespace SpoongePE.Core.Game
             world.spawnZ = levelRootTag["SpawnZ"].IntValue;
             world.worldTime = (int)levelRootTag["Time"].LongValue;
         }
-        public void LoadAll(World world)
+        public void LoadAll()
         {
+            if (world.name.ToLower().Contains("unknown")) return;
+            if (!Directory.Exists(world.LevelName)) return;
+            Logger.PInfo("Loading " + world.LevelName + "...");
             FileStream chunksDat = File.OpenRead(Path.Combine(world.LevelName, "chunks.dat"));
             FileStream levelDat = File.OpenRead(Path.Combine(world.LevelName, "level.dat"));
 
-            LoadChunks(world, chunksDat);
-            LoadLevelDat(world, levelDat);
+            LoadChunks(chunksDat);
+            LoadLevelDat(levelDat);
+
+            chunksDat.Dispose();
+            levelDat.Dispose();
+            Logger.PInfo(world.LevelName + " is loaded!");
         }
     }
 }
