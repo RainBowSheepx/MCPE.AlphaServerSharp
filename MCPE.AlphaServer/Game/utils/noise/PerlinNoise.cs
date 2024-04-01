@@ -46,7 +46,10 @@ namespace SpoongePE.Core.Game.utils.noise
             }
             else
             {
-               Enumerable.Repeat(0, noiseArray.Length).ToArray().CopyTo(noiseArray,0);
+               for(int i = 0; i < width * height * depth; ++i)
+                {
+                    noiseArray[i] = 0;
+                }
             }
 
             float scale = 1;

@@ -13,7 +13,7 @@ namespace SpoongePE.Core.Game.BlockBase
         {
             this.isSolid = false;
         }
-        public void onNeighborBlockChanged(World world, int x, int y, int z, int meta)
+        public override void onNeighborBlockChanged(World world, int x, int y, int z, int meta)
         {
 
             if (!world.isBlockSolid(x, y - 1, z))
@@ -21,7 +21,7 @@ namespace SpoongePE.Core.Game.BlockBase
                 this.onBlockRemoved(world, x, y, z);
             }
         }
-        public bool canSurvive(World world, int x, int y, int z)
+        public override bool canSurvive(World world, int x, int y, int z)
         {
           
             bool res = world.canSeeSky(x, y, z);
