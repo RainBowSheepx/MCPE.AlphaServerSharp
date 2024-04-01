@@ -34,7 +34,6 @@ namespace SpoongePE.Core.Game.biome
         public Biome(string name)
         {
             this.name = name;
-            recalc();
         }
 
 

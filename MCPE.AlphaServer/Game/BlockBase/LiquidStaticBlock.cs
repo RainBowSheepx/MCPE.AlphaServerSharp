@@ -23,8 +23,8 @@ namespace SpoongePE.Core.Game.BlockBase
             world.addToTickNextTick(x, y, z, this.blockID - 1, this.tickrate);
             world.editingBlocks = false;
         }
-        
-        public void onBlockAdded(World world, int x, int y, int z)
+
+        public override void onBlockAdded(World world, int x, int y, int z)
         {
             /**
              * if ( *((_DWORD *)this + 0x10) == Material::lava )
@@ -33,8 +33,8 @@ namespace SpoongePE.Core.Game.BlockBase
              */
             //TODO fire spread
         }
-       
-    public void onNeighborBlockChanged(World world, int x, int y, int z, int meta)
+
+        public override void onNeighborBlockChanged(World world, int x, int y, int z, int meta)
         {
             base.onNeighborBlockChanged(world, x, y, z, meta);
          //   super.onNeighborBlockChanged(world, x, y, z, meta);

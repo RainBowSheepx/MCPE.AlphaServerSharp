@@ -11,25 +11,21 @@ namespace SpoongePE.Core.Game.utils
     {
         public static int ffloor(float f)
         {
-            byte[] bytes = BitConverter.GetBytes(f - (int)f);
-            return ((int)f) + (BitConverter.ToInt32(bytes,0) >> 31);
+            return (int)Math.Floor(f);
         }
         public static long ffloor(double f)
         {
-            byte[] bytes = BitConverter.GetBytes(f - (long)f);
-            return ((long)f) + (BitConverter.ToInt64(bytes,0) >> 63);
+            return (long)Math.Floor(f);
         }
 
         public static long fceil(double f)
         {
-            byte[] bytes = BitConverter.GetBytes(((long)f) - f);
-            return ((long)f) - (BitConverter.ToInt64(bytes, 0) >> 63);
+            return (long)Math.Ceiling(f);
         }
 
         public static int fceil(float f)
         {
-            byte[] bytes = BitConverter.GetBytes(((int)f) - f);
-            return ((int)f) - (BitConverter.ToInt32(bytes, 0) >> 31);
+            return (int)Math.Ceiling(f);
         }
     }
 }

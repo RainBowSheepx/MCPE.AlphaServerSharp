@@ -34,14 +34,14 @@ namespace SpoongePE.Core.Game.BlockBase
             }
         }
 
-       
-        public void onBlockAdded(World world, int x, int y, int z)
+
+        public override void onBlockAdded(World world, int x, int y, int z)
         {
             this.updateLiquid(world, x, y, z);
         }
 
         
-    public void onNeighborBlockChanged(World world, int x, int y, int z, int meta)
+        public override void onNeighborBlockChanged(World world, int x, int y, int z, int meta)
         {
             this.updateLiquid(world, x, y, z);
         }
