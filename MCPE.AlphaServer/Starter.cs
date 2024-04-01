@@ -10,6 +10,9 @@ using SpoongePE.Core.RakNet;
 using SpoongePE.Core.Utils;
 using Serilog;
 using Serilog.Sinks.SystemConsole.Themes;
+using SpoongePE.Core.Game.biome;
+using SpoongePE.Core.Game.utils.random;
+using SpoongePE.Core.Game.utils.noise;
 
 namespace SpoongePE.Core;
 
@@ -23,11 +26,12 @@ internal static class Starter
         ServerProperties prop = new YmlProp().LoadServerProp();
         var mainWorld = new World(666);
         Block.init();
+        Biome.recalc();
         Logger.LogBackend = new LoggerConfiguration()
         .WriteTo.Console(theme: SystemConsoleTheme.Colored)
         .MinimumLevel.Debug()
         .CreateLogger();
-        FlatWorldGenerator.generateChunks(mainWorld);
+        NormalWorldGenerator.generateChunks(mainWorld);
 
         //   mainWorld.PrintEntitiesData();
         Console.WriteLine("Level Data:");

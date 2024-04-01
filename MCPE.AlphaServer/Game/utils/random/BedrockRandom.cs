@@ -3,232 +3,82 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using YamlDotNet.Core.Tokens;
 
 namespace SpoongePE.Core.Game.utils.random
 {
     public class BedrockRandom
     {
-        public BedrockRandom()
+        public static uint[] MAG = { 0, 0x9908b0df };
+        public uint[] mt = new uint[625];
+	    public uint index = 0;
+
+        public BedrockRandom(int seed)
         {
-            (new Random()).Next();
+            this.setSeed((uint)seed);
         }
 
-        public BedrockRandom(int i)
-        {
-            state = new Int64[624];
-            field_26523_valid = false;
-            field_26523_valid = true;
-            func_26512__setSeed(i);
-        }
 
-        public int func_26520_getSeed()
+        public BedrockRandom(uint seed)
         {
-            return field_26530_seed;
+		    this.setSeed(seed);
         }
-
-        public void setSeed(long l)
+        public void setSeed(int seed)
         {
-            if (field_26523_valid)
-            {
-                func_26515_setSeed((int)l);
+            this.setSeed((uint)seed);
+        }
+        public void setSeed(uint seed)
+        {
+		    this.mt[0] = seed;
+
+            for (this.index = 1; this.index < 624; ++this.index){
+			    this.mt[this.index] = 0x6c078965 * (this.mt[this.index - 1] >> 30 ^ this.mt[this.index - 1]) + this.index;
             }
         }
 
-        public void func_26515_setSeed(int i)
+        public uint genRandInt()
         {
-            func_26512__setSeed(i);
+            uint y, kk;
+            if (this.index >= 624 || this.index < 0){
+                if (this.index >= 625 || this.index < 0) this.setSeed(4357);
+
+                for (kk = 0; kk < 227; ++kk){
+				    y = (this.mt[kk] & 0x80000000) | (this.mt[kk + 1] & 0x7fffffff);
+				    this.mt[kk] = this.mt[kk + 397] ^ (y >> 1) ^ MAG[y & 0x1];
+                }
+
+                for (;kk < 623; ++kk){
+				    y = (this.mt[kk] & 0x80000000) | (this.mt[kk + 1] & 0x7fffffff);
+				    this.mt[kk] = this.mt[kk - 227] ^ (y >> 1) ^ MAG[y & 0x1];
+                }
+			
+			    y = (this.mt[623] & 0x80000000) | (this.mt[0] & 0x7fffffff);
+			    this.mt[623] = this.mt[396] ^ (y >> 1) ^ MAG[y & 0x1];
+			    this.index = 0;
+            }
+		
+		    y = this.mt[this.index++];
+		    y ^= (y >> 11);
+		    y ^= (y << 7) & 0x9d2c5680;
+		    y ^= (y << 15) & 0xefc60000;
+		    y ^= (y >> 18);
+            return y;
         }
 
         public int nextInt()
         {
-            return func_26510__genRandInt32() >>> 1;
+            return (int)(this.genRandInt() >> 1);
+            
         }
 
-        public int nextInt(int i)
+        public int nextInt(int bound)
         {
-            if (i > 0)
-            {
-                return (int)((long)(func_26510__genRandInt32()) % (long)i);
-            }
-            else
-            {
-                return 0;
-            }
-        }
-
-        public int func_26516_nextInt(int i, int j)
-        {
-            if (i < j)
-            {
-                return i + nextInt(j - i);
-            }
-            else
-            {
-                return i;
-            }
-        }
-
-        public int func_26511_nextIntInclusive(int i, int j)
-        {
-            return func_26516_nextInt(i, j + 1);
-        }
-
-        public long func_26509_nextUnsignedInt()
-        {
-            return (long)(func_26510__genRandInt32());
-        }
-
-        public short func_26522_nextUnsignedChar()
-        {
-            return (short)(func_26510__genRandInt32() & 0xff);
-        }
-
-        public bool nextBoolean()
-        {
-            return (func_26510__genRandInt32() & 0x8000000) != 0;
+            return (int)(this.genRandInt() % bound);
         }
 
         public float nextFloat()
         {
-            return (float)func_26518__genRandReal2();
+            return (float)this.genRandInt() / 0xffffffff;
         }
-
-        public float func_26519_nextFloat(float f)
-        {
-            return nextFloat() * f;
-        }
-
-        public float func_26517_nextFloat(float f, float f1)
-        {
-            return f + nextFloat() * (f1 - f);
-        }
-
-        public double nextDouble()
-        {
-            return func_26518__genRandReal2();
-        }
-
-        public double nextGaussian()
-        {
-            if (field_26525_haveNextNextGaussian)
-            {
-                field_26525_haveNextNextGaussian = false;
-                return (double)field_26532_nextNextGaussian;
-            }
-            float f;
-            float f1;
-            float f2;
-            do
-            {
-                f = nextFloat() * 2.0F - 1.0F;
-                f1 = nextFloat() * 2.0F - 1.0F;
-                f2 = f * f + f1 * f1;
-            } while (f2 == 0.0F || f2 > 1.0F);
-            float f3 = (float)Math.Sqrt((-2F * (float)Math.Log(f2)) / f2);
-            field_26532_nextNextGaussian = f1 * f3;
-            field_26525_haveNextNextGaussian = true;
-            return (double)(f * f3);
-        }
-
-        public int func_26513_nextGaussianInt(int i)
-        {
-            return nextInt(i) - nextInt(i);
-        }
-
-        public float func_26514_nextGaussianFloat()
-        {
-            return nextFloat() - nextFloat();
-        }
-
-        protected int next(int i)
-        {
-            return func_26510__genRandInt32() >>> 32 - i;
-        }
-
-        private void func_26512__setSeed(int i)
-        {
-            field_26530_seed = i;
-            field_26534_mti = 625;
-            field_26525_haveNextNextGaussian = false;
-            field_26532_nextNextGaussian = 0.0F;
-            func_26508__initGenRandFast(i);
-        }
-
-        private void func_26521__initGenRand(int i)
-        {
-            state[0] = i;
-            field_26534_mti = 1;
-            do
-            {
-                state[field_26534_mti] = 0x6c078965 * (state[field_26534_mti - 1] >>> 30 ^ state[field_26534_mti - 1]) + field_26534_mti;
-            } while (++field_26534_mti < 624);
-
-            indexF = 624;
-        }
-
-        private void func_26508__initGenRandFast(int i)
-        {
-            state[0] = i;
-            indexF = 1;
-            do
-            {
-                state[indexF] = 0x6c078965 * (state[indexF - 1] >>> 30 ^ state[indexF - 1]) + indexF;
-            } while (++indexF <= 397);
-            field_26534_mti = 624;
-        }
-
-        public Int32 func_26510__genRandInt32()
-        {
-            if (field_26534_mti == 624)
-            {
-                field_26534_mti = 0;
-            }
-            else
-            if (field_26534_mti > 624)
-            {
-                func_26521__initGenRand(5489);
-                field_26534_mti = 0;
-            }
-            if (field_26534_mti >= 227)
-            {
-                if (field_26534_mti >= 623)
-                {
-                    state[623] = field_26528_MAG_01[state[0] & 1] ^ (state[0] & 0x7fffffff | state[623] & 0x80000000) >>> 1 ^ state[396];
-                }
-                else
-                {
-                    state[field_26534_mti] = field_26528_MAG_01[state[field_26534_mti + 1] & 1] ^ (state[field_26534_mti + 1] & 0x7fffffff | state[field_26534_mti] & 0x80000000) >>> 1 ^ state[field_26534_mti - 227];
-                }
-            }
-            else
-            {
-                state[field_26534_mti] = field_26528_MAG_01[state[field_26534_mti + 1] & 1] ^ (state[field_26534_mti + 1] & 0x7fffffff | state[field_26534_mti] & 0x80000000) >>> 1 ^ state[field_26534_mti + 397];
-                if (indexF < 624)
-                {
-                    state[indexF] = 0x6c078965 * (state[indexF - 1] >>> 30 ^ state[indexF - 1]) + indexF;
-                    indexF++;
-                }
-            }
-            Int64 i = state[field_26534_mti++];
-            i = (i ^ i >>> 11) << 7 & 0x9d2c5680 ^ i ^ i >>> 11;
-            i = i << 15 & 0xefc60000 ^ i ^ (i << 15 & 0xefc60000 ^ i) >>> 18;
-            return (Int32)i;
-        }
-
-        private double func_26518__genRandReal2()
-        {
-            return (double)(long)(func_26510__genRandInt32()) * 2.3283064365386963E-010D;
-        }
-
-        private static Int64[] field_26528_MAG_01 = {
-        0, 0x9908b0df
-    };
-        private int field_26530_seed;
-        private Int64[] state;
-        private int field_26534_mti;
-        private bool field_26525_haveNextNextGaussian;
-        private float field_26532_nextNextGaussian;
-        private int indexF;
-        private bool field_26523_valid;
     }
 }

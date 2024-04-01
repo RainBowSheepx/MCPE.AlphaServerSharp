@@ -1,6 +1,7 @@
 ﻿using SpoongePE.Core.Utils;
 using System;
 using System.Collections.Generic;
+using System.IO.Compression;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -24,17 +25,10 @@ namespace SpoongePE.Core.Game.Generator
                 Logger.Info("Populating " + x + ": [0-15] chunks");
                 for (int z = 0; z < 16; ++z)
                 {
-                    w.levelSource.postProcess(x, z);
+                    //TODO w.levelSource.postProcess(x, z);
                 }
             }
             w.locationTable = new int[32, 32]; //TODO comp with vanilla
-        }
-
-        protected static float[] getHeights(float[] noises, int chunkX, int chunkY, int chunkZ, int scaleX, int scaleY, int scaleZ)
-        {
-            if (noises == null) noises = new float[scaleX * scaleZ * scaleY];
-
-            return noises;
         }
     }
 }

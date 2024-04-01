@@ -166,12 +166,13 @@ public class World {
     }
     internal int getBlockIDAt(int x, int y, int z)
     {
-        if (x > 255 || y > 127 || z > 255 || y < 0 || z < 0 || x < 0) return 0; //TODO return invisBedrock for 255+?
+        if (y > 127 || y < 0) return 0;
+        if (x > 255 || z > 255 || z < 0 || x < 0) return Block.invisibleBedrock.blockID;
         return this._chunks[x >> 4,z >> 4].BlockData[x & 0xf,z & 0xf,y] & 0xff;
     }
     internal int getBlockMetaAt(int x, int y, int z)
     {
-        if (x > 255 || y > 127 || z > 255 || y < 0 || z < 0 || x < 0) return 0; //TODO return invisBedrock for 255+?
+        if (x > 255 || y > 127 || z > 255 || y < 0 || z < 0 || x < 0) return 0;
         return this._chunks[x >> 4,z >> 4].BlockData[x & 0xf,z & 0xf,y];
     }
     public void sendBlockPlace(int x, int y, int z, byte id, byte meta)
@@ -275,9 +276,16 @@ public class World {
         }
         return false;
     }
-    internal Material getMaterial(int v1, int v2, int blockZ)
+    internal Material getMaterial(int x, int y, int z)
     {
-        throw new NotImplementedException();
+        int blockID = this.getBlockIDAt(x, y, z);
+        Block b = Block.blocks[blockID];
+
+        if (b != null)
+        {
+            return b.material;
+        }
+        return Material.air;
     }
 
 

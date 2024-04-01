@@ -50,12 +50,7 @@ namespace SpoongePE.Core.Game.utils.noise
             for (int i = 0; i < 256; ++i)
             {
                 int k = r.nextInt(256 - i) + i;
-                if( k< 0)
-                {
-                    k *= -1;
-                }
                 int prev = this.permutations[i];
-                Logger.Info(i + " " + k);
                 this.permutations[i] = this.permutations[k];
                 this.permutations[k] = prev;
                 this.permutations[i + 256] = this.permutations[i];
