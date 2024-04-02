@@ -25,7 +25,7 @@ public class ServerWorld
         Server = server;
         World = world;
         // Activate World ticking
-        // 1 tick is 45ms, i think
+        // 1 tick is 50ms, i think
         RakNetServer.StartRepeatingTask(world.tick, TimeSpan.FromMilliseconds(50));
         RakNetServer.StartRepeatingTask(HandleTick, TimeSpan.FromMilliseconds(2000));
     }
@@ -82,6 +82,7 @@ public class ServerWorld
 
         World.addPlayer(newPlayer);
         ConnectionMap.Add(client, newPlayer);
+        client.player = newPlayer;
         return ConnectionMap[client];
     }
 

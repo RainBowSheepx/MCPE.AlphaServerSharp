@@ -9,6 +9,7 @@ using System.Net.Sockets;
 using System.Security.Cryptography;
 using System.Threading;
 using System.Threading.Tasks;
+using SpoongePE.Core.Game;
 using SpoongePE.Core.Network;
 using SpoongePE.Core.Utils;
 
@@ -49,6 +50,8 @@ public class RakNetClient
 
     private List<ConnectedPacket> ResendPackets { get; }
     private ConcurrentQueue<int> NeedsACK { get; }
+
+    public Player player;
     private int CurrentSequenceNumber;
     private int LastReliablePacketIndex;
     public ushort mtuSize;
