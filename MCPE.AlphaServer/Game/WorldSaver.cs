@@ -85,15 +85,12 @@ namespace SpoongePE.Core.Game
                         writer.Write((byte)(bl));
 
                     }
-                    // writer.Seek(128, SeekOrigin.Current);
+
                     writer.Write(Chunk.CompressBlockMetadata(c.BlockMetadata));
-                    //     writer.Seek(64, SeekOrigin.Current);
                     writer.Write(Chunk.CompressBlockMetadata(c.SkyLight));
-                    //      writer.Seek(64, SeekOrigin.Current);
 
                     // У нас нет просчёта света по блокам :\
                     writer.Write(Chunk.CompressBlockMetadata(c.BlockLight));
-                    //       writer.Seek(64, SeekOrigin.Current);
 
                     for (int x = 0; x < 16; ++x)
                     { //taken from 0.1.0 decomp project (ReMinecraftPE)
@@ -108,8 +105,6 @@ namespace SpoongePE.Core.Game
         }
         public void SaveLevelDat(FileStream outputFile)
         {
-            //   if(world._levelDat.RootTag.Count == 0)
-            //  {
             world._levelDat = new NbtFile();
             NbtCompound levelRootTag = world._levelDat.RootTag;
 
@@ -123,16 +118,15 @@ namespace SpoongePE.Core.Game
             levelRootTag.Add(new NbtLong("Time", world.worldTime));
             outputFile.Seek(8, SeekOrigin.Begin);
             world._levelDat.SaveToStream(outputFile, NbtCompression.GZip);
-            //}
         }
 
         public void SaveAll()
         {
             if (world.name.ToLower().Contains("unknown")) return;
-            if (!Directory.Exists(world.LevelName)) Directory.CreateDirectory(world.LevelName);
+            if (!Directory.Exists(Path.Combine("worlds", world.LevelName))) Directory.CreateDirectory(Path.Combine("worlds", world.LevelName));
             Logger.PInfo("Saving " + world.LevelName + "...");
-            FileStream chunksDat = File.OpenWrite(Path.Combine(world.LevelName, "chunks.dat"));
-            FileStream levelDat = File.OpenWrite(Path.Combine(world.LevelName, "level.dat"));
+            FileStream chunksDat = File.OpenWrite(Path.Combine("worlds", world.LevelName, "chunks.dat"));
+            FileStream levelDat = File.OpenWrite(Path.Combine("worlds", world.LevelName, "level.dat"));
 
             SaveChunks(chunksDat);
             SaveLevelDat(levelDat);
@@ -184,10 +178,10 @@ namespace SpoongePE.Core.Game
         public void LoadAll()
         {
             if (world.name.ToLower().Contains("unknown")) return;
-            if (!Directory.Exists(world.LevelName)) return;
+            if (!Directory.Exists(Path.Combine("worlds", world.LevelName))) return;
             Logger.PInfo("Loading " + world.LevelName + "...");
-            FileStream chunksDat = File.OpenRead(Path.Combine(world.LevelName, "chunks.dat"));
-            FileStream levelDat = File.OpenRead(Path.Combine(world.LevelName, "level.dat"));
+            FileStream chunksDat = File.OpenRead(Path.Combine("worlds", world.LevelName, "chunks.dat"));
+            FileStream levelDat = File.OpenRead(Path.Combine("worlds", world.LevelName, "level.dat"));
 
             LoadChunks(chunksDat);
             LoadLevelDat(levelDat);

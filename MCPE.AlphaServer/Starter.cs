@@ -31,9 +31,9 @@ internal static class Starter
 .WriteTo.Console(theme: SystemConsoleTheme.Colored)
 .MinimumLevel.Debug()
 .CreateLogger();
-        var mainWorld = new World("world", SpoongePE.Core.Game.utils.Utils.stringHash("nyan")); //TODO: Get seed from properties
+        var mainWorld = new World(SpoongePE.Core.Game.utils.Utils.stringHash("nyan"), prop.levelName); //TODO: Get seed from properties
 
-        if (!Directory.Exists(mainWorld.name))
+        if (!Directory.Exists(Path.Combine("worlds", mainWorld.name)))
         {
             switch (prop.levelType.ToLower())
             {

@@ -55,7 +55,6 @@ public class RakNetClient
     public ConcurrentDictionary<int, ConnectedPacket> resendQueueResend = new ConcurrentDictionary<int, ConnectedPacket>();
     public ConcurrentDictionary<int, ConnectedPacket> resendQueueSplit = new ConcurrentDictionary<int, ConnectedPacket>();
     public ConcurrentDictionary<int, ConnectedPacket> resendQueueOutGoing = new ConcurrentDictionary<int, ConnectedPacket>();
-    private ReaderWriterLockSlim dictLock = new ReaderWriterLockSlim();
 
     internal RakNetServer Server;
 
@@ -123,7 +122,7 @@ public class RakNetClient
     private void HandleNAK(ref DataReader reader)
     {
         var packet = ConnectedPacket.ParseMeta(ref reader);
-        Logger.Warn($"TODO: HandleNAK {packet}");
+        Logger.PWarn($"Info {packet}");
         for (int i = 0; i < packet.Ranges.Length; ++i)
         {
             (int min, int max) = packet.Ranges[i];
@@ -139,7 +138,7 @@ public class RakNetClient
                     else
                     {
                         Logger.PWarn($"Resending {min}");
-                        this.ResendPackets.Add(pk); // yez
+                        this.ResendPackets.Add(pk); 
                     }
                 }
                 else if (this.resendQueueSplit.ContainsKey(min))
@@ -152,7 +151,7 @@ public class RakNetClient
                     else
                     {
                         Logger.PWarn($"Resending {min}");
-                        this.ResendPackets.Add(pk); // yez
+                        this.ResendPackets.Add(pk); 
                     }
                 }
                 else if (this.resendQueueOutGoing.ContainsKey(min))
@@ -165,7 +164,7 @@ public class RakNetClient
                     else
                     {
                         Logger.PWarn($"Resending {min}");
-                        this.ResendPackets.Add(pk); // yez
+                        this.ResendPackets.Add(pk); 
                     }
                 }
                 else
