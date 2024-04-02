@@ -23,6 +23,7 @@ namespace SpoongePE.Core.Game.Generator
             }
 
             w.locationTable = new int[32, 32]; //TODO comp with vanilla
+            w.setInitialSpawn();
         }
 
         public static void generateChunk(Chunk c)
