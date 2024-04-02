@@ -92,18 +92,6 @@ public class World {
         return world;
     }
 
-    public bool isValidSpawn(int x, int z)
-    {
-        //getTopTile in vanilla starts from y=64 and goes ++, will start from 127 and go --
-        int y = 127;
-        for (y = 127; this.isAirBlock(x, y, z); --y) ;
-        
-        int topBlock = this.getBlockIDAt(x, y, z);
-
-         return false;
-        
-    }
-
     public void setInitialSpawn()
     {
         int spawnZ = 128, spawnX = 128;
@@ -116,17 +104,17 @@ public class World {
                 continue;
             }
             int topBlock = this.getBlockIDAt(spawnX, spawnY, spawnZ);
-            if (topBlock == Block.invisibleBedrock.blockID) goto failed;
-            else
+            if(topBlock != Block.invisibleBedrock.blockID)
             {
                 Block b = Block.blocks[topBlock];
-                if (b == null || !b.isSolid) goto failed;
-                spawnY += 1;
-                break;
+                if (b != null && b.isSolid)
+                {
+                    spawnY += 1;
+                    break;
+                }
             }
 
 
-        failed:
             spawnY = 127;
             spawnX += random.nextInt(32) - random.nextInt(32);
             spawnZ += random.nextInt(32) - random.nextInt(32);
