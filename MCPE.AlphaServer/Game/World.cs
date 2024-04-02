@@ -91,6 +91,71 @@ public class World {
 
         return world;
     }
+
+    public bool isValidSpawn(int x, int z)
+    {
+        //getTopTile in vanilla starts from y=64 and goes ++, will start from 127 and go --
+        int y = 127;
+        for (y = 127; this.isAirBlock(x, y, z); --y) ;
+        
+        int topBlock = this.getBlockIDAt(x, y, z);
+
+         return false;
+        
+    }
+
+    public void setInitialSpawn()
+    {
+        int spawnZ = 128, spawnX = 128;
+        int spawnY = 127;
+        while (true)
+        {
+            if(spawnY > 0 && this.isAirBlock(spawnX, spawnY, spawnZ))
+            {
+                --spawnY;
+                continue;
+            }
+            int topBlock = this.getBlockIDAt(spawnX, spawnY, spawnZ);
+            if (topBlock == Block.invisibleBedrock.blockID) goto failed;
+            else
+            {
+                Block b = Block.blocks[topBlock];
+                if (b == null || !b.isSolid) goto failed;
+                spawnY += 1;
+                break;
+            }
+
+
+        failed:
+            spawnY = 127;
+            spawnX += random.nextInt(32) - random.nextInt(32);
+            spawnZ += random.nextInt(32) - random.nextInt(32);
+
+            if(spawnX > 3)
+            {
+                if(spawnX > 251) spawnX -= 32;
+            }
+            else
+            {
+                spawnX += 32;
+            }
+
+            if(spawnZ > 3)
+            {
+                if (spawnZ > 251) spawnZ -= 32;
+            }
+            else
+            {
+                spawnZ += 32;
+            }
+        }
+
+        this.spawnX = spawnX;
+        this.spawnZ = spawnZ;
+        this.spawnY = spawnY;
+        Logger.Debug($"Placed spawn on {spawnX} {spawnY} {spawnZ}");
+    }
+
 /*
     public void SaveWorld(BinaryWriter writer)
     {
