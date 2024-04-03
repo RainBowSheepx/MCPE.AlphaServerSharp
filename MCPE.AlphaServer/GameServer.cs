@@ -115,7 +115,7 @@ public class GameServer : IConnectionHandler
                             EntityId = player.EntityID,
                             itemID = 0
                         });*/
-           
+
             client.Send(new AddPlayerPacket
             {
                 PlayerId = player.PlayerID,
@@ -160,21 +160,21 @@ public class GameServer : IConnectionHandler
     public virtual void HandleMovePlayer(RakNetClient client, MovePlayerPacket packet) =>
         ServerWorld.MovePlayer(client, packet.Pos, packet.Rot);
 
-    public virtual void HandlePlaceBlock(RakNetClient client, PlaceBlockPacket packet) {
+    public virtual void HandlePlaceBlock(RakNetClient client, PlaceBlockPacket packet)
+    {
+
+        ServerWorld.World.placeBlockAndNotifyNearby(packet.X, packet.Y, packet.Z, packet.Block, packet.Meta);
+    }
+
+    public const int PLACE_DISTANCE_SQUARED = 6 * 6;
+    public virtual void HandleRemoveBlock(RakNetClient client, RemoveBlockPacket packet)
+    {
         int diffX = ((int)client.player.posX - packet.X);
         int diffY = ((int)client.player.posY - packet.Y);
         int diffZ = ((int)client.player.posZ - packet.Z);
-        if (diffX * diffX + diffY * diffY + diffZ * diffZ > PLACE_DISTANCE_SQUARED)
-        {
-            Logger.Info("Teest");
-            return;
-        }
-        ServerWorld.World.placeBlockAndNotifyNearby(packet.X, packet.Y, packet.Z, packet.Block, packet.Meta); }
-
-    public const int PLACE_DISTANCE_SQUARED = 6 * 6;
-    public virtual void HandleRemoveBlock(RakNetClient client, RemoveBlockPacket packet) {
-
-        ServerWorld.World.removeBlock(packet.X, packet.Y, packet.Z); 
+        if (diffX * diffX + diffY * diffY + diffZ * diffZ > 36) return;
+        
+        ServerWorld.World.removeBlock(packet.X, packet.Y, packet.Z);
     }
 
 
@@ -187,12 +187,14 @@ public class GameServer : IConnectionHandler
     public virtual void HandleRequestChunk(RakNetClient client, RequestChunkPacket rcp) =>
         ServerWorld.SendChunkFromRequest(client, rcp);
     //public virtual void HandleChunkData(RakNetClient client, ChunkDataPacket packet) { }
-    public virtual void HandlePlayerEquipment(RakNetClient client, PlayerEquipmentPacket packet) {
+    public virtual void HandlePlayerEquipment(RakNetClient client, PlayerEquipmentPacket packet)
+    {
         Logger.Info($"Slot:{packet.Slot} Block:{packet.Block} Meta:{packet.Meta} EntID:{packet.EntityId}");
     }
     //public virtual void HandlePlayerArmorEquipment(RakNetClient client, PlayerArmorEquipmentPacket packet) { }
     //public virtual void HandleInteract(RakNetClient client, InteractPacket packet) { }
-    public virtual void HandleUseItem(RakNetClient client, UseItemPacket packet) {
+    public virtual void HandleUseItem(RakNetClient client, UseItemPacket packet)
+    {
 
         Logger.Info($"X:{packet.X} Y:{packet.Y} Block:{packet.Block} Meta:{packet.Meta} Id?:{packet.Id} Pos:{packet.Pos} FacePos:{packet.FPos} ");
     }

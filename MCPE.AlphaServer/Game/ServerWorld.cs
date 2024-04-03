@@ -70,7 +70,8 @@ public class ServerWorld
         var newPlayer = new Player(client)
         {
             PlayerID = clientId,
-            Username = username
+            Username = username,
+            DisplayName = username
         };
 
         newPlayer.playerData = new NbtFile();
@@ -80,16 +81,9 @@ public class ServerWorld
         else
            if (File.Exists(Path.Combine(playersFolder, $"{newPlayer.Username}.dat")))
             newPlayer.playerData.LoadFromFile(Path.Combine(playersFolder, $"{newPlayer.Username}.dat"));
-        
 
-        if (newPlayer.playerData.RootTag.Count > 1)
-        {
-            NbtList pos = (NbtList)newPlayer.playerData.RootTag["Position"];
-            newPlayer.Position = new Vector3(pos[0].FloatValue, pos[1].FloatValue, pos[2].FloatValue);
-            NbtList angle = (NbtList)newPlayer.playerData.RootTag["ViewAngle"];
-            newPlayer.ViewAngle = new Vector3(angle[0].FloatValue, angle[1].FloatValue, angle[2].FloatValue);
-        }
-            
+        newPlayer.LoadDat();
+     
 
         SendAll(new AddPlayerPacket
         {
@@ -115,23 +109,7 @@ public class ServerWorld
         if (!ConnectionMap.TryGetValue(client, out var disconnectingPlayer))
             return;
 
-        Player pl = client.player;
-        NbtFile nbt = client.player.playerData;
-        string playersFolder = Path.Combine("worlds", World.LevelName, "players");
-
-        nbt.RootTag.Clear();
-        nbt.RootTag.Add(new NbtString("DisplayName", pl.Username));
-        nbt.RootTag.Add(new NbtByte("Health", 20)); // TODO: Health
-        nbt.RootTag.Add(new NbtList("Position", new List<NbtFloat>() { new NbtFloat(pl.Position.X),
-                                                                           new NbtFloat( pl.Position.Y),
-                                                                           new NbtFloat( pl.Position.Z) })
-        );
-        nbt.RootTag.Add(new NbtList("ViewAngle", new List<NbtFloat>() {new NbtFloat( pl.ViewAngle.X),
-                                                                           new NbtFloat( pl.ViewAngle.Y),
-                                                                           new NbtFloat( pl.ViewAngle.Z) })
-        );
-
-        nbt.SaveToFile(Path.Combine(playersFolder, $"{pl.Username}.dat"), NbtCompression.GZip);
+        client.player.SaveDat();
 
         ConnectionMap.Remove(client);
         World.removePlayer(disconnectingPlayer.EntityID);
@@ -155,6 +133,9 @@ public class ServerWorld
             return;
 
         movingPlayer.Position = position;
+        movingPlayer.posX = position.X;
+        movingPlayer.posY = position.Y;
+        movingPlayer.posZ = position.Z;
         movingPlayer.ViewAngle = viewAngle;
 
         SendAll(new MovePlayerPacket

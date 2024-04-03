@@ -71,6 +71,8 @@ internal static class Starter
     {
         handler.ServerWorld.KickAll();
         handler.ServerWorld.World.Saver.SaveAll();
+        foreach (Player pl in handler.ServerWorld.Players)
+            pl.SaveDat();
         //  await Task.Delay(100);
         rak.Stop();
 

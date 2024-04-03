@@ -12,6 +12,7 @@ public abstract class Entity {
     public float yaw, pitch;
   
     public World world;
+    public byte health;
     public Entity() {
         EntityID = LastEntityID++;
      
@@ -21,7 +22,7 @@ public abstract class Entity {
         this.posZ = 64;
         this.yaw = 0;
         this.pitch = 0;
-      
+        this.health = 2;
         Define(EntityDataKey.Flags, EntityDataType.Byte);
         Define(EntityDataKey.Air, EntityDataType.Short);
     }
