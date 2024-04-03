@@ -4,6 +4,7 @@ using System.Linq;
 using System.Numerics;
 using System.Reflection;
 using SpoongePE.Core.Game;
+using SpoongePE.Core.Game.ItemBase;
 using SpoongePE.Core.Network;
 using SpoongePE.Core.RakNet;
 using SpoongePE.Core.Utils;

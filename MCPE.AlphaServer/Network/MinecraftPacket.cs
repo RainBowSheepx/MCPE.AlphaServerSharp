@@ -1,4 +1,4 @@
-﻿using SpoongePE.Core.Game;
+﻿using SpoongePE.Core.Game.ItemBase;
 using SpoongePE.Core.RakNet;
 using SpoongePE.Core.Utils;
 using System;
@@ -911,7 +911,7 @@ public class SendInventoryPacket : MinecraftPacket {
             Items.Add(new ItemInstance {
                     ItemID = reader.UShort(),
                     Count = reader.Byte(),
-                    AuxValue = reader.UShort()
+                    ItemMeta = reader.UShort()
                 }
             );
     }
@@ -923,8 +923,8 @@ public class SendInventoryPacket : MinecraftPacket {
         writer.Short((short)Items.Count);
         for (int i = 0; i < Items.Count; i++) {
             writer.UShort((ushort)Items[i].ItemID);
-            writer.Byte(Items[i].Count);
-            writer.UShort((ushort)Items[i].AuxValue);
+            writer.Byte((byte)Items[i].Count);
+            writer.UShort((ushort)Items[i].ItemMeta);
         }
     }
 }
@@ -1041,7 +1041,7 @@ public class ContainerSetContentPacket : MinecraftPacket {
             Items.Add(new ItemInstance {
                     ItemID = reader.UShort(),
                     Count = reader.Byte(),
-                    AuxValue = reader.UShort()
+                    ItemMeta = reader.UShort()
                 }
             );
 
@@ -1059,8 +1059,8 @@ public class ContainerSetContentPacket : MinecraftPacket {
         writer.Short((short)Items.Count);
         for (int i = 0; i < Items.Count; i++) {
             writer.UShort((ushort)Items[i].ItemID);
-            writer.Byte(Items[i].Count);
-            writer.UShort((ushort)Items[i].AuxValue);
+            writer.Byte((byte)Items[i].Count);
+            writer.UShort((ushort)Items[i].ItemMeta);
         }
 
         if (WindowId != 0)

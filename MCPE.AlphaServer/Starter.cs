@@ -25,7 +25,7 @@ internal static class Starter
         //#endif
         ServerProperties prop = new YmlProp().LoadServerProp();
 
-        Block.init();
+        Block.Init();
         Biome.recalc();
         Logger.LogBackend = new LoggerConfiguration()
 .WriteTo.Console(theme: SystemConsoleTheme.Colored)

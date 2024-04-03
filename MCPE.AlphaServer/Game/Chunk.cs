@@ -1,4 +1,5 @@
-using Serilog.Core;
+using SpoongePE.Core;
+using SpoongePE.Core.Utils;
 using System;
 using System.Diagnostics;
 using System.IO;
@@ -25,36 +26,40 @@ public class Chunk
     public int posZ;
     public byte[,] updateMap = new byte[16, 16];
 
-    public Chunk(int x, int z)
+    private World world;
+
+    public Chunk(int x, int z, World world)
     {
         this.posX = x;
         this.posZ = z;
+        this.world = world;
     }
-    public Chunk(byte[,,] blockData, int chunkX, int chunkZ)
+    public Chunk(byte[,,] blockData, int chunkX, int chunkZ, World world)
     {
         this.posX = chunkX;
         this.posZ = chunkZ;
         this._blockData = blockData;
+        this.world = world;
     }
     public Chunk()
     {
 
     }
-    public void setBlockID(int x, int y, int z, byte id)
+/*    public void setBlockID(int x, int y, int z, byte id)
     {
         this.BlockData[x, z, y] = id;
         if (id != 0 && this.HeightMap[x, z] < y)
         {
             this.HeightMap[x, z] = (byte)y;
         }
-    }
+    }*/
 
-    public void setBlockMetadata(int x, int y, int z, byte meta)
+    public void setBlockMetadataRaw(int x, int y, int z, byte meta)
     {
         this.BlockMetadata[x, z, y] = meta;
     }
 
-    public void setBlock(int x, int y, int z, byte id, byte meta = 0)
+    public void setBlockRaw(int x, int y, int z, byte id, byte meta = 0)
     {
         this.BlockData[x, z, y] = id;
         this.BlockMetadata[x, z, y] = meta;
@@ -62,6 +67,51 @@ public class Chunk
         {
             this.HeightMap[x, z] = (byte)y;
         }
+    }
+
+    public bool setBlock(int x, int y, int z, byte id, byte meta)
+    {
+
+        int idBefore = this.getBlockID(x, y, z) & 0xff;
+        if (idBefore == id)
+        {
+            if (this.getBlockMetadata(x, y, z) == meta) return false;
+        }
+
+        int worldX = this.posX * 16 + x;
+        int worldZ = this.posZ * 16 + z;
+
+        this._blockData[x, z, y] = (byte)id;
+
+        if (idBefore > 0)
+        {
+            Block b = Block.blocks[idBefore];
+            if (b != null)
+            {
+                b.onRemove(world, worldX, y, worldZ); //TODO Chunk::world
+            }
+            else
+            {
+                Logger.PWarn($"{worldX}-{y}-{worldZ} has unknown block ID({idBefore})!");
+            }
+
+            //Removal of TileEntities is also handled here, but they didnt exist until ~0.3
+        }
+        this.setBlockMetadataRaw(x, y, z, meta);
+
+        //TODO light
+        if (id != 0 && this.HeightMap[x, z] < y)
+        {
+            this.HeightMap[x, z] = (byte)y;
+        }
+
+        if (id > 0)
+        {
+            Block.blocks[id].onBlockAdded(world, worldX, y, worldZ); //TODO Chunk::world
+        }
+
+        //this.updateMap[x][z] |= 1 << (y >> 4);
+        return true;
     }
 
 
@@ -148,4 +198,35 @@ public class Chunk
 
         return chunk;
     }
+
+
+
+    // Garbage for compability
+    // --https://github.com/GameHerobrine/Minecraft013-Server/blob/main/src/net/skidcode/gh/server/world/chunk/Chunk.java
+    public int getBlockID(int x, int y, int z)
+    {
+        // TODO: Add more checks
+        return this.BlockData[x, z, y];
+    }
+    public int getBlockMetadata(int x, int y, int z)
+    {
+        if (y > 127 || y < 0) return 0;// TODO: Add more checks
+        /* int index = x << 11 | z << 7 | y;*/
+        return BlockMetadata[x, z, y];
+    }
+
+    public int getSkylight(int x, int y, int z)
+    {
+        if (y > 127 || y < 0) return 0; // TODO: Add more checks
+     /*   int index = x << 11 | z << 7 | y;*/
+        return SkyLight[x, z, y];
+    }
+
+    public int getBlockLight(int x, int y, int z)
+    {
+        if (y > 127 || y < 0) return 0; // TODO: Add more checks
+        /*  int index = x << 11 | z << 7 | y;*/
+        return BlockLight[x, z, y];
+    }
+
 }

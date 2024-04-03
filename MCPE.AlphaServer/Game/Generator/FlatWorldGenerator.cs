@@ -15,7 +15,7 @@ namespace SpoongePE.Core.Game.Generator
             {
                 for (int z = 0; z < 16; ++z)
                 {
-                    Chunk c = new Chunk(x, z);
+                    Chunk c = new Chunk(x, z, w);
                     FlatWorldGenerator.generateChunk(c);
                     w._chunks[x,z] = c;
                 }

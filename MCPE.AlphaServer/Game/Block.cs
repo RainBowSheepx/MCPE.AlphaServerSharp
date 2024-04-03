@@ -1,5 +1,6 @@
 using SpoongePE.Core.Game.BlockBase;
 using SpoongePE.Core.Game.BlockBase.impl;
+using SpoongePE.Core.Game.ItemBase;
 using SpoongePE.Core.Game.material;
 using SpoongePE.Core.Game.utils.random;
 using SpoongePE.Core.Network;
@@ -8,7 +9,8 @@ using System;
 
 namespace SpoongePE.Core.Game;
 
-public abstract class Block {
+public abstract class Block
+{
 
     public static Block[] blocks = new Block[256];
     public static bool[] shouldTick = new bool[256];
@@ -61,7 +63,7 @@ public abstract class Block {
     public static SolidBlock cactus = new SolidBlock(81, Material.cactus);
     public static SolidBlock clay = new SolidBlock(82, Material.clay);
     public static PlantBlock reeds = new PlantBlock(83, Material.plant);
-    public static SolidBlock invisibleBedrock = new SolidBlock(95,Material.stone); //TODO destructible/indestructible
+    public static SolidBlock invisibleBedrock = new SolidBlock(95, Material.stone); //TODO destructible/indestructible
     public static WoolBlock wool = new WoolBlock(35, -1); //TODO make use of meta, it is not 0.1.3
     public static WoolBlock wool_f = new WoolBlock(101, 0xf); //using ids instead of meta =/
     public static WoolBlock wool_e = new WoolBlock(102, 0xe);
@@ -109,6 +111,17 @@ public abstract class Block {
     {
 
     }
+
+    public void onRemove(World world, int x, int y, int z)
+    {
+        /*
+		 * TODO ice, leaf, stairs, trunk
+			IceTile::onRemove(Level *,int,int,int)
+			LeafTile::onRemove(Level *,int,int,int)
+			StairTile::onRemove(Level *,int,int,int)
+			TreeTile::onRemove(Level *,int,int,int)
+		 */
+    }
     public Block setBlockName(string name)
     {
         this.name = name;
@@ -124,17 +137,51 @@ public abstract class Block {
         world.placeBlockAndNotifyNearby(x, y, z, (byte)this.blockID);
     }
 
-    public static void init() { }
+    public static void Init()
+    {
+        for (int i = 0; i < 256; ++i)
+        {
+            if (Block.blocks[i] != null)
+            {
+                if (Item.items[i] == null)
+                {
+                    Item.items[i] = new BlockItem(i - 256);
+                }
+            }
+        }
+
+    }
+
+    public bool mayPlace(World world, int x, int y, int z)
+    {
+        int blockID = world.getBlockIDAt(x, y, z);
+
+        if (blockID == 0) return true;
+
+        return Block.blocks[blockID].material.isLiquid;
+    }
+
+    public void setPlacedBy(World world, int x, int y, int z, Player player)
+    {
+
+    }
+
+    public void setPlacedOnFace(World world, int x, int y, int z, int side)
+    {
+
+    }
 
     public Block(int id, Material m)
     {
         this.blockID = id;
         this.material = m;
-        if (Block.blocks[id] != null && Block.blocks[id].GetType() == typeof(Block)){
+        if (Block.blocks[id] != null && Block.blocks[id].GetType() == typeof(Block))
+        {
             Logger.Error("ID " + id + " is occupied already!");
         }
-        else {
-            Block.blocks[id] = this; 
+        else
+        {
+            Block.blocks[id] = this;
         }
 
     }

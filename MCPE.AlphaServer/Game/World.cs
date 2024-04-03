@@ -144,6 +144,27 @@ public class World
         this.spawnY = spawnY;
         Logger.Debug($"Placed spawn on {spawnX} {spawnY} {spawnZ}");
     }
+
+    public bool setBlock(int x, int y, int z, int id, int meta, int flags)
+    {
+        Chunk c = this._chunks[x >> 4, z >> 4];
+        bool s = c.setBlock(x & 0xf, y, z & 0xf, (byte)id, (byte)meta);
+        if (s)
+        {
+            if ((flags & 1) != 0)
+            { //update neighbors
+                this.notifyNearby(x, y, z, id);
+            }
+
+            if ((flags & 0x2) != 0)
+            { //update using level listeners
+                this.sendBlockPlace(x, y, z, (byte)c.getBlockID(x & 0xf, y, z & 0xf), (byte)meta); //TODO check
+            }
+        }
+        return s;
+
+    }
+
     public void notifyNearby(int x, int y, int z, int cid)
     {
         this.notifyNeighbor(x - 1, y, z, cid);
@@ -203,7 +224,7 @@ public class World
         if (x < 256 && y < 128 && z < 256 && y >= 0 && x >= 0 && z >= 0)
         {
             Chunk c = this._chunks[x >> 4, z >> 4];
-            c.setBlock(x & 0xf, y, z & 0xf, id, meta);
+            c.setBlockRaw(x & 0xf, y, z & 0xf, id, meta);
 
             if (id > 0) Block.blocks[id].onBlockAdded(this, x, y, z);
 
@@ -218,7 +239,7 @@ public class World
         if (x < 256 && y < 128 && z < 256 && y >= 0 && x >= 0 && z >= 0)
         {
             Chunk c = this._chunks[x >> 4, z >> 4];
-            c.setBlock(x & 0xf, y, z & 0xf, id, meta);
+            c.setBlockRaw(x & 0xf, y, z & 0xf, id, meta);
 
             if (id > 0) Block.blocks[id].onBlockAdded(this, x, y, z);
 
@@ -398,7 +419,18 @@ public class World
         }
         return false;
     }
+    public bool mayPlace(int blockID, int x, int y, int z, bool tgl)
+    {
 
+        int blockAt = this.getBlockIDAt(x, y, z);
+        //TODO aabbs checks // no
+        if (blockAt == Block.waterStill.blockID || blockAt == Block.waterFlowing.blockID || blockAt == Block.lavaStill.blockID || blockAt == Block.lavaFlowing.blockID || blockAt == Block.fire.blockID || blockAt == Block.snowLayer.blockID)
+        {
+            return true;
+        }
+
+        return blockID > 0 && Block.blocks[blockAt] == null && Block.blocks[blockID].mayPlace(this, x, y, z);
+    }
     internal int incrementAndGetNextFreeEID()
     {
         throw new NotImplementedException();

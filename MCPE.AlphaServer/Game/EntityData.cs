@@ -1,4 +1,5 @@
-﻿using SpoongePE.Core.Utils;
+﻿using SpoongePE.Core.Game.ItemBase;
+using SpoongePE.Core.Utils;
 using System;
 using System.Buffers.Binary;
 using System.Collections.Generic;
@@ -91,7 +92,7 @@ public class EntityData {
                     holder.Value = new ItemInstance {
                         ItemID = BinaryPrimitives.ReverseEndianness(reader.UShort()),
                         Count = reader.Byte(),
-                        AuxValue = BinaryPrimitives.ReverseEndianness(reader.UShort())
+                        ItemMeta = BinaryPrimitives.ReverseEndianness(reader.UShort())
                     };
                     break;
                 case EntityDataType.Pos:
@@ -131,8 +132,8 @@ public class EntityData {
                 case EntityDataType.ItemInstance:
                     var itemInstance = (ItemInstance)holder.Value;
                     writer.UShort(BinaryPrimitives.ReverseEndianness((ushort)itemInstance.ItemID));
-                    writer.Byte(itemInstance.Count);
-                    writer.UShort(BinaryPrimitives.ReverseEndianness((ushort)itemInstance.AuxValue));
+                    writer.Byte((byte)itemInstance.Count);
+                    writer.UShort(BinaryPrimitives.ReverseEndianness((ushort)itemInstance.ItemMeta));
                     break;
                 case EntityDataType.Pos:
 
