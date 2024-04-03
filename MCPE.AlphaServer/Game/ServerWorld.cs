@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Net.Http.Headers;
 using System.Net.Sockets;
 using System.Numerics;
 using System.Threading.Tasks;
+using SpoongePE.Core.NBT;
 using SpoongePE.Core.Network;
 using SpoongePE.Core.RakNet;
 using SpoongePE.Core.Utils;
@@ -37,7 +39,7 @@ public class ServerWorld
 
         SendAll(new SetTimePacket
         {
-            Time = (int) World.worldTime,
+            Time = (int)World.worldTime,
         }
         );
     }
@@ -53,7 +55,7 @@ public class ServerWorld
         foreach (var player in Players)
             if (player.PlayerID != except)
                 player.Send(packet);
- 
+
     }
 
     public Player GetByName(string name)
@@ -71,6 +73,24 @@ public class ServerWorld
             Username = username
         };
 
+        newPlayer.playerData = new NbtFile();
+        string playersFolder = Path.Combine("worlds", World.LevelName, "players");
+        if (!Directory.Exists(playersFolder))
+            Directory.CreateDirectory(playersFolder);
+        else
+           if (File.Exists(Path.Combine(playersFolder, $"{newPlayer.Username}.dat")))
+            newPlayer.playerData.LoadFromFile(Path.Combine(playersFolder, $"{newPlayer.Username}.dat"));
+        
+
+        if (newPlayer.playerData.RootTag.Count > 1)
+        {
+            NbtList pos = (NbtList)newPlayer.playerData.RootTag["Position"];
+            newPlayer.Position = new Vector3(pos[0].FloatValue, pos[1].FloatValue, pos[2].FloatValue);
+            NbtList angle = (NbtList)newPlayer.playerData.RootTag["ViewAngle"];
+            newPlayer.ViewAngle = new Vector3(angle[0].FloatValue, angle[1].FloatValue, angle[2].FloatValue);
+        }
+            
+
         SendAll(new AddPlayerPacket
         {
             PlayerId = newPlayer.PlayerID,
@@ -79,6 +99,10 @@ public class ServerWorld
             Pos = newPlayer.Position
         }
         );
+
+
+
+
 
         World.addPlayer(newPlayer);
         ConnectionMap.Add(client, newPlayer);
@@ -90,6 +114,24 @@ public class ServerWorld
     {
         if (!ConnectionMap.TryGetValue(client, out var disconnectingPlayer))
             return;
+
+        Player pl = client.player;
+        NbtFile nbt = client.player.playerData;
+        string playersFolder = Path.Combine("worlds", World.LevelName, "players");
+
+        nbt.RootTag.Clear();
+        nbt.RootTag.Add(new NbtString("DisplayName", pl.Username));
+        nbt.RootTag.Add(new NbtByte("Health", 20)); // TODO: Health
+        nbt.RootTag.Add(new NbtList("Position", new List<NbtFloat>() { new NbtFloat(pl.Position.X),
+                                                                           new NbtFloat( pl.Position.Y),
+                                                                           new NbtFloat( pl.Position.Z) })
+        );
+        nbt.RootTag.Add(new NbtList("ViewAngle", new List<NbtFloat>() {new NbtFloat( pl.ViewAngle.X),
+                                                                           new NbtFloat( pl.ViewAngle.Y),
+                                                                           new NbtFloat( pl.ViewAngle.Z) })
+        );
+
+        nbt.SaveToFile(Path.Combine(playersFolder, $"{pl.Username}.dat"), NbtCompression.GZip);
 
         ConnectionMap.Remove(client);
         World.removePlayer(disconnectingPlayer.EntityID);

@@ -1,4 +1,5 @@
-﻿using SpoongePE.Core.RakNet;
+﻿using SpoongePE.Core.NBT;
+using SpoongePE.Core.RakNet;
 using System;
 using System.Numerics;
 
@@ -14,7 +15,7 @@ public class Player : Entity {
     public int port;
     public byte itemID;
     public string ip, identifier;
-    public bool firstChunkData = true;
+    public NbtFile playerData;
     public Player(RakNetClient client) {
         Client = client;
         

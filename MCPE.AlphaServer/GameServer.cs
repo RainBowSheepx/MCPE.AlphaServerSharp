@@ -83,9 +83,6 @@ public class GameServer : IConnectionHandler
 
         // We can log in, start the game. 
         var newPlayer = ServerWorld.AddPlayer(client, packet.ClientId, packet.Username);
-        newPlayer.Position.Y = this.ServerWorld.World.spawnY;
-        newPlayer.Position.X = this.ServerWorld.World.spawnX;
-        newPlayer.Position.Z = this.ServerWorld.World.spawnZ;
 
         Logger.Info($"{packet.Username} joined the game: Position: {newPlayer.Position}");
 

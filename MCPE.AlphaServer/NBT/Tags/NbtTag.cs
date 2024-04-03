@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.Text;
 using JetBrains.Annotations;
@@ -378,5 +379,10 @@ namespace SpoongePE.Core.NBT {
         }
 
         static string defaultIndentString = "  ";
+
+        public static implicit operator List<object>(NbtTag v)
+        {
+            throw new NotImplementedException();
+        }
     }
 }
