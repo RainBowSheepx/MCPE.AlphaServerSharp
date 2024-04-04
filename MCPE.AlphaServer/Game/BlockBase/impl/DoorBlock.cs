@@ -5,12 +5,13 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace SpoongePE.Core.Game.BlockBase
+namespace SpoongePE.Core.Game.BlockBase.impl
 {
-    public class DecorationBlock : Block
+    public class DoorBlock : Block
     {
-        public DecorationBlock(int id, Material m) : base(id, m)
+        public DoorBlock(int id, Material m) : base(id, m)
         {
+            isSolid = false;
         }
     }
 }

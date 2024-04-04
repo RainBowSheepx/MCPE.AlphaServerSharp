@@ -91,7 +91,7 @@ public class GameServer : IConnectionHandler
             Seed = ServerWorld.World.Seed,
             Pos = newPlayer.Position,
             EntityId = newPlayer.EntityID,
-            Gamemode = RakNetServer.Properties.gamemode ? 1 : 0,
+            Gamemode = newPlayer.inCreative ? 1 : 0,
         }
         );
 
@@ -132,7 +132,7 @@ public class GameServer : IConnectionHandler
         {
             WindowId = 0,
             Items = new List<ItemInstance> {
-                    new ItemInstance { ItemID = 5, Count = 10 },
+                    new ItemInstance { ItemID = 256, Count = 10 },
                 },
             Hotbar = new List<int> { 0 },
         }
@@ -189,14 +189,14 @@ public class GameServer : IConnectionHandler
     //public virtual void HandleChunkData(RakNetClient client, ChunkDataPacket packet) { }
     public virtual void HandlePlayerEquipment(RakNetClient client, PlayerEquipmentPacket packet)
     {
-        Logger.Info($"Slot:{packet.Slot} Block:{packet.Block} Meta:{packet.Meta} EntID:{packet.EntityId}");
+        Logger.PInfo($"Slot: {packet.Slot} Block: {packet.Block} Meta: {packet.Meta} EntID: {packet.EntityId}");
     }
     //public virtual void HandlePlayerArmorEquipment(RakNetClient client, PlayerArmorEquipmentPacket packet) { }
     //public virtual void HandleInteract(RakNetClient client, InteractPacket packet) { }
     public virtual void HandleUseItem(RakNetClient client, UseItemPacket packet)
     {
 
-        Logger.Info($"X:{packet.X} Y:{packet.Y} Block:{packet.Block} Meta:{packet.Meta} Id?:{packet.Id} Pos:{packet.Pos} FacePos:{packet.FPos} ");
+        Logger.PInfo($"X: {packet.X} Y: {packet.Y} Block: {packet.Block} Meta: {packet.Meta} Id?: {packet.Id} Pos: {packet.Pos} FacePos: {packet.FPos} ");
     }
     //public virtual void HandlePlayerAction(RakNetClient client, PlayerActionPacket packet) { }
     //public virtual void HandleHurtArmor(RakNetClient client, HurtArmorPacket packet) { }
@@ -220,6 +220,7 @@ public class GameServer : IConnectionHandler
     public virtual void HandleContainerSetSlot(RakNetClient client, ContainerSetSlotPacket packet)
     {
 
+        Logger.PInfo($"windowId: {packet.WindowId} slot: {packet.Slot} item: {packet.Item}");
     }
     //public virtual void HandleContainerSetData(RakNetClient client, ContainerSetDataPacket packet) { }
     //public virtual void HandleContainerSetContent(RakNetClient client, ContainerSetContentPacket packet) { }

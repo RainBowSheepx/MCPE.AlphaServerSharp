@@ -5,11 +5,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace SpoongePE.Core.Game.BlockBase
+namespace SpoongePE.Core.Game.BlockBase.impl
 {
-    public class OreBlock : SolidBlock
+    public class DecorationBlock : Block
     {
-        public OreBlock(int id, Material m) : base(id, m)
+        public DecorationBlock(int id, Material m) : base(id, m)
         {
         }
     }

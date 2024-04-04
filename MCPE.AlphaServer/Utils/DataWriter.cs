@@ -6,6 +6,7 @@ using System.Net;
 using System.Net.Sockets;
 using System.Numerics;
 using System.Text;
+using SpoongePE.Core.Game.ItemBase;
 using SpoongePE.Core.RakNet;
 
 namespace SpoongePE.Core.Utils;
@@ -100,5 +101,13 @@ public class DataWriter {
         Float(value.X);
         Float(value.Y);
         Float(value.Z);
+    }
+
+    public void Slot(ItemInstance item)
+    {
+        this.UShort((ushort)item.ItemID);
+        this.Byte(item.Count);
+        this.UShort((ushort)item.ItemMeta);
+
     }
 }

@@ -14,6 +14,7 @@ public class Player : Entity
     public ulong PlayerID;
     public string Username;
     public string DisplayName;
+    public bool inCreative;
     public Vector3 Position = new(100.0f, 10.0f, 100.0f);
     public Vector3 ViewAngle = new();
     public int port;
@@ -24,6 +25,7 @@ public class Player : Entity
     {
         Client = client;
         this.health = 20;
+        this.inCreative = RakNetServer.Properties.gamemode;
         Define(EntityDataKey.IsSleeping, EntityDataType.Byte);
         Define(EntityDataKey.SleepPosition, EntityDataType.Pos);
     }
@@ -38,6 +40,7 @@ public class Player : Entity
         playerData.RootTag.Clear();
         playerData.RootTag.Add(new NbtString("DisplayName", Username));
         playerData.RootTag.Add(new NbtByte("Health", health)); // TODO: Health
+        playerData.RootTag.Add(new NbtByte("InCreative", inCreative ? (byte)1 : (byte)0));
         playerData.RootTag.Add(new NbtList("Position", new List<NbtFloat>() { new NbtFloat( Position.X),
                                                                            new NbtFloat( Position.Y),
                                                                            new NbtFloat( Position.Z) })
@@ -54,8 +57,10 @@ public class Player : Entity
     {
         if (playerData.RootTag.Count > 1)
         {
+            // TODO NULL Checks
             DisplayName = playerData.RootTag["DisplayName"].StringValue;
             health = playerData.RootTag["Health"].ByteValue;
+            inCreative = playerData.RootTag["InCreative"].ByteValue == 1;
             NbtList pos = (NbtList)playerData.RootTag["Position"];
             Position = new Vector3(pos[0].FloatValue, pos[1].FloatValue, pos[2].FloatValue);
             NbtList angle = (NbtList)playerData.RootTag["ViewAngle"];
@@ -67,6 +72,8 @@ public class Player : Entity
             Position = new(world.SpawnX, world.SpawnY, world.SpawnZ);
         }
     }
+
+
 
     public void Send(ConnectedPacket packet, int reliability = ConnectedPacket.RELIABLE) =>
         Client.Send(packet, reliability);

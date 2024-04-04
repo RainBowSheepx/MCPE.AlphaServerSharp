@@ -991,20 +991,20 @@ public class ContainerSetSlotPacket : MinecraftPacket {
     public byte WindowId;
 
     public ushort Slot;
-    // public ItemInstance Item;
+    public ItemInstance Item;
 
     public override void Decode(ref DataReader reader) {
         reader.Byte(); // Packet type.
         WindowId = reader.Byte();
         Slot = reader.UShort();
-        // Item = default; // TODO
+        Item = reader.Slot(); // TODO
     }
 
     public override void Encode(ref DataWriter writer) {
         writer.Byte((byte)MinecraftPacketType.ContainerSetSlot);
         writer.Byte(WindowId);
         writer.UShort(Slot);
-        // TODO Item
+        writer.Slot(Item);
     }
 }
 

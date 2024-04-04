@@ -3,6 +3,7 @@ using System.IO;
 
 namespace SpoongePE.Core.Game;
 
+using SpoongePE.Core.Game.BlockBase;
 using SpoongePE.Core.Game.Generator;
 using SpoongePE.Core.Game.material;
 using SpoongePE.Core.Game.utils;

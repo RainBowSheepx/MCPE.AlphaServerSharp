@@ -7,9 +7,9 @@ using System.Threading.Tasks;
 
 namespace SpoongePE.Core.Game.BlockBase.impl
 {
-    public class WoolBlock : SolidBlock
+    public class BedBlock : SolidBlock
     {
-        public WoolBlock(int id, int color) : base(id, Material.cloth, color)
+        public BedBlock(int id, Material m, int meta = 0) : base(id, m, meta)
         {
         }
     }

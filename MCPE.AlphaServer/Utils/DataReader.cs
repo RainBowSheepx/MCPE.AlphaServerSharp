@@ -1,4 +1,5 @@
 using SpoongePE.Core.Game;
+using SpoongePE.Core.Game.ItemBase;
 using System;
 using System.Buffers.Binary;
 using System.IO;
@@ -82,5 +83,13 @@ public class DataReader {
         float y = Float();
         float z = Float();
         return new Vector3(x, y, z);
+    }
+
+    public ItemInstance Slot()
+    {
+        ushort id = this.UShort();
+        byte count = this.Byte();
+        ushort meta = this.UShort();
+        return new ItemInstance(id, count, meta);
     }
 }

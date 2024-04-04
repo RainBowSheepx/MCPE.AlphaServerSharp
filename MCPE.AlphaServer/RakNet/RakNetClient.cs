@@ -271,6 +271,7 @@ public class RakNetClient
             for (int i = 0; i < ResendPackets.Count; i++)
             {
                 ConnectedPacket packet = ResendPackets[i];
+                if (packet == null) return;
                 var writerResend = new DataWriter();
                 int sequenceNumber = 0;
                 var packetWriter = new DataWriter();
@@ -346,6 +347,7 @@ public class RakNetClient
             for (int i = 0; i < SplitPackets.Count; i++)
             {
                 var packet = SplitPackets[i];
+                if (packet == null) return;
                 writerSplit = new DataWriter();
                 writerSplit.Byte(UnconnectedPacket.IS_CONNECTED);
                 sequenceNumber = CurrentSequenceNumber++;
@@ -413,7 +415,9 @@ public class RakNetClient
             writer.Triad(seq);
             for (int i = 0; i < OutgoingPackets.Count; i++)
             {
+                
                 var packet = OutgoingPackets[i];
+                if (packet == null) return;
                 var packetWriter = new DataWriter();
                 packet.Encode(ref packetWriter);
                 writer.Byte((byte)((packet.Reliability << 5)));
