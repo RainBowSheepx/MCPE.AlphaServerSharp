@@ -139,9 +139,10 @@ public abstract class Block
     public static SolidBlock stoneCutter = new SolidBlock(245, Material.stone);
     public static SolidBlock glowingObsidian = new SolidBlock(246, Material.stone); // wtf???
     public static SolidBlock netherReactor = new SolidBlock(247, Material.stone);
-    public static SolidBlock infoUpdate = new SolidBlock(248, Material.stone);
-    public static SolidBlock infoUpdate2 = new SolidBlock(249, Material.stone);
+    public static SolidBlock updateGame = new SolidBlock(248, Material.stone);
+    public static SolidBlock updateGame2 = new SolidBlock(249, Material.stone);
     public static SolidBlock reserved6 = new SolidBlock(255, Material.stone); // wtf x2 
+
 
     public static WoolBlock wool = new WoolBlock(35, 0); //TODO make use of meta, it is not 0.1.3
     public static WoolBlock wool_lightgray = new WoolBlock(35, 8); //using ids instead of meta =/ // Кто здесь?
@@ -159,8 +160,6 @@ public abstract class Block
     public static WoolBlock wool_purple = new WoolBlock(35, 10);
     public static WoolBlock wool_magenta = new WoolBlock(35, 2);
     public static WoolBlock wool_pink = new WoolBlock(35, 6);
-    public static SolidBlock updateGame = new SolidBlock(248, Material.stone);
-    public static SolidBlock updateGame2 = new SolidBlock(249, Material.stone);
     
 
     public static WoolBlock carpet = new WoolBlock(171, 0);
