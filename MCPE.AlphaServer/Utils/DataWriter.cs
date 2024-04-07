@@ -103,11 +103,11 @@ public class DataWriter {
         Float(value.Z);
     }
 
-    public void Slot(ItemInstance item)
+    public void Slot(ItemStack item)
     {
-        this.UShort((ushort)item.ItemID);
-        this.Byte(item.Count);
-        this.UShort((ushort)item.ItemMeta);
+        this.UShort((ushort)item.itemID);
+        this.Byte(item.stackSize);
+        this.UShort((ushort)item.itemDamage);
 
     }
 }

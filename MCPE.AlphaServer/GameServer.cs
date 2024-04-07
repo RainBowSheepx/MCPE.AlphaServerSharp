@@ -131,8 +131,8 @@ public class GameServer : IConnectionHandler
         client.Send(new ContainerSetContentPacket
         {
             WindowId = 0,
-            Items = new List<ItemInstance> {
-                    new ItemInstance { ItemID = 256, Count = 10 },
+            Items = new List<ItemStack> {
+                    new ItemStack { itemID = 256, stackSize = 10 },
                 },
             Hotbar = new List<int> { 0 },
         }

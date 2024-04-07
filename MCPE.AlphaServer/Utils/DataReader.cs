@@ -85,11 +85,11 @@ public class DataReader {
         return new Vector3(x, y, z);
     }
 
-    public ItemInstance Slot()
+    public ItemStack Slot()
     {
         ushort id = this.UShort();
         byte count = this.Byte();
         ushort meta = this.UShort();
-        return new ItemInstance(id, count, meta);
+        return new ItemStack(id, count, meta);
     }
 }

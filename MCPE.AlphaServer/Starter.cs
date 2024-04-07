@@ -14,6 +14,7 @@ using SpoongePE.Core.Game.biome;
 using SpoongePE.Core.Game.utils.random;
 using SpoongePE.Core.Game.utils.noise;
 using SpoongePE.Core.Game.BlockBase;
+using SpoongePE.Core.Game.utils;
 
 namespace SpoongePE.Core;
 
@@ -28,6 +29,7 @@ internal static class Starter
 
         Block.Init();
         Biome.recalc();
+        new MathHelper(); // where static { execute code }???
         Logger.LogBackend = new LoggerConfiguration()
 .WriteTo.Console(theme: SystemConsoleTheme.Colored)
 .MinimumLevel.Debug()

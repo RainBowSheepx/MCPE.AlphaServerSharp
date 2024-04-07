@@ -900,18 +900,18 @@ public class RespawnPacket : MinecraftPacket {
 public class SendInventoryPacket : MinecraftPacket {
     public int EntityId;
     public byte WindowId;
-    public List<ItemInstance> Items;
+    public List<ItemStack> Items;
 
     public override void Decode(ref DataReader reader) {
         reader.Byte(); // Packet type.
         EntityId = reader.Int();
         WindowId = reader.Byte();
-        Items = new List<ItemInstance>();
+        Items = new List<ItemStack>();
         for (int i = 0; i < reader.Short(); i++)
-            Items.Add(new ItemInstance {
-                    ItemID = reader.UShort(),
-                    Count = reader.Byte(),
-                    ItemMeta = reader.UShort()
+            Items.Add(new ItemStack {
+                    itemID = reader.UShort(),
+                    stackSize = reader.Byte(),
+                    itemDamage = reader.UShort()
                 }
             );
     }
@@ -922,9 +922,9 @@ public class SendInventoryPacket : MinecraftPacket {
         writer.Byte(WindowId);
         writer.Short((short)Items.Count);
         for (int i = 0; i < Items.Count; i++) {
-            writer.UShort((ushort)Items[i].ItemID);
-            writer.Byte((byte)Items[i].Count);
-            writer.UShort((ushort)Items[i].ItemMeta);
+            writer.UShort((ushort)Items[i].itemID);
+            writer.Byte((byte)Items[i].stackSize);
+            writer.UShort((ushort)Items[i].itemDamage);
         }
     }
 }
@@ -991,7 +991,7 @@ public class ContainerSetSlotPacket : MinecraftPacket {
     public byte WindowId;
 
     public ushort Slot;
-    public ItemInstance Item;
+    public ItemStack Item;
 
     public override void Decode(ref DataReader reader) {
         reader.Byte(); // Packet type.
@@ -1030,18 +1030,18 @@ public class ContainerSetDataPacket : MinecraftPacket {
 
 public class ContainerSetContentPacket : MinecraftPacket {
     public byte WindowId;
-    public List<ItemInstance> Items;
+    public List<ItemStack> Items;
     public List<int> Hotbar;
 
     public override void Decode(ref DataReader reader) {
         reader.Byte(); // Packet type.
         WindowId = reader.Byte();
-        Items = new List<ItemInstance>();
+        Items = new List<ItemStack>();
         for (int i = 0; i < reader.Short(); i++)
-            Items.Add(new ItemInstance {
-                    ItemID = reader.UShort(),
-                    Count = reader.Byte(),
-                    ItemMeta = reader.UShort()
+            Items.Add(new ItemStack {
+                    itemID = reader.UShort(),
+                    stackSize = reader.Byte(),
+                    itemDamage = reader.UShort()
                 }
             );
 
@@ -1058,9 +1058,9 @@ public class ContainerSetContentPacket : MinecraftPacket {
         writer.Byte(WindowId);
         writer.Short((short)Items.Count);
         for (int i = 0; i < Items.Count; i++) {
-            writer.UShort((ushort)Items[i].ItemID);
-            writer.Byte((byte)Items[i].Count);
-            writer.UShort((ushort)Items[i].ItemMeta);
+            writer.UShort((ushort)Items[i].itemID);
+            writer.Byte((byte)Items[i].stackSize);
+            writer.UShort((ushort)Items[i].itemDamage);
         }
 
         if (WindowId != 0)

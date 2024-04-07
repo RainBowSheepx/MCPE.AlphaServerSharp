@@ -294,7 +294,7 @@ namespace SpoongePE.Core.Game.Generator
             }
             for (int i9 = 0; i9 < 1; i9++)
             {
-                new OreFeature(Block.diamondOre.blockID, 7).place(this.world, this.rand, chunkXWorld + this.rand.nextInt(16), this.rand.nextInt(16), chunkZWorld + this.rand.nextInt(16));
+                new OreFeature(Block.oreDiamond.blockID, 7).place(this.world, this.rand, chunkXWorld + this.rand.nextInt(16), this.rand.nextInt(16), chunkZWorld + this.rand.nextInt(16));
             }
             for (int i10 = 0; i10 < 1; i10++)
             {

@@ -77,4 +77,9 @@ public class Player : Entity
 
     public void Send(ConnectedPacket packet, int reliability = ConnectedPacket.RELIABLE) =>
         Client.Send(packet, reliability);
+
+    internal void heal(int healAmount)
+    {
+        throw new NotImplementedException();
+    }
 }

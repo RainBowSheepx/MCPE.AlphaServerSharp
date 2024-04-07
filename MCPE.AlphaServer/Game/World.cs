@@ -146,7 +146,7 @@ public class World
         Logger.Debug($"Placed spawn on {spawnX} {spawnY} {spawnZ}");
     }
 
-    public bool setBlock(int x, int y, int z, int id, int meta, int flags)
+    public bool setBlock(int x, int y, int z, int id, int meta = 0, int flags = 3)
     {
         Chunk c = this._chunks[x >> 4, z >> 4];
         bool s = c.setBlock(x & 0xf, y, z & 0xf, (byte)id, (byte)meta);
@@ -157,7 +157,7 @@ public class World
                 this.notifyNearby(x, y, z, id);
             }
 
-            if ((flags & 0x2) != 0)
+            if ((flags & 2) != 0)
             { //update using level listeners
                 this.sendBlockPlace(x, y, z, (byte)c.getBlockID(x & 0xf, y, z & 0xf), (byte)meta); //TODO check
             }
@@ -220,7 +220,7 @@ public class World
 
         broadcastPacket(pk);
     }
-    internal void placeBlockAndNotifyNearby(int x, int y, int z, byte id, byte meta = 0)
+    internal void placeBlockAndNotifyNearby(int x, int y, int z, byte id, byte meta = 0) // duplicate setBlock
     {
         if (x < 256 && y < 128 && z < 256 && y >= 0 && x >= 0 && z >= 0)
         {
@@ -433,6 +433,11 @@ public class World
         return blockID > 0 && Block.blocks[blockAt] == null && Block.blocks[blockID].mayPlace(this, x, y, z);
     }
     internal int incrementAndGetNextFreeEID()
+    {
+        throw new NotImplementedException();
+    }
+
+    internal void entityJoinedWorld(Entity ent)
     {
         throw new NotImplementedException();
     }

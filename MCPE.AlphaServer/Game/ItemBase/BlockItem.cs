@@ -16,7 +16,7 @@ namespace SpoongePE.Core.Game.ItemBase
             this.blockID = id + 256;
         }
 
-        public new bool useOn(ItemInstance item, Player player, World world, int x, int y, int z, int side)
+        public new bool useOn(ItemStack item, Player player, World world, int x, int y, int z, int side)
         {
             if (world.getBlockIDAt(x, y, z) == Block.snowLayer.blockID)
             {
@@ -47,7 +47,7 @@ namespace SpoongePE.Core.Game.ItemBase
                 }
             }
 
-            if (item.Count == 0) return false;
+            if (item.stackSize == 0) return false;
             if (!world.mayPlace(this.blockID, x, y, z, false))
             {
                 return false;

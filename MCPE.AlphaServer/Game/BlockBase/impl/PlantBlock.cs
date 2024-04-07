@@ -9,7 +9,7 @@ namespace SpoongePE.Core.Game.BlockBase.impl
 {
     public class PlantBlock : Block
     {
-        public PlantBlock(int id, Material m, int meta = 0) : base(id, m, meta)
+        public PlantBlock(int id, Material m) : base(id, m)
         {
             isSolid = false;
         }

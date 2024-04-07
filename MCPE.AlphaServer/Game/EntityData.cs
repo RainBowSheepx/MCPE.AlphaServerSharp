@@ -89,10 +89,10 @@ public class EntityData {
                     holder.Value = reader.String();
                     break;
                 case EntityDataType.ItemInstance:
-                    holder.Value = new ItemInstance {
-                        ItemID = BinaryPrimitives.ReverseEndianness(reader.UShort()),
-                        Count = reader.Byte(),
-                        ItemMeta = BinaryPrimitives.ReverseEndianness(reader.UShort())
+                    holder.Value = new ItemStack {
+                        itemID = BinaryPrimitives.ReverseEndianness(reader.UShort()),
+                        stackSize = reader.Byte(),
+                        itemDamage = BinaryPrimitives.ReverseEndianness(reader.UShort())
                     };
                     break;
                 case EntityDataType.Pos:
@@ -130,10 +130,10 @@ public class EntityData {
                     writer.RawData(Encoding.UTF8.GetBytes(stringValue));
                     break;
                 case EntityDataType.ItemInstance:
-                    var itemInstance = (ItemInstance)holder.Value;
-                    writer.UShort(BinaryPrimitives.ReverseEndianness((ushort)itemInstance.ItemID));
-                    writer.Byte((byte)itemInstance.Count);
-                    writer.UShort(BinaryPrimitives.ReverseEndianness((ushort)itemInstance.ItemMeta));
+                    var itemInstance = (ItemStack)holder.Value;
+                    writer.UShort(BinaryPrimitives.ReverseEndianness((ushort)itemInstance.itemID));
+                    writer.Byte((byte)itemInstance.stackSize);
+                    writer.UShort(BinaryPrimitives.ReverseEndianness((ushort)itemInstance.itemDamage));
                     break;
                 case EntityDataType.Pos:
 

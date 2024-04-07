@@ -9,7 +9,7 @@ namespace SpoongePE.Core.Game.BlockBase.impl
 {
     public class BedBlock : SolidBlock
     {
-        public BedBlock(int id, Material m, int meta = 0) : base(id, m, meta)
+        public BedBlock(int id, Material m, int meta = 0) : base(id, m)
         {
         }
     }

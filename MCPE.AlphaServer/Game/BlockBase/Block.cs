@@ -21,8 +21,8 @@ public abstract class Block
     public static SolidBlock cobblestone = new SolidBlock(4, Material.stone).setBlockName("Cobblestone");
     public static SolidBlock planks = new SolidBlock(5, Material.wood).setBlockName("Planks");
     public static PlantBlock sapling = new PlantBlock(6, Material.plant);
-    public static PlantBlock spruceSapling = new PlantBlock(6, Material.plant, 1);
-    public static PlantBlock birchSapling = new PlantBlock(6, Material.plant, 2);
+/*    public static PlantBlock spruceSapling = new PlantBlock(6, Material.plant, 1);
+    public static PlantBlock birchSapling = new PlantBlock(6, Material.plant, 2);*/
     public static SolidBlock bedrock = new SolidBlock(7, Material.stone).setBlockName("Bedrock");
     public static LiquidStaticBlock waterFlowing = new LiquidStaticBlock(8, Material.water);
     public static LiquidStaticBlock waterStill = new LiquidStaticBlock(9, Material.water);
@@ -46,8 +46,8 @@ public abstract class Block
     public static RailBlock poweredRail = new RailBlock(27, Material.metal);
 
     public static DecorationBlock cobweb = new DecorationBlock(30, Material.cloth);
-    public static PlantBlock tallGrass = new PlantBlock(31, Material.plant, 1);
-    public static PlantBlock fern = new PlantBlock(31, Material.plant, 2);
+/*    public static PlantBlock tallGrass = new PlantBlock(31, Material.plant, 1);
+    public static PlantBlock fern = new PlantBlock(31, Material.plant, 2);*/
     public static PlantBlock deadBush = new PlantBlock(32, Material.plant);
     public static PlantBlock yellowFlowerBlock = new PlantBlock(37, Material.plant);
     public static PlantBlock rose = new PlantBlock(38, Material.plant);
@@ -57,11 +57,11 @@ public abstract class Block
     public static SolidBlock ironBlock = new SolidBlock(42, Material.metal);
     public static SolidBlock fullStoneSlab = new SolidBlock(43, Material.stone);
     public static SolidBlock stoneSlab = new SolidBlock(44, Material.stone);
-    public static SolidBlock cobbleSlab = new SolidBlock(44, Material.stone, 3);
+/*    public static SolidBlock cobbleSlab = new SolidBlock(44, Material.stone, 3);
     public static SolidBlock brickSlab = new SolidBlock(44, Material.stone, 4);
     public static SolidBlock sandstoneSlab = new SolidBlock(44, Material.stone, 1);
     public static SolidBlock stonebrickSlab = new SolidBlock(44, Material.stone, 5);
-    public static SolidBlock quartzSlab = new SolidBlock(44, Material.stone, 6);
+    public static SolidBlock quartzSlab = new SolidBlock(44, Material.stone, 6);*/
     public static SolidBlock brick = new SolidBlock(45, Material.stone);
     public static SolidBlock tnt = new SolidBlock(46, Material.stone);
     public static SolidBlock bookshelf = new SolidBlock(47, Material.wood);
@@ -73,7 +73,7 @@ public abstract class Block
     public static SolidBlock woodStairs = new SolidBlock(53, Material.wood);
     public static ChestBlock chest = new ChestBlock(54, Material.wood);
 
-    public static SolidBlock diamondOre = new SolidBlock(56, Material.stone);
+    public static SolidBlock oreDiamond = new SolidBlock(56, Material.stone);
     public static SolidBlock diamondBlock = new SolidBlock(57, Material.metal);
     public static SolidBlock workdbench = new SolidBlock(58, Material.wood);
     public static PlantBlock wheatBlock = new PlantBlock(59, Material.plant); //
@@ -91,6 +91,7 @@ public abstract class Block
     public static SolidBlock glowingRedstoneOre = new SolidBlock(74, Material.stone);
     public static DecorationBlock snowLayer = new DecorationBlock(78, Material.decoration);
     public static SolidBlock ice = new SolidBlock(79, Material.ice);
+    public static SolidBlock snow = new SolidBlock(80, Material.snow);
     public static SolidBlock cactus = new SolidBlock(81, Material.cactus);
     public static SolidBlock clay = new SolidBlock(82, Material.clay);
     public static PlantBlock reeds = new PlantBlock(83, Material.plant);
@@ -105,7 +106,7 @@ public abstract class Block
     public static SolidBlock invisibleBedrock = new SolidBlock(95, Material.stone); //TODO destructible/indestructible
     public static SolidBlock trapdoor = new SolidBlock(96, Material.stone);
     public static SolidBlock stoneBrick = new SolidBlock(98, Material.stone);
-    public static SolidBlock mossyStoneBrick = new SolidBlock(98, Material.stone, 1);
+    //public static SolidBlock mossyStoneBrick = new SolidBlock(98, Material.stone, 1);
 
     public static SolidBlock ironBar = new SolidBlock(101, Material.metal);
     public static SolidBlock glassPane = new SolidBlock(102, Material.glass);
@@ -144,41 +145,45 @@ public abstract class Block
     public static SolidBlock reserved6 = new SolidBlock(255, Material.stone); // wtf x2 
 
 
-    public static WoolBlock wool = new WoolBlock(35, 0); //TODO make use of meta, it is not 0.1.3
-    public static WoolBlock wool_lightgray = new WoolBlock(35, 8); //using ids instead of meta =/ // Кто здесь?
-    public static WoolBlock wool_gray = new WoolBlock(35, 7);
-    public static WoolBlock wool_black = new WoolBlock(35, 15);
-    public static WoolBlock wool_brown = new WoolBlock(35, 12);
-    public static WoolBlock wool_red = new WoolBlock(35, 14);
-    public static WoolBlock wool_orange = new WoolBlock(35, 1);
-    public static WoolBlock wool_yellow = new WoolBlock(35, 4);
-    public static WoolBlock wool_lime = new WoolBlock(35, 5);
-    public static WoolBlock wool_green = new WoolBlock(35, 13);
-    public static WoolBlock wool_cyan = new WoolBlock(35, 9);
-    public static WoolBlock wool_lightblue = new WoolBlock(35, 3);
-    public static WoolBlock wool_blue = new WoolBlock(35, 11);
-    public static WoolBlock wool_purple = new WoolBlock(35, 10);
-    public static WoolBlock wool_magenta = new WoolBlock(35, 2);
-    public static WoolBlock wool_pink = new WoolBlock(35, 6);
-    
+    public static WoolBlock wool = new WoolBlock(35, 0); 
 
-    public static WoolBlock carpet = new WoolBlock(171, 0);
-    public static WoolBlock carpet_lightgray = new WoolBlock(171, 8);
-    public static WoolBlock carpet_gray = new WoolBlock(171, 7);
-    public static WoolBlock carpet_black = new WoolBlock(171, 15);
-    public static WoolBlock carpet_brown = new WoolBlock(171, 12);
-    public static WoolBlock carpet_red = new WoolBlock(171, 14);
-    public static WoolBlock carpet_orange = new WoolBlock(171, 1);
-    public static WoolBlock carpet_yellow = new WoolBlock(171, 4);
-    public static WoolBlock carpet_lime = new WoolBlock(171, 5);
-    public static WoolBlock carpet_green = new WoolBlock(171, 13);
-    public static WoolBlock carpet_cyan = new WoolBlock(171, 9);
-    public static WoolBlock carpet_lightblue = new WoolBlock(171, 3);
-    public static WoolBlock carpet_blue = new WoolBlock(171, 11);
-    public static WoolBlock carpet_purple = new WoolBlock(171, 10);
-    public static WoolBlock carpet_magenta = new WoolBlock(171, 2);
-    public static WoolBlock carpet_pink = new WoolBlock(171, 6);
 
+    public static CarpetBlock carpet = new CarpetBlock(171, 0);
+
+    //          Монумент моей тупости
+    //
+    /*    public static WoolBlock carpet_lightgray = new WoolBlock(171, 8);
+        public static WoolBlock carpet_gray = new WoolBlock(171, 7);
+        public static WoolBlock carpet_black = new WoolBlock(171, 15);
+        public static WoolBlock carpet_brown = new WoolBlock(171, 12);
+        public static WoolBlock carpet_red = new WoolBlock(171, 14);
+        public static WoolBlock carpet_orange = new WoolBlock(171, 1);
+        public static WoolBlock carpet_yellow = new WoolBlock(171, 4);
+        public static WoolBlock carpet_lime = new WoolBlock(171, 5);
+        public static WoolBlock carpet_green = new WoolBlock(171, 13);
+        public static WoolBlock carpet_cyan = new WoolBlock(171, 9);
+        public static WoolBlock carpet_lightblue = new WoolBlock(171, 3);
+        public static WoolBlock carpet_blue = new WoolBlock(171, 11);
+        public static WoolBlock carpet_purple = new WoolBlock(171, 10);
+        public static WoolBlock carpet_magenta = new WoolBlock(171, 2);
+        public static WoolBlock carpet_pink = new WoolBlock(171, 6);*/
+
+    /*    public static WoolBlock wool_lightgray = new WoolBlock(35, 8); //using ids instead of meta =/ // Кто здесь?
+        public static WoolBlock wool_gray = new WoolBlock(35, 7);
+        public static WoolBlock wool_black = new WoolBlock(35, 15);
+        public static WoolBlock wool_brown = new WoolBlock(35, 12);
+        public static WoolBlock wool_red = new WoolBlock(35, 14);
+        public static WoolBlock wool_orange = new WoolBlock(35, 1);
+        public static WoolBlock wool_yellow = new WoolBlock(35, 4);
+        public static WoolBlock wool_lime = new WoolBlock(35, 5);
+        public static WoolBlock wool_green = new WoolBlock(35, 13);
+        public static WoolBlock wool_cyan = new WoolBlock(35, 9);
+        public static WoolBlock wool_lightblue = new WoolBlock(35, 3);
+        public static WoolBlock wool_blue = new WoolBlock(35, 11);
+        public static WoolBlock wool_purple = new WoolBlock(35, 10);
+        public static WoolBlock wool_magenta = new WoolBlock(35, 2);
+        public static WoolBlock wool_pink = new WoolBlock(35, 6);
+        */
     public virtual void onNeighborBlockChanged(World world, int x, int y, int z, int meta) { }
     public virtual void onBlockRemoved(World world, int x, int y, int z)
     {
@@ -237,9 +242,9 @@ public abstract class Block
         {
             if (blocks[i] != null)
             {
-                if (Item.items[i] == null)
+                if (Item.itemsList[i] == null)
                 {
-                    Item.items[i] = new BlockItem(i - 256);
+                    Item.itemsList[i] = new BlockItem(i - 256);
                 }
             }
         }
@@ -265,11 +270,10 @@ public abstract class Block
 
     }
 
-    public Block(int id, Material m, int meta = 0)
+    public Block(int id, Material m)
     {
         blockID = id;
         material = m;
-        blockMeta = 0;
         if (blocks[id] != null && blocks[id].GetType() == typeof(Block))
         {
             Logger.Error("ID " + id + " is occupied already!");
