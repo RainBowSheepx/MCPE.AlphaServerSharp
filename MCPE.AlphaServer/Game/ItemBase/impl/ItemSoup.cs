@@ -8,7 +8,7 @@ namespace SpoongePE.Core.Game.ItemBase.impl
 {
     internal class ItemSoup : ItemFood
     {
-        public ItemSoup(int itemID, int var2) : base(itemID, var2, false)
+        public ItemSoup(int itemID, int var2) : base(itemID, var2)
         {
         }
         public new ItemStack onItemRightClick(ItemStack var1, World var2, Player var3)

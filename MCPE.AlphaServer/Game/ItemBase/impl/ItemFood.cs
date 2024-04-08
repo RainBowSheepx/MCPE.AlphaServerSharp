@@ -9,11 +9,9 @@ namespace SpoongePE.Core.Game.ItemBase.impl
     public class ItemFood : Item
     {
         private int healAmount;
-        private bool isWolfsFavoriteMeat;
-        public ItemFood(int itemID, int var2, bool var3) : base(itemID)
+        public ItemFood(int itemID, int var2) : base(itemID)
         {
             this.healAmount = var2;
-            this.isWolfsFavoriteMeat = var3;
             this.maxStackSize = 1;
         }
 
