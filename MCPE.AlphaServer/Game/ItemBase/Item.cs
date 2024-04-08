@@ -181,44 +181,44 @@ namespace SpoongePE.Core.Game.ItemBase
         public static Item legsGold = new ItemArmor(60, 1, 4, 2);
         public static Item bootsGold = new ItemArmor(61, 1, 4, 3);
         public static Item flint = new Item(62);
-        public static Item porkRaw = (new ItemFood(63, 3));
-        public static Item porkCooked = (new ItemFood(64, 8));
-        public static Item painting = (new ItemPainting(65));
-        public static Item appleGold = (new ItemFood(66, 42));
-        public static Item sign = (new ItemSign(67));
-        public static Item doorWood = (new ItemDoor(68, Material.wood));
-        public static Item bucketEmpty = (new ItemBucket(69, 0));
-        public static Item bucketWater = (new ItemBucket(70, Block.waterFlowing.blockID));
-        public static Item bucketLava = (new ItemBucket(71, Block.lavaFlowing.blockID));
-        public static Item minecartEmpty = (new ItemMinecart(72));
-        public static Item saddle = (new ItemSaddle(73));
-        public static Item doorSteel = (new ItemDoor(74, Material.metal));
+        public static Item porkRaw = new ItemFood(63, 3);
+        public static Item porkCooked = new ItemFood(64, 8);
+        public static Item painting = new ItemPainting(65);
+        public static Item appleGold = new ItemFood(66, 42);
+        public static Item sign = new ItemSign(67);
+        public static Item doorWood = new ItemDoor(68, Material.wood);
+        public static Item bucketEmpty = new ItemBucket(69, 0);
+        public static Item bucketWater = new ItemBucket(70, Block.waterFlowing.blockID);
+        public static Item bucketLava = new ItemBucket(71, Block.lavaFlowing.blockID);
+        public static Item minecartEmpty = new ItemMinecart(72);
+        public static Item saddle = new ItemSaddle(73);
+        public static Item doorSteel = new ItemDoor(74, Material.metal);
+        public static Item redstone = new Item(75);
+        public static Item snowball = new ItemSnowball(76);
 
-        public static Item snowball = (new ItemSnowball(76));
+        public static Item leather = new Item(78);
+        public static Item bucketMilk = new ItemBucket(79, -1);
+        public static Item brick = new Item(80);
+        public static Item clay = new Item(81);
+        public static Item reed = new ItemReed(82, Block.reeds);
+        public static Item paper = new Item(83);
+        public static Item book = new Item(84);
+        public static Item slimeBall = new Item(85);
 
-        public static Item leather = (new Item(78));
-        public static Item bucketMilk = (new ItemBucket(79, -1));
-        public static Item brick = (new Item(80));
-        public static Item clay = (new Item(81));
-        public static Item reed = (new ItemReed(82, Block.reeds));
-        public static Item paper = (new Item(83));
-        public static Item book = (new Item(84));
-        public static Item slimeBall = (new Item(85));
+        public static Item egg = new ItemEgg(88);
+        public static Item compass = new Item(89);
 
-        public static Item egg = (new ItemEgg(88));
-        public static Item compass = (new Item(89));
-
-        public static Item pocketSundial = (new Item(91));
-        public static Item lightStoneDust = (new Item(92));
-        public static Item dyePowder = (new ItemDye(95));
-        public static Item bone = (new Item(96));
-        public static Item sugar = (new Item(97));
-        public static Item cake = (new ItemReed(98, Block.cake));
-        public static Item bed = (new ItemBed(99));
+        public static Item pocketSundial = new Item(91);
+        public static Item lightStoneDust = new Item(92);
+        public static Item dyePowder = new ItemDye(95);
+        public static Item bone = new Item(96);
+        public static Item sugar = new Item(97);
+        public static Item cake = new ItemReed(98, Block.cake);
+        public static Item bed = new ItemBed(99);
 
 
 
-        public static ItemShears shears = (new ItemShears(103));
+        public static ItemShears shears = new ItemShears(103);
 
         // Items from 0.8.1
         public static Item melon = new ItemFood(104, 1);
@@ -231,8 +231,8 @@ namespace SpoongePE.Core.Game.ItemBase
 
         public static Item spawnEgg = new ItemSpawnEgg(127);
 
-        public static Item carrot = new ItemSeeds(135, Block.carrot.blockID);
-        public static Item potato = new ItemSeeds(136, Block.potato.blockID);
+        public static Item carrot = new ItemSeedAndFood(135, Block.carrot.blockID, 3);
+        public static Item potato = new ItemSeedAndFood(136, Block.potato.blockID, 3);
         public static Item bakedPotato = new ItemFood(137, 8);
 
         public static Item netherBrick = new Item(149);
