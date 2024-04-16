@@ -10,7 +10,7 @@ namespace SpoongePE.Core.Game.utils
     {
         public static int getPlayerDirection(Player p)
         {
-            return (int)((p.yaw * 4.0 / 360) + 0.5) & 0x3;
+            return (int)((p.rotationYaw * 4.0 / 360) + 0.5) & 0x3;
         }
 
         public static int stringHash(String s)

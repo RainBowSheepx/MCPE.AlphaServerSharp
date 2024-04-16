@@ -26,7 +26,7 @@ namespace SpoongePE.Core.Game.ItemBase.impl
             {
                 ++var5;
                 BedBlock var8 = Block.bedBlock;
-                int var9 = MathHelper.floor_double((double)(var2.yaw * 4.0F / 360.0F) + 0.5D) & 3;
+                int var9 = MathHelper.floor_double((double)(var2.rotationYaw * 4.0F / 360.0F) + 0.5D) & 3;
                 short var10 = 0;
                 short var11 = 0;
                 if (var9 == 0)

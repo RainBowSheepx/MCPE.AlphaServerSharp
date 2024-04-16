@@ -1,10 +1,12 @@
 using SpoongePE.Core.Game.BlockBase.impl;
 using SpoongePE.Core.Game.ItemBase;
 using SpoongePE.Core.Game.material;
+using SpoongePE.Core.Game.utils;
 using SpoongePE.Core.Game.utils.random;
 using SpoongePE.Core.Network;
 using SpoongePE.Core.Utils;
 using System;
+using System.Collections.Generic;
 
 namespace SpoongePE.Core.Game.BlockBase;
 
@@ -270,6 +272,45 @@ public abstract class Block
 
     }
 
+    internal void getCollidingBoundingBoxes(World var1, int var2, int var3, int var4, AxisAlignedBB var5, List<AxisAlignedBB> var6)
+    {
+        AxisAlignedBB var7 = this.getCollisionBoundingBoxFromPool(var1, var2, var3, var4);
+        if (var7 != null && var5.intersectsWith(var7))
+        {
+            var6.Add(var7);
+        }
+    }
+
+    private AxisAlignedBB getCollisionBoundingBoxFromPool(World var1, int var2, int var3, int var4)
+    => AxisAlignedBB.getBoundingBoxFromPool((double)var2 + this.minX, (double)var3 + this.minY, (double)var4 + this.minZ, (double)var2 + this.maxX, (double)var3 + this.maxY, (double)var4 + this.maxZ);
+    public void setBlockBounds(float var1, float var2, float var3, float var4, float var5, float var6)
+    {
+        this.minX = (double)var1;
+        this.minY = (double)var2;
+        this.minZ = (double)var3;
+        this.maxX = (double)var4;
+        this.maxY = (double)var5;
+        this.maxZ = (double)var6;
+    }
+    
+    // fluid, stairs
+    public void velocityToAddToEntity(World world, int var12, int var13, int var14, Entity var3, Vec3D var11)
+    {
+      
+    }
+
+    // leaves, farmland, stairs
+    public void onEntityWalking(World var1, int var2, int var3, int var4, Entity var5)
+    {
+
+    }
+
+    // Cactus, web, soul sand
+    public void onEntityCollidedWithBlock(World var1, int var2, int var3, int var4, Entity var5)
+    {
+
+    }
+
     public Block(int id, Material m)
     {
         blockID = id;
@@ -280,6 +321,7 @@ public abstract class Block
         }
         else
         {
+            this.setBlockBounds(0.0F, 0.0F, 0.0F, 1.0F, 1.0F, 1.0F);
             blocks[id] = this;
         }
 
@@ -291,4 +333,5 @@ public abstract class Block
     public Material material;
     public bool isSolid = true; //isRenderSolid method in 0.1.3
     public bool isOpaque = true;
+    public double minX, minY, minZ, maxX, maxY, maxZ;
 }

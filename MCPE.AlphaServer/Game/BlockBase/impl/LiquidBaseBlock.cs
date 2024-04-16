@@ -1,4 +1,5 @@
 ﻿using SpoongePE.Core.Game.material;
+using SpoongePE.Core.Game.utils;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -33,7 +34,24 @@ namespace SpoongePE.Core.Game.BlockBase.impl
 
             }
         }
+        public static float getPercentAir(int var0)
+        {
+            if (var0 >= 8)
+            {
+                var0 = 0;
+            }
 
+            float var1 = (float)(var0 + 1) / 9.0F;
+            return var1;
+        }
+        // TODO: getFlowVector
+        public new void velocityToAddToEntity(World var1, int var2, int var3, int var4, Entity var5, Vec3D var6)
+        {
+/*            Vec3D var7 = this.getFlowVector(var1, var2, var3, var4);
+            var6.xCoord += var7.xCoord;
+            var6.yCoord += var7.yCoord;
+            var6.zCoord += var7.zCoord;*/
+        }
 
         public override void onBlockAdded(World world, int x, int y, int z)
         {

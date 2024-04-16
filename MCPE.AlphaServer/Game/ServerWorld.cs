@@ -67,7 +67,7 @@ public class ServerWorld
 
     public Player AddPlayer(RakNetClient client, ulong clientId, string username)
     {
-        var newPlayer = new Player(client)
+        var newPlayer = new Player(client, this.World)
         {
             PlayerID = clientId,
             Username = username,

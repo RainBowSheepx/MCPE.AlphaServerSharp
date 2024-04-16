@@ -1,7 +1,10 @@
 using SpoongePE.Core;
 using SpoongePE.Core.Game.BlockBase;
+using SpoongePE.Core.Game.utils;
 using SpoongePE.Core.Utils;
 using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 
@@ -16,7 +19,7 @@ public class Chunk
     private byte[,,] _blockLight = new byte[16, 16, 128];
     private byte[,,] _skyLight = new byte[16, 16, 128];
     private byte[,] _heightMap = new byte[16, 16];
-
+    public ArrayList[] entities = new ArrayList[8];
 
     public byte[,,] BlockData => _blockData;
     public byte[,,] BlockMetadata => _blockMetadata;
@@ -34,6 +37,10 @@ public class Chunk
         this.posX = x;
         this.posZ = z;
         this.world = world;
+        for (int var4 = 0; var4 < this.entities.Length; ++var4)
+        {
+            this.entities[var4] = new ArrayList();
+        }
     }
     public Chunk(byte[,,] blockData, int chunkX, int chunkZ, World world)
     {
@@ -41,6 +48,10 @@ public class Chunk
         this.posZ = chunkZ;
         this._blockData = blockData;
         this.world = world;
+        for (int var4 = 0; var4 < this.entities.Length; ++var4)
+        {
+            this.entities[var4] = new ArrayList();
+        }
     }
     public Chunk()
     {
@@ -230,4 +241,32 @@ public class Chunk
         return BlockLight[x, z, y];
     }
 
+    public void getEntitiesWithinAABBForEntity(Entity var1, AxisAlignedBB var2, List<Entity> var3)
+    {
+        int var4 = MathHelper.floor_double((var2.minY - 2.0D) / 16.0D);
+        int var5 = MathHelper.floor_double((var2.maxY + 2.0D) / 16.0D);
+        if (var4 < 0)
+        {
+            var4 = 0;
+        }
+
+        if (var5 >= this.entities.Length)
+        {
+            var5 = this.entities.Length - 1;
+        }
+
+        for (int var6 = var4; var6 <= var5; ++var6)
+        {
+            ArrayList var7 = this.entities[var6];
+
+            for (int var8 = 0; var8 < var7.Count; ++var8)
+            {
+                Entity var9 = (Entity)var7[var8];
+                if (var9 != var1 && var9.boundingBox.intersectsWith(var2))
+                {
+                    var3.Add(var9);
+                }
+            }
+        }
+    }
 }

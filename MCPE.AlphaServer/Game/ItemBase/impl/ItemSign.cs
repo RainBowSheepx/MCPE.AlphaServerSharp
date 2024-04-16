@@ -60,7 +60,7 @@ namespace SpoongePE.Core.Game.ItemBase.impl
                 {
                     if (var7 == 1)
                     {
-                        var3.setBlock(var4, var5, var6, Block.signPost.blockID, MathHelper.floor_double((double)((var2.yaw + 180.0F) * 16.0F / 360.0F) + 0.5D) & 15);
+                        var3.setBlock(var4, var5, var6, Block.signPost.blockID, MathHelper.floor_double((double)((var2.rotationYaw + 180.0F) * 16.0F / 360.0F) + 0.5D) & 15);
                     }
                     else
                     {

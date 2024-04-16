@@ -21,10 +21,10 @@ public class Player : Entity
     public byte itemID;
     public string ip, identifier;
     public NbtFile playerData;
-    public Player(RakNetClient client)
+    public Player(RakNetClient client, World w) : base(w)
     {
         Client = client;
-        this.health = 20;
+        this.heartsLife = 20;
         this.inCreative = RakNetServer.Properties.gamemode;
         Define(EntityDataKey.IsSleeping, EntityDataType.Byte);
         Define(EntityDataKey.SleepPosition, EntityDataType.Pos);
@@ -39,7 +39,7 @@ public class Player : Entity
 
         playerData.RootTag.Clear();
         playerData.RootTag.Add(new NbtString("DisplayName", Username));
-        playerData.RootTag.Add(new NbtByte("Health", health)); // TODO: Health
+        playerData.RootTag.Add(new NbtByte("Health", heartsLife)); // TODO: Health
         playerData.RootTag.Add(new NbtByte("InCreative", inCreative ? (byte)1 : (byte)0));
         playerData.RootTag.Add(new NbtList("Position", new List<NbtFloat>() { new NbtFloat( Position.X),
                                                                            new NbtFloat( Position.Y),
@@ -59,7 +59,7 @@ public class Player : Entity
         {
             // TODO NULL Checks
             DisplayName = playerData.RootTag["DisplayName"].StringValue;
-            health = playerData.RootTag["Health"].ByteValue;
+            heartsLife = playerData.RootTag["Health"].ByteValue;
             inCreative = playerData.RootTag["InCreative"].ByteValue == 1;
             NbtList pos = (NbtList)playerData.RootTag["Position"];
             Position = new Vector3(pos[0].FloatValue, pos[1].FloatValue, pos[2].FloatValue);

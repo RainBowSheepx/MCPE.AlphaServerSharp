@@ -4,6 +4,7 @@ using System.IO;
 namespace SpoongePE.Core.Game;
 
 using SpoongePE.Core.Game.BlockBase;
+using SpoongePE.Core.Game.BlockBase.impl;
 using SpoongePE.Core.Game.Generator;
 using SpoongePE.Core.Game.material;
 using SpoongePE.Core.Game.utils;
@@ -11,6 +12,7 @@ using SpoongePE.Core.Game.utils.random;
 using SpoongePE.Core.NBT;
 using SpoongePE.Core.Network;
 using SpoongePE.Core.Utils;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -440,5 +442,225 @@ public class World
     internal void entityJoinedWorld(Entity ent)
     {
         throw new NotImplementedException();
+    }
+    public bool blockExists(int var1, int var2, int var3) => var2 >= 0 && var2 < 128 ? this.chunkExists(var1 >> 4, var3 >> 4) : false;
+
+    private bool chunkExists(int var1, int var2)
+    {
+        // maybe outofbounds
+        return this._chunks[var1, var2] != null;
+    }
+    private List<AxisAlignedBB> collidingBoundingBoxes = new List<AxisAlignedBB>();
+    private List<Entity> field_1012_M = new List<Entity>();
+    public List<AxisAlignedBB> getCollidingBoundingBoxes(Entity var1, AxisAlignedBB var2)
+    {
+        this.collidingBoundingBoxes.Clear();
+        int var3 = MathHelper.floor_double(var2.minX);
+        int var4 = MathHelper.floor_double(var2.maxX + 1.0D);
+        int var5 = MathHelper.floor_double(var2.minY);
+        int var6 = MathHelper.floor_double(var2.maxY + 1.0D);
+        int var7 = MathHelper.floor_double(var2.minZ);
+        int var8 = MathHelper.floor_double(var2.maxZ + 1.0D);
+
+        for (int var9 = var3; var9 < var4; ++var9)
+        {
+            for (int var10 = var7; var10 < var8; ++var10)
+            {
+                if (this.blockExists(var9, 64, var10))
+                {
+                    for (int var11 = var5 - 1; var11 < var6; ++var11)
+                    {
+                        Block var12 = Block.blocks[this.getBlockIDAt(var9, var11, var10)];
+                        if (var12 != null)
+                        {
+                            var12.getCollidingBoundingBoxes(this, var9, var11, var10, var2, this.collidingBoundingBoxes);
+                        }
+                    }
+                }
+            }
+        }
+
+        double var14 = 0.25D;
+        List<Entity> var15 = this.getEntitiesWithinAABBExcludingEntity(var1, var2.expand(var14, var14, var14));
+
+        for (int var16 = 0; var16 < var15.Count(); ++var16)
+        {
+            AxisAlignedBB var13 = ((Entity)var15[var16]).getBoundingBox();
+            if (var13 != null && var13.intersectsWith(var2))
+            {
+                this.collidingBoundingBoxes.Add(var13);
+            }
+
+            var13 = var1.getCollisionBox((Entity)var15[var16]);
+            if (var13 != null && var13.intersectsWith(var2))
+            {
+                this.collidingBoundingBoxes.Add(var13);
+            }
+        }
+
+        return this.collidingBoundingBoxes;
+    }
+    public List<Entity> getEntitiesWithinAABBExcludingEntity(Entity var1, AxisAlignedBB var2)
+    {
+        this.field_1012_M.Clear();
+        int var3 = MathHelper.floor_double((var2.minX - 2.0D) / 16.0D);
+        int var4 = MathHelper.floor_double((var2.maxX + 2.0D) / 16.0D);
+        int var5 = MathHelper.floor_double((var2.minZ - 2.0D) / 16.0D);
+        int var6 = MathHelper.floor_double((var2.maxZ + 2.0D) / 16.0D);
+
+        for (int var7 = var3; var7 <= var4; ++var7)
+        {
+            for (int var8 = var5; var8 <= var6; ++var8)
+            {
+                if (this.chunkExists(var7, var8))
+                {
+                    this._chunks[var7, var8].getEntitiesWithinAABBForEntity(var1, var2, this.field_1012_M);
+                }
+            }
+        }
+
+        return this.field_1012_M;
+    }
+
+    public bool handleMaterialAcceleration(AxisAlignedBB var1, Material var2, Entity var3)
+    {
+        int var4 = MathHelper.floor_double(var1.minX);
+        int var5 = MathHelper.floor_double(var1.maxX + 1.0D);
+        int var6 = MathHelper.floor_double(var1.minY);
+        int var7 = MathHelper.floor_double(var1.maxY + 1.0D);
+        int var8 = MathHelper.floor_double(var1.minZ);
+        int var9 = MathHelper.floor_double(var1.maxZ + 1.0D);
+
+        bool var10 = false;
+        Vec3D var11 = Vec3D.createVector(0.0D, 0.0D, 0.0D);
+
+        for (int var12 = var4; var12 < var5; ++var12)
+        {
+            for (int var13 = var6; var13 < var7; ++var13)
+            {
+                for (int var14 = var8; var14 < var9; ++var14)
+                {
+                    Block var15 = Block.blocks[this.getBlockIDAt(var12, var13, var14)];
+                    if (var15 != null && var15.material == var2)
+                    {
+                        double var16 = (double)((float)(var13 + 1) - LiquidBaseBlock.getPercentAir(this.getBlockMetaAt(var12, var13, var14)));
+                        if ((double)var7 >= var16)
+                        {
+                            var10 = true;
+                            var15.velocityToAddToEntity(this, var12, var13, var14, var3, var11);
+                        }
+                    }
+                }
+            }
+        }
+
+        if (var11.lengthVector() > 0.0D)
+        {
+            var11 = var11.normalize();
+            double var18 = 0.014D;
+            var3.motionX += (float)(var11.xCoord * var18);
+            var3.motionY += (float)(var11.yCoord * var18);
+            var3.motionZ += (float)(var11.zCoord * var18);
+        }
+
+        return var10;
+
+    }
+    public bool isMaterialInBB(AxisAlignedBB var1, Material var2)
+    {
+        int var3 = MathHelper.floor_double(var1.minX);
+        int var4 = MathHelper.floor_double(var1.maxX + 1.0D);
+        int var5 = MathHelper.floor_double(var1.minY);
+        int var6 = MathHelper.floor_double(var1.maxY + 1.0D);
+        int var7 = MathHelper.floor_double(var1.minZ);
+        int var8 = MathHelper.floor_double(var1.maxZ + 1.0D);
+
+        for (int var9 = var3; var9 < var4; ++var9)
+        {
+            for (int var10 = var5; var10 < var6; ++var10)
+            {
+                for (int var11 = var7; var11 < var8; ++var11)
+                {
+                    Block var12 = Block.blocks[this.getBlockIDAt(var9, var10, var11)];
+                    if (var12 != null && var12.material == var2)
+                    {
+                        return true;
+                    }
+                }
+            }
+        }
+
+        return false;
+    }
+
+    public bool isAABBInMaterial(AxisAlignedBB var1, Material var2)
+    {
+        int var3 = MathHelper.floor_double(var1.minX);
+        int var4 = MathHelper.floor_double(var1.maxX + 1.0D);
+        int var5 = MathHelper.floor_double(var1.minY);
+        int var6 = MathHelper.floor_double(var1.maxY + 1.0D);
+        int var7 = MathHelper.floor_double(var1.minZ);
+        int var8 = MathHelper.floor_double(var1.maxZ + 1.0D);
+
+        for (int var9 = var3; var9 < var4; ++var9)
+        {
+            for (int var10 = var5; var10 < var6; ++var10)
+            {
+                for (int var11 = var7; var11 < var8; ++var11)
+                {
+                    Block var12 = Block.blocks[this.getBlockIDAt(var9, var10, var11)];
+                    if (var12 != null && var12.material == var2)
+                    {
+                        int var13 = this.getBlockMetaAt(var9, var10, var11);
+                        double var14 = (double)(var10 + 1);
+                        if (var13 < 8)
+                        {
+                            var14 = (double)(var10 + 1) - (double)var13 / 8.0D;
+                        }
+
+                        if (var14 >= var1.minY)
+                        {
+                            return true;
+                        }
+                    }
+                }
+            }
+        }
+
+        return false;
+    }
+
+    public bool checkChunksExist(int var38, int var26, int var39, int var28, int var40, int var30)
+    {
+        return true;
+    }
+
+    internal bool isBoundingBoxBurning(AxisAlignedBB var1)
+    {
+        int var2 = MathHelper.floor_double(var1.minX);
+        int var3 = MathHelper.floor_double(var1.maxX + 1.0D);
+        int var4 = MathHelper.floor_double(var1.minY);
+        int var5 = MathHelper.floor_double(var1.maxY + 1.0D);
+        int var6 = MathHelper.floor_double(var1.minZ);
+        int var7 = MathHelper.floor_double(var1.maxZ + 1.0D);
+        if (this.checkChunksExist(var2, var4, var6, var3, var5, var7))
+        {
+            for (int var8 = var2; var8 < var3; ++var8)
+            {
+                for (int var9 = var4; var9 < var5; ++var9)
+                {
+                    for (int var10 = var6; var10 < var7; ++var10)
+                    {
+                        int var11 = this.getBlockIDAt(var8, var9, var10);
+                        if (var11 == Block.fire.blockID || var11 == Block.lavaFlowing.blockID || var11 == Block.lavaStill.blockID)
+                        {
+                            return true;
+                        }
+                    }
+                }
+            }
+        }
+
+        return false;
     }
 }
