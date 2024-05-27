@@ -669,4 +669,24 @@ public class World
     {
         throw new NotImplementedException();
     }
+
+    internal object rayTraceBlocks(Vec3D vec3D1, Vec3D vec3D2)
+    {
+        throw new NotImplementedException();
+    }
+
+    internal void setEntityState(EntityLiving entityLiving, byte v)
+    {
+        throw new NotImplementedException();
+    }
+
+    internal bool checkIfAABBIsClear(AxisAlignedBB boundingBox)
+    {
+        throw new NotImplementedException();
+    }
+
+    internal bool getIsAnyLiquid(AxisAlignedBB boundingBox)
+    {
+        throw new NotImplementedException();
+    }
 }

@@ -15,6 +15,7 @@ public abstract class Entity
     private static int LastEntityID = 1;
 
     public int EntityID;
+    public bool preventEntitySpawning;
     public Entity riddenByEntity; // not used
     public Entity ridingEntity; // not used
     public EntityData EntityData;
@@ -53,7 +54,7 @@ public abstract class Entity
         rotationYaw = 0;
         rotationPitch = 0;
         heartsLife = 0;
-
+        preventEntitySpawning = false;
         boundingBox = AxisAlignedBB.getBoundingBox(0.0D, 0.0D, 0.0D, 0.0D, 0.0D, 0.0D);
         onGround = false;
         isCollided = false;
@@ -706,15 +707,10 @@ public abstract class Entity
     {
         // TODO
     }
-    public EntityItem dropItem(int var1, int var2)
-    {
-        return dropItemWithOffset(var1, var2, 0.0F);
-    }
+    public EntityItem dropItem(int var1, int var2) => dropItemWithOffset(var1, var2, 0.0F);
 
-    public EntityItem dropItemWithOffset(int var1, int var2, float var3)
-    {
-        return entityDropItem(new ItemStack(var1, (byte)var2, 0), var3);
-    }
+    public EntityItem dropItemWithOffset(int var1, int var2, float var3) => entityDropItem(new ItemStack(var1, (byte)var2, 0), var3);
+
 
     public EntityItem entityDropItem(ItemStack var1, float var2)
     {
@@ -724,10 +720,8 @@ public abstract class Entity
         return var3;
     }
 
-    protected string getEntityString()
-    {
-        return EntityList.GetEntityString(this);
-    }
+    public string getEntityString() => EntityList.GetEntityString(this);
+
 
     public bool isEntityAlive() => !isDead;
 
@@ -897,4 +891,59 @@ public abstract class Entity
     public AxisAlignedBB getBoundingBox() => null;
 
     internal AxisAlignedBB getCollisionBox(Entity entity) => null;
+
+    public void onKillEntity(EntityLiving entityLiving)
+    {
+
+    }
+
+    internal void applyEntityCollision(EntityLiving var1)
+    {
+        if (var1.riddenByEntity != this && var1.ridingEntity != this)
+        {
+            double var2 = var1.posX - this.posX;
+            double var4 = var1.posZ - this.posZ;
+            double var6 = MathHelper.abs_max(var2, var4);
+            if (var6 >= 0.009999999776482582D)
+            {
+                var6 = (double)MathHelper.sqrt_double(var6);
+                var2 /= var6;
+                var4 /= var6;
+                double var8 = 1.0D / var6;
+                if (var8 > 1.0D)
+                {
+                    var8 = 1.0D;
+                }
+
+                var2 *= var8;
+                var4 *= var8;
+                var2 *= 0.05000000074505806D;
+                var4 *= 0.05000000074505806D;
+                var2 *= (double)(1.0F - this.entityCollisionReduction);
+                var4 *= (double)(1.0F - this.entityCollisionReduction);
+                this.addVelocity(-var2, 0.0D, -var4);
+                var1.addVelocity(var2, 0.0D, var4);
+            }
+
+        }
+    }
+
+    public void handleHealthUpdate(byte var1)
+    {
+    }
+
+
+    public bool isOffsetPositionInLiquid(double var1, double var3, double var5)
+    {
+        AxisAlignedBB var7 = this.boundingBox.getOffsetBoundingBox(var1, var3, var5);
+        List<AxisAlignedBB> var8 = this.world.getCollidingBoundingBoxes(this, var7);
+        if (var8.Count > 0)
+        {
+            return false;
+        }
+        else
+        {
+            return !this.world.getIsAnyLiquid(var7);
+        }
+    }
 }

@@ -13,7 +13,7 @@ namespace SpoongePE.Core.Game.biome
     public class Biome
     {
         public static Biome[] biomes = new Biome[4096];
-        public String name;
+        public string name;
         public byte topBlock = (byte)Block.grass.blockID;
         public byte fillerBlock = (byte)Block.dirt.blockID; //TODO maybe stone??
 

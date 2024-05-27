@@ -35,10 +35,7 @@ namespace SpoongePE.Core.Game.utils
             return false;
         }
 
-        public String toString()
-        {
-            return this.tickEntryID + ": " + posX + "/" + posY + "/" + posZ + "/" + blockID + "/" + scheduledTime;
-        }
+        public new string ToString => this.tickEntryID + ": " + posX + "/" + posY + "/" + posZ + "/" + blockID + "/" + scheduledTime;
 
         public int CompareTo(TickNextTickData tick)
         {

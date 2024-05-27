@@ -316,6 +316,7 @@ public abstract class Block
     {
         blockID = id;
         material = m;
+        this.slipperiness = 0.6F;
         if (blocks[id] != null && blocks[id].GetType() == typeof(Block))
         {
             Logger.Error("ID " + id + " is occupied already!");
@@ -335,4 +336,5 @@ public abstract class Block
     public bool isSolid = true; //isRenderSolid method in 0.1.3
     public bool isOpaque = true;
     public double minX, minY, minZ, maxX, maxY, maxZ;
+    public float slipperiness;
 }
