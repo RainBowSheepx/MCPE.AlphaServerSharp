@@ -1,5 +1,6 @@
 using SpoongePE.Core;
 using SpoongePE.Core.Game.BlockBase;
+using SpoongePE.Core.Game.entity;
 using SpoongePE.Core.Game.utils;
 using SpoongePE.Core.Utils;
 using System;

@@ -6,6 +6,7 @@ using System.Net.Http.Headers;
 using System.Net.Sockets;
 using System.Numerics;
 using System.Threading.Tasks;
+using SpoongePE.Core.Game.entity;
 using SpoongePE.Core.NBT;
 using SpoongePE.Core.Network;
 using SpoongePE.Core.RakNet;

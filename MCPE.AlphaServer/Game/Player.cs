@@ -1,4 +1,5 @@
-﻿using SpoongePE.Core.NBT;
+﻿using SpoongePE.Core.Game.entity;
+using SpoongePE.Core.NBT;
 using SpoongePE.Core.RakNet;
 using System;
 using System.Collections.Generic;

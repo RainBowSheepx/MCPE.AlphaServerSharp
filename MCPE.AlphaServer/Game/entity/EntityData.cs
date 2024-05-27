@@ -8,9 +8,10 @@ using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace SpoongePE.Core.Game;
+namespace SpoongePE.Core.Game.entity;
 
-public enum EntityDataType {
+public enum EntityDataType
+{
     Byte = 0,
     Short = 1,
     Int = 2,
@@ -20,7 +21,8 @@ public enum EntityDataType {
     Pos = 6
 }
 
-public enum EntityDataKey {
+public enum EntityDataKey
+{
     Flags = 0,
     Air = 1,
 
@@ -28,8 +30,10 @@ public enum EntityDataKey {
     SleepPosition = 17
 }
 
-public class EntityData {
-    class EntityDataHolder {
+public class EntityData
+{
+    class EntityDataHolder
+    {
         public EntityDataType Type;
         public bool IsDirty;
         public object Value;
@@ -37,15 +41,18 @@ public class EntityData {
 
     private readonly Dictionary<EntityDataKey, EntityDataHolder> DefinedData = new();
 
-    public void Define(EntityDataKey id, EntityDataType dataType) {
-        DefinedData[id] = new EntityDataHolder {
+    public void Define(EntityDataKey id, EntityDataType dataType)
+    {
+        DefinedData[id] = new EntityDataHolder
+        {
             Type = dataType,
             IsDirty = false,
             Value = null
         };
     }
 
-    public void Set(EntityDataKey id, object value) {
+    public void Set(EntityDataKey id, object value)
+    {
         if (!DefinedData.TryGetValue(id, out var holder))
             throw new Exception("Undefined data id");
 
@@ -53,7 +60,8 @@ public class EntityData {
         holder.IsDirty = true;
     }
 
-    public T Get<T>(EntityDataKey id) {
+    public T Get<T>(EntityDataKey id)
+    {
         if (!DefinedData.TryGetValue(id, out var holder))
             throw new Exception("Undefined data id");
 
@@ -61,8 +69,10 @@ public class EntityData {
     }
 
 
-    public void Decode(ref DataReader reader) {
-        while (true) {
+    public void Decode(ref DataReader reader)
+    {
+        while (true)
+        {
             var dataType = reader.Byte();
             if (dataType == 0x7F) break;
 
@@ -72,7 +82,8 @@ public class EntityData {
             if (!DefinedData.TryGetValue(id, out var holder))
                 throw new Exception("Undefined data id");
 
-            switch (type) {
+            switch (type)
+            {
                 case EntityDataType.Byte:
                     holder.Value = reader.Byte();
                     break;
@@ -89,7 +100,8 @@ public class EntityData {
                     holder.Value = reader.String();
                     break;
                 case EntityDataType.ItemInstance:
-                    holder.Value = new ItemStack {
+                    holder.Value = new ItemStack
+                    {
                         itemID = BinaryPrimitives.ReverseEndianness(reader.UShort()),
                         stackSize = reader.Byte(),
                         itemDamage = BinaryPrimitives.ReverseEndianness(reader.UShort())
@@ -105,13 +117,16 @@ public class EntityData {
         }
     }
 
-    public void Encode(ref DataWriter writer) {
-        foreach (var (id, holder) in DefinedData) {
+    public void Encode(ref DataWriter writer)
+    {
+        foreach (var (id, holder) in DefinedData)
+        {
             if (!holder.IsDirty) continue;
 
-            writer.Byte((byte)(((int)holder.Type << 5) | (int)id));
+            writer.Byte((byte)((int)holder.Type << 5 | (int)id));
 
-            switch (holder.Type) {
+            switch (holder.Type)
+            {
                 case EntityDataType.Byte:
                     writer.Byte((byte)holder.Value);
                     break;
@@ -132,7 +147,7 @@ public class EntityData {
                 case EntityDataType.ItemInstance:
                     var itemInstance = (ItemStack)holder.Value;
                     writer.UShort(BinaryPrimitives.ReverseEndianness((ushort)itemInstance.itemID));
-                    writer.Byte((byte)itemInstance.stackSize);
+                    writer.Byte(itemInstance.stackSize);
                     writer.UShort(BinaryPrimitives.ReverseEndianness((ushort)itemInstance.itemDamage));
                     break;
                 case EntityDataType.Pos:

@@ -4,9 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace SpoongePE.Core.Game;
+namespace SpoongePE.Core.Game.entity;
 
-internal enum EntityType : byte {
+internal enum EntityType : byte
+{
     Chicken = 0xA,
     Cow = 0xB,
     Pig = 0xC,

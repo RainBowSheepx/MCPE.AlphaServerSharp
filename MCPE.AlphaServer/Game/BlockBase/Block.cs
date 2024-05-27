@@ -1,4 +1,5 @@
 using SpoongePE.Core.Game.BlockBase.impl;
+using SpoongePE.Core.Game.entity;
 using SpoongePE.Core.Game.ItemBase;
 using SpoongePE.Core.Game.material;
 using SpoongePE.Core.Game.utils;
@@ -100,7 +101,7 @@ public abstract class Block
     public static SolidBlock fence = new SolidBlock(85, Material.wood);
     public static SolidBlock pumpkin = new SolidBlock(86, Material.vegetable);
     public static SolidBlock netherrack = new SolidBlock(87, Material.stone);
-    public static SolidBlock soulSand = new SolidBlock(88, Material.sand);
+   // public static SolidBlock soulSand = new SolidBlock(88, Material.sand); NostalgiaCore moment
     public static SolidBlock glowstone = new SolidBlock(89, Material.stone);
 
     public static SolidBlock jack_o_lantern = new SolidBlock(91, Material.vegetable);

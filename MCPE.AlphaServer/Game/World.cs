@@ -5,6 +5,7 @@ namespace SpoongePE.Core.Game;
 
 using SpoongePE.Core.Game.BlockBase;
 using SpoongePE.Core.Game.BlockBase.impl;
+using SpoongePE.Core.Game.entity;
 using SpoongePE.Core.Game.Generator;
 using SpoongePE.Core.Game.material;
 using SpoongePE.Core.Game.utils;

@@ -1,4 +1,5 @@
 ﻿using SpoongePE.Core.Game.BlockBase;
+using SpoongePE.Core.Game.entity;
 
 namespace SpoongePE.Core.Game.ItemBase.impl
 {
