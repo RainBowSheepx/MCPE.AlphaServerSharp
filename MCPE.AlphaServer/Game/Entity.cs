@@ -1,8 +1,13 @@
 ﻿using SpoongePE.Core.Game.BlockBase;
+using SpoongePE.Core.Game.BlockBase.impl;
+using SpoongePE.Core.Game.entity;
+using SpoongePE.Core.Game.ItemBase;
 using SpoongePE.Core.Game.material;
 using SpoongePE.Core.Game.utils;
+using SpoongePE.Core.NBT;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace SpoongePE.Core.Game;
 
@@ -11,8 +16,8 @@ public abstract class Entity
     private static int LastEntityID = 1;
 
     public int EntityID;
-    public Entity riddenByEntity;
-    public Entity ridingEntity;
+    public Entity riddenByEntity; // not used
+    public Entity ridingEntity; // not used
     public EntityData EntityData;
     public float prevPosX, prevPosY, prevPosZ, posX, posY, posZ, motionX, motionY, motionZ;
     public float rotationYaw, rotationPitch, prevRotationYaw, prevRotationPitch;
@@ -570,7 +575,321 @@ public abstract class Entity
 
     }
     protected bool canTriggerWalking() => true;
+    public bool isInsideOfMaterial(Material var1)
+    {
+        double var2 = this.posY + (double)this.getEyeHeight();
+        int var4 = MathHelper.floor_double(this.posX);
+        int var5 = MathHelper.floor_float((float)MathHelper.floor_double(var2));
+        int var6 = MathHelper.floor_double(this.posZ);
+        int var7 = this.world.getBlockIDAt(var4, var5, var6);
+        if (var7 != 0 && Block.blocks[var7].material == var1)
+        {
+            float var8 = LiquidBaseBlock.getPercentAir(this.world.getBlockMetaAt(var4, var5, var6)) - 0.11111111F;
+            float var9 = (float)(var5 + 1) - var8;
+            return var2 < (double)var9;
+        }
+        else
+        {
+            return false;
+        }
+    }
+    public void moveFlying(float var1, float var2, float var3)
+    {
+        float var4 = MathHelper.sqrt_float(var1 * var1 + var2 * var2);
+        if (var4 >= 0.01F)
+        {
+            if (var4 < 1.0F)
+            {
+                var4 = 1.0F;
+            }
 
+            var4 = var3 / var4;
+            var1 *= var4;
+            var2 *= var4;
+            float var5 = MathHelper.sin(this.rotationYaw * 3.1415927F / 180.0F);
+            float var6 = MathHelper.cos(this.rotationYaw * 3.1415927F / 180.0F);
+            this.motionX += (float)(var1 * var6 - var2 * var5);
+            this.motionZ += (float)(var2 * var6 + var1 * var5);
+        }
+    }
+    public void setPositionAndRotation(double var1, double var3, double var5, float var7, float var8)
+    {
+        this.prevPosX = this.posX = (float)var1;
+        this.prevPosY = this.posY = (float)var3;
+        this.prevPosZ = this.posZ = (float)var5;
+        this.prevRotationYaw = this.rotationYaw = var7;
+        this.prevRotationPitch = this.rotationPitch = var8;
+        this.ySize = 0.0F;
+        double var9 = (double)(this.prevRotationYaw - var7);
+        if (var9 < -180.0D)
+        {
+            this.prevRotationYaw += 360.0F;
+        }
+
+        if (var9 >= 180.0D)
+        {
+            this.prevRotationYaw -= 360.0F;
+        }
+
+        this.setPosition(this.posX, this.posY, this.posZ);
+        this.setRotation(var7, var8);
+    }
+    public float getDistanceToEntity(Entity var1)
+    {
+        float var2 = (float)(this.posX - var1.posX);
+        float var3 = (float)(this.posY - var1.posY);
+        float var4 = (float)(this.posZ - var1.posZ);
+        return MathHelper.sqrt_float(var2 * var2 + var3 * var3 + var4 * var4);
+    }
+    public double getDistanceSq(double var1, double var3, double var5)
+    {
+        double var7 = this.posX - var1;
+        double var9 = this.posY - var3;
+        double var11 = this.posZ - var5;
+        return var7 * var7 + var9 * var9 + var11 * var11;
+    }
+
+    public double getDistance(double var1, double var3, double var5)
+    {
+        double var7 = this.posX - var1;
+        double var9 = this.posY - var3;
+        double var11 = this.posZ - var5;
+        return (double)MathHelper.sqrt_double(var7 * var7 + var9 * var9 + var11 * var11);
+    }
+
+    public double getDistanceSqToEntity(Entity var1)
+    {
+        double var2 = this.posX - var1.posX;
+        double var4 = this.posY - var1.posY;
+        double var6 = this.posZ - var1.posZ;
+        return var2 * var2 + var4 * var4 + var6 * var6;
+    }
+
+    public void addVelocity(double var1, double var3, double var5)
+    {
+        this.motionX += (float)var1;
+        this.motionY += (float)var3;
+        this.motionZ += (float)var5;
+    }
+
+
+    public bool canBeCollidedWith()
+    {
+        return false;
+    }
+
+    public bool canBePushed()
+    {
+        return false;
+    }
+
+
+    public bool addEntityID(NbtCompound var1)
+    {
+        string var2 = this.getEntityString();
+        if (!this.isDead && var2 != null)
+        {
+            var1["id"] = new NbtString(var2);
+            this.writeToNBT(var1);
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
+    public void writeToNBT(NbtCompound var1)
+    {
+        // TODO
+    }
+
+    public void readFromNBT(NbtCompound var1)
+    {
+        // TODO
+    }
+    public EntityItem dropItem(int var1, int var2)
+    {
+        return this.dropItemWithOffset(var1, var2, 0.0F);
+    }
+
+    public EntityItem dropItemWithOffset(int var1, int var2, float var3)
+    {
+        return this.entityDropItem(new ItemStack(var1, (byte)var2, 0), var3);
+    }
+
+    public EntityItem entityDropItem(ItemStack var1, float var2)
+    {
+        EntityItem var3 = new EntityItem(this.world, this.posX, this.posY + (double)var2, this.posZ, var1);
+        var3.delayBeforeCanPickup = 10;
+        this.world.entityJoinedWorld(var3);
+        return var3;
+    }
+
+    protected string getEntityString()
+    {
+        return EntityList.GetEntityString(this);
+    }
+
+    public bool isEntityAlive() => !this.isDead;
+
+
+    public bool isEntityInsideOpaqueBlock()
+    {
+        for (int var1 = 0; var1 < 8; ++var1)
+        {
+            float var2 = ((float)((var1 >> 0) % 2) - 0.5F) * this.width * 0.9F;
+            float var3 = ((float)((var1 >> 1) % 2) - 0.5F) * 0.1F;
+            float var4 = ((float)((var1 >> 2) % 2) - 0.5F) * this.width * 0.9F;
+            int var5 = MathHelper.floor_double(this.posX + (double)var2);
+            int var6 = MathHelper.floor_double(this.posY + (double)this.getEyeHeight() + (double)var3);
+            int var7 = MathHelper.floor_double(this.posZ + (double)var4);
+            if (this.world.isBlockNormalCube(var5, var6, var7))
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+
+
+
+    public double getYOffset() => (double)this.yOffset;
+
+    public void setPositionAndRotation2(double var1, double var3, double var5, float var7, float var8, int var9)
+    {
+        this.setPosition(var1, var3, var5);
+        this.setRotation(var7, var8);
+        List<AxisAlignedBB> var10 = this.world.getCollidingBoundingBoxes(this, this.boundingBox.contract(0.03125D, 0.0D, 0.03125D));
+        if (var10.Count > 0)
+        {
+            double var11 = 0.0D;
+
+            for (int var13 = 0; var13 < var10.Count; ++var13)
+            {
+                AxisAlignedBB var14 = var10[var13];
+                if (var14.maxY > var11)
+                {
+                    var11 = var14.maxY;
+                }
+            }
+
+            var3 += var11 - this.boundingBox.minY;
+            this.setPosition(var1, var3, var5);
+        }
+
+    }
+
+    public float getCollisionBorderSize() => 0.1F;
+    
+
+    public Vec3D getLookVec() => null;
+
+    public void setVelocity(float var1, float var3, float var5)
+    {
+        this.motionX = var1;
+        this.motionY = var3;
+        this.motionZ = var5;
+    }
+    public bool isBurning() => this.fire > 0;  //|| this.getEntityFlag(0);
+    
+    protected abstract void readEntityFromNBT(NbtCompound var1);
+
+    protected abstract void writeEntityToNBT(NbtCompound var1);
+
+    public float getShadowSize() => this.height / 2.0F;
+    
+    public float getEyeHeight() => 0.0F;
+
+    protected bool pushOutOfBlocks(double var1, double var3, double var5)
+    {
+        int var7 = MathHelper.floor_double(var1);
+        int var8 = MathHelper.floor_double(var3);
+        int var9 = MathHelper.floor_double(var5);
+        double var10 = var1 - (double)var7;
+        double var12 = var3 - (double)var8;
+        double var14 = var5 - (double)var9;
+        if (this.world.isBlockNormalCube(var7, var8, var9))
+        {
+            bool var16 = !this.world.isBlockNormalCube(var7 - 1, var8, var9);
+            bool var17 = !this.world.isBlockNormalCube(var7 + 1, var8, var9);
+            bool var18 = !this.world.isBlockNormalCube(var7, var8 - 1, var9);
+            bool var19 = !this.world.isBlockNormalCube(var7, var8 + 1, var9);
+            bool var20 = !this.world.isBlockNormalCube(var7, var8, var9 - 1);
+            bool var21 = !this.world.isBlockNormalCube(var7, var8, var9 + 1);
+            int var22 = -1;
+            double var23 = 9999.0D;
+            if (var16 && var10 < var23)
+            {
+                var23 = var10;
+                var22 = 0;
+            }
+
+            if (var17 && 1.0D - var10 < var23)
+            {
+                var23 = 1.0D - var10;
+                var22 = 1;
+            }
+
+            if (var18 && var12 < var23)
+            {
+                var23 = var12;
+                var22 = 2;
+            }
+
+            if (var19 && 1.0D - var12 < var23)
+            {
+                var23 = 1.0D - var12;
+                var22 = 3;
+            }
+
+            if (var20 && var14 < var23)
+            {
+                var23 = var14;
+                var22 = 4;
+            }
+
+            if (var21 && 1.0D - var14 < var23)
+            {
+                var23 = 1.0D - var14;
+                var22 = 5;
+            }
+
+            float var25 = this.rand.NextSingle() * 0.2F + 0.1F;
+            if (var22 == 0)
+            {
+                this.motionX = (-var25);
+            }
+
+            if (var22 == 1)
+            {
+                this.motionX = var25;
+            }
+
+            if (var22 == 2)
+            {
+                this.motionY = (-var25);
+            }
+
+            if (var22 == 3)
+            {
+                this.motionY = var25;
+            }
+
+            if (var22 == 4)
+            {
+                this.motionZ = (-var25);
+            }
+
+            if (var22 == 5)
+            {
+                this.motionZ = var25;
+            }
+        }
+
+        return false;
+    }
 
     public void Define(EntityDataKey id, EntityDataType dataType) => EntityData.Define(id, dataType);
     public void Set(EntityDataKey id, object value) => EntityData.Set(id, value);

@@ -663,4 +663,9 @@ public class World
 
         return false;
     }
+
+    internal bool isBlockNormalCube(int var5, int var6, int var7)
+    {
+        throw new NotImplementedException();
+    }
 }
