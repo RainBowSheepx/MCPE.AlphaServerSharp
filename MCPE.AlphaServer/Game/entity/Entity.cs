@@ -1,7 +1,9 @@
 ﻿using SpoongePE.Core.Game.BlockBase;
 using SpoongePE.Core.Game.BlockBase.impl;
+using SpoongePE.Core.Game.entity.impl;
 using SpoongePE.Core.Game.ItemBase;
 using SpoongePE.Core.Game.material;
+using SpoongePE.Core.Game.player;
 using SpoongePE.Core.Game.utils;
 using SpoongePE.Core.NBT;
 using System;
@@ -42,7 +44,7 @@ public abstract class Entity
     public bool addedToChunk;
     public int chunkCoordX, chunkCoordY, chunkCoordZ, serverPosX, serverPosY, serverPosZ;
     private float nextStepDistance;
-
+    public float entityBrightness;
     public Entity(World w)
     {
         EntityID = LastEntityID++;
@@ -85,6 +87,7 @@ public abstract class Entity
         world = w;
         isImmuneToFire = false;
         addedToChunk = false;
+        entityBrightness = 0.0F;
         setPosition(0.0D, 0.0D, 0.0D);
         Define(EntityDataKey.Flags, EntityDataType.Byte);
         Define(EntityDataKey.Air, EntityDataType.Short);
@@ -946,4 +949,59 @@ public abstract class Entity
             return !this.world.getIsAnyLiquid(var7);
         }
     }
+
+    public float getEntityBrightness(float var1)
+    {
+        int var2 = MathHelper.floor_double(this.posX);
+        double var3 = (this.boundingBox.maxY - this.boundingBox.minY) * 0.66D;
+        int var5 = MathHelper.floor_double(this.posY - (double)this.yOffset + var3);
+        int var6 = MathHelper.floor_double(this.posZ);
+        if (this.world.checkChunksExist(MathHelper.floor_double(this.boundingBox.minX), MathHelper.floor_double(this.boundingBox.minY), MathHelper.floor_double(this.boundingBox.minZ), MathHelper.floor_double(this.boundingBox.maxX), MathHelper.floor_double(this.boundingBox.maxY), MathHelper.floor_double(this.boundingBox.maxZ)))
+        {
+            float var7 = this.world.getLightBrightness(var2, var5, var6);
+            if (var7 < this.entityBrightness)
+            {
+                var7 = this.entityBrightness;
+            }
+
+            return var7;
+        }
+        else
+        {
+            return this.entityBrightness;
+        }
+    }
+    public void setLocationAndAngles(double var1, double var3, double var5, float var7, float var8)
+    {
+        this.lastTickPosX = this.prevPosX = this.posX = (float)var1;
+        this.lastTickPosY = this.prevPosY = this.posY = (float)var3 + this.yOffset;
+        this.lastTickPosZ = this.prevPosZ = this.posZ = (float)var5;
+        this.rotationYaw = var7;
+        this.rotationPitch = var8;
+        this.setPosition(this.posX, this.posY, this.posZ);
+    }
+    protected void preparePlayerToSpawn()
+    {
+        if (this.world != null)
+        {
+            while (this.posY > 0.0D)
+            {
+                this.setPosition(this.posX, this.posY, this.posZ);
+                if (this.world.getCollidingBoundingBoxes(this, this.boundingBox).Count == 0)
+                {
+                    break;
+                }
+
+                ++this.posY;
+            }
+
+            this.motionX = this.motionY = this.motionZ = 0.0f;
+            this.rotationPitch = 0.0F;
+        }
+    }
+    public void onCollideWithPlayer(EntityPlayer var1)
+    {
+    }
+    public bool interact(EntityPlayer var1) => false;
+    
 }

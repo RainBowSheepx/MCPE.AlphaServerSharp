@@ -1,4 +1,5 @@
-﻿using SpoongePE.Core.NBT;
+﻿using SpoongePE.Core.Game.entity.impl;
+using SpoongePE.Core.NBT;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -62,7 +63,7 @@ namespace SpoongePE.Core.Game.entity
 
             if (var2 != null)
             {
-                var2.ReadFromNBT(var0);
+                var2.readFromNBT(var0);
             }
             else
             {
@@ -109,30 +110,31 @@ namespace SpoongePE.Core.Game.entity
 
         static EntityList()
         {
-            /*            AddMapping(typeof(EntityArrow), "Arrow", 10);
-                        AddMapping(typeof(EntitySnowball), "Snowball", 11);*/
-            AddMapping(typeof(EntityItem), "Item", 1);
-            /*            AddMapping(typeof(EntityPainting), "Painting", 9);
-                        AddMapping(typeof(EntityLiving), "Mob", 48);
-                        AddMapping(typeof(EntityMob), "Monster", 49);
-                        AddMapping(typeof(EntityCreeper), "Creeper", 50);
-                        AddMapping(typeof(EntitySkeleton), "Skeleton", 51);
-                        AddMapping(typeof(EntitySpider), "Spider", 52);
-                        AddMapping(typeof(EntityGiantZombie), "Giant", 53);
-                        AddMapping(typeof(EntityZombie), "Zombie", 54);
-                        AddMapping(typeof(EntitySlime), "Slime", 55);
-                        AddMapping(typeof(EntityGhast), "Ghast", 56);
-                        AddMapping(typeof(EntityPigZombie), "PigZombie", 57);
-                        AddMapping(typeof(EntityPig), "Pig", 90);
-                        AddMapping(typeof(EntitySheep), "Sheep", 91);
-                        AddMapping(typeof(EntityCow), "Cow", 92);
-                        AddMapping(typeof(EntityChicken), "Chicken", 93);
-                        AddMapping(typeof(EntitySquid), "Squid", 94);
-                        AddMapping(typeof(EntityWolf), "Wolf", 95);
-                        AddMapping(typeof(EntityTNTPrimed), "PrimedTnt", 20);
-                        AddMapping(typeof(EntityFallingSand), "FallingSand", 21);
-                        AddMapping(typeof(EntityMinecart), "Minecart", 40);
-                        AddMapping(typeof(EntityBoat), "Boat", 41);*/
+
+            //AddMapping(typeof(EntityPlayer), "Player", 1);
+
+            AddMapping(typeof(EntityChicken), "Chicken", 10);
+            AddMapping(typeof(EntityCow), "Cow", 11);
+            AddMapping(typeof(EntityPig), "Pig", 12);
+            AddMapping(typeof(EntitySheep), "Sheep", 13);
+
+            AddMapping(typeof(EntityZombie), "Zombie", 32);
+            AddMapping(typeof(EntityCreeper), "Creeper", 33);
+            AddMapping(typeof(EntitySkeleton), "Skeleton", 34);
+            AddMapping(typeof(EntitySpider), "Spider", 35);
+            AddMapping(typeof(EntityPigZombie), "PigZombie", 36);
+
+            AddMapping(typeof(EntityArrow), "Arrow", 80);
+            AddMapping(typeof(EntitySnowball), "Snowball", 81);
+            //AddMapping EntityEgg here
+            AddMapping(typeof(EntityPainting), "Painting", 83);
+            AddMapping(typeof(EntityMinecart), "Minecart", 84);
+            AddMapping(typeof(EntityTNTPrimed), "PrimedTnt", 20);
+
+            AddMapping(typeof(EntityItem), "Item", 64);
+            AddMapping(typeof(EntityFallingSand), "FallingSand", 66);
+
+
         }
     }
 }

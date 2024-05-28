@@ -1,4 +1,5 @@
 ﻿using SpoongePE.Core.Game.entity;
+using SpoongePE.Core.Game.player;
 using SpoongePE.Core.NBT;
 using SpoongePE.Core.RakNet;
 using System;
@@ -8,7 +9,7 @@ using System.Numerics;
 
 namespace SpoongePE.Core.Game;
 
-public class Player : Entity
+public class Player : EntityPlayer
 {
     public RakNetClient Client;
 

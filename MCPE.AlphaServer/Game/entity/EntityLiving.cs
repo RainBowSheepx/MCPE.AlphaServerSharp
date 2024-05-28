@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace SpoongePE.Core.Game.entity
 {
-    public class EntityLiving : Entity
+    public abstract class EntityLiving : Entity
     {
         public byte heartsHalvesLife = 20;
         public float field_9365_p;
@@ -30,7 +30,7 @@ namespace SpoongePE.Core.Game.entity
         protected float field_9349_D = 1.0F;
         protected int scoreValue = 0;
         protected float field_9345_F = 0.0F;
-     
+
         public float prevSwingProgress;
         public float swingProgress;
         public int health = 10;
@@ -783,6 +783,27 @@ namespace SpoongePE.Core.Game.entity
 
         public bool isPlayerSleeping() => false;
 
+        public void faceEntity(Entity var1, float var2, float var3)
+        {
+            double var4 = var1.posX - this.posX;
+            double var8 = var1.posZ - this.posZ;
+            double var6;
+            if (var1 is EntityLiving)
+            {
+                EntityLiving var10 = (EntityLiving)var1;
+                var6 = this.posY + (double)this.getEyeHeight() - (var10.posY + (double)var10.getEyeHeight());
+            }
+            else
+            {
+                var6 = (var1.boundingBox.minY + var1.boundingBox.maxY) / 2.0D - (this.posY + (double)this.getEyeHeight());
+            }
+
+            double var14 = (double)MathHelper.sqrt_double(var4 * var4 + var8 * var8);
+            float var12 = (float)(Math.Atan2(var8, var4) * 180.0D / 3.1415927410125732D) - 90.0F;
+            float var13 = (float)(-(Math.Atan2(var6, var14) * 180.0D / 3.1415927410125732D));
+            this.rotationPitch = -this.updateRotation(this.rotationPitch, var13, var3);
+            this.rotationYaw = this.updateRotation(this.rotationYaw, var12, var2);
+        }
 
         protected override void readEntityFromNBT(NbtCompound var1)
         {

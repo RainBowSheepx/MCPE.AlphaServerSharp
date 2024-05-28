@@ -1,5 +1,6 @@
 ﻿using SpoongePE.Core.Game.BlockBase;
 using SpoongePE.Core.Game.entity;
+using SpoongePE.Core.Game.player;
 using SpoongePE.Core.NBT;
 using System;
 using System.Diagnostics;
@@ -120,7 +121,8 @@ public class ItemStack // ItemStack
         }
     }
 
-    // public void hitEntity(EntityLiving var1, Player var2) => Item.itemsList[this.itemID].hitEntity(this, var1, var2);
+    public void hitEntity(EntityLiving var1, EntityPlayer var2) => Item.itemsList[this.itemID].hitEntity(this, var1, var2);
+    public void hitEntity(EntityLiving var1, Player var2) => Item.itemsList[this.itemID].hitEntity(this, var1, var2);
 
     public void onDestroyBlock(int var1, int var2, int var3, int var4, Player var5) => Item.itemsList[this.itemID].onBlockDestroyed(this, var1, var2, var3, var4, var5);
 
@@ -134,8 +136,10 @@ public class ItemStack // ItemStack
     public void onItemDestroyedByUse(Player var1)
     {
     }
-
-    //  public void useItemOnEntity(EntityLiving var1) => Item.itemsList[this.itemID].saddleEntity(this, var1);
+    public void onItemDestroyedByUse(EntityPlayer var1)
+    {
+    }
+    public void useItemOnEntity(EntityLiving var1) => Item.itemsList[this.itemID].saddleEntity(this, var1);
 
 
     public ItemStack copy()
@@ -185,5 +189,6 @@ public class ItemStack // ItemStack
 
 
     public override string ToString() => $"ItemStack[id: {itemID} count: {stackSize} metadata: {itemDamage}]";
+
 
 }

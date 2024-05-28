@@ -169,7 +169,7 @@ namespace SpoongePE.Core.Game.utils
             }
         }
 
-        public new string ToString => "(" + this.xCoord + ", " + this.yCoord + ", " + this.zCoord + ")";
+        public string ToString => "(" + this.xCoord + ", " + this.yCoord + ", " + this.zCoord + ")";
 
         public void rotateAroundX(float var1)
         {

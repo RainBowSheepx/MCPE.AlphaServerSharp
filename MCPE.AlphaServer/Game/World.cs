@@ -6,8 +6,10 @@ namespace SpoongePE.Core.Game;
 using SpoongePE.Core.Game.BlockBase;
 using SpoongePE.Core.Game.BlockBase.impl;
 using SpoongePE.Core.Game.entity;
+using SpoongePE.Core.Game.entity.impl;
 using SpoongePE.Core.Game.Generator;
 using SpoongePE.Core.Game.material;
+using SpoongePE.Core.Game.player;
 using SpoongePE.Core.Game.utils;
 using SpoongePE.Core.Game.utils.random;
 using SpoongePE.Core.NBT;
@@ -453,6 +455,8 @@ public class World
     }
     private List<AxisAlignedBB> collidingBoundingBoxes = new List<AxisAlignedBB>();
     private List<Entity> field_1012_M = new List<Entity>();
+    internal int difficultySetting;
+
     public List<AxisAlignedBB> getCollidingBoundingBoxes(Entity var1, AxisAlignedBB var2)
     {
         this.collidingBoundingBoxes.Clear();
@@ -686,6 +690,66 @@ public class World
     }
 
     internal bool getIsAnyLiquid(AxisAlignedBB boundingBox)
+    {
+        throw new NotImplementedException();
+    }
+
+    internal PathEntity getEntityPathToXYZ(EntityCreature entityCreature, int var2, int var3, int var4, float v)
+    {
+        throw new NotImplementedException();
+    }
+
+    internal PathEntity getPathToEntity(EntityCreature entityCreature, Entity playerToAttack, float var1)
+    {
+        throw new NotImplementedException();
+    }
+
+    internal float getLightBrightness(int var1, int var2, int var3)
+    {
+        throw new NotImplementedException();
+    }
+
+    internal int getFullBlockLightValue(int var1, int var2, int var3)
+    {
+        throw new NotImplementedException();
+    }
+
+    internal EntityPlayer getClosestPlayerToEntity(EntityMob entityMob, double v)
+    {
+        throw new NotImplementedException();
+    }
+
+    internal int getSavedLightValue(object sky, int var1, int var2, int var3)
+    {
+        throw new NotImplementedException();
+    }
+
+    internal int getBlockLightValue(int var1, int var2, int var3)
+    {
+        throw new NotImplementedException();
+    }
+
+    internal bool isDaytime()
+    {
+        throw new NotImplementedException();
+    }
+
+    internal bool canBlockSeeTheSky(int v1, int v2, int v3)
+    {
+        throw new NotImplementedException();
+    }
+
+    internal ChunkCoordinates getSpawnPoint()
+    {
+        throw new NotImplementedException();
+    }
+
+    internal MovingObjectPosition rayTraceBlocks_do_do(Vec3D var16, Vec3D var17, bool v1, bool v2)
+    {
+        throw new NotImplementedException();
+    }
+
+    internal void updateAllPlayersSleepingFlag()
     {
         throw new NotImplementedException();
     }

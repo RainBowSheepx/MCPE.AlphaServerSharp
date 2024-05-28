@@ -312,6 +312,16 @@ public abstract class Block
 
     }
 
+    internal void setBlockBoundsBasedOnState(World world, int xTile, int yTile, int zTile)
+    {
+        throw new NotImplementedException();
+    }
+
+    internal AxisAlignedBB getCollisionBoundingBoxFromPool(World world, int xTile, int yTile, int zTile)
+    {
+        throw new NotImplementedException();
+    }
+
     public Block(int id, Material m)
     {
         blockID = id;

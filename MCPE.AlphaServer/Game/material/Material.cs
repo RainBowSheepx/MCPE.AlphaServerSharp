@@ -62,6 +62,11 @@ namespace SpoongePE.Core.Game.material
             return this;
         }
 
+        internal bool getIsHarvestable()
+        {
+            throw new NotImplementedException();
+        }
+
         public bool isFlameable = false; //MCPE Offset: 4
         public bool isSolid = true;
         public bool isLiquid = false;

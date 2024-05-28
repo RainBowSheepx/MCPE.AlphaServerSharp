@@ -74,7 +74,7 @@ namespace SpoongePE.Core.Game.ItemBase
         public bool isDamagable() => this.maxDamage > 0 && !this.hasSubtypes;
 
 
-        //  public bool hitEntity(ItemStack var1, EntityLiving var2, EntityLiving var3) => false;
+        public bool hitEntity(ItemStack var1, EntityLiving var2, EntityLiving var3) => false;
 
 
         public bool onBlockDestroyed(ItemStack var1, int var2, int var3, int var4, int var5, Player var6) => false;
@@ -86,7 +86,7 @@ namespace SpoongePE.Core.Game.ItemBase
         public bool canHarvestBlock(Block var1) => false;
 
 
-        //        public void saddleEntity(ItemStack var1, EntityLiving var2)
+        public void saddleEntity(ItemStack var1, EntityLiving var2) { }
 
 
 
@@ -118,6 +118,7 @@ namespace SpoongePE.Core.Game.ItemBase
 
 
         public void onCreated(ItemStack var1, World var2, Player var3) { }
+
 
         public static Item shovelSteel = new ItemSpade(0, EnumToolMaterial.IRON);
         public static Item pickaxeSteel = new ItemPickaxe(1, EnumToolMaterial.IRON);
