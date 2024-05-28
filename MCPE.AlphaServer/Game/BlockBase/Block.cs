@@ -322,6 +322,11 @@ public abstract class Block
         throw new NotImplementedException();
     }
 
+    public bool renderAsNormalBlock()
+    {
+        return true;
+    }
+
     public Block(int id, Material m)
     {
         blockID = id;

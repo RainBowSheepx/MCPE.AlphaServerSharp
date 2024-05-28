@@ -669,64 +669,136 @@ public class World
         return false;
     }
 
-    internal bool isBlockNormalCube(int var5, int var6, int var7)
+    public bool isBlockNormalCube(int var1, int var2, int var3)
     {
-        throw new NotImplementedException();
+        Block var4 = Block.blocks[this.getBlockIDAt(var1, var2, var3)];
+        if (var4 == null)
+        {
+            return false;
+        }
+        else
+        {
+            return var4.material.getIsTranslucent() && var4.renderAsNormalBlock();
+        }
     }
 
-    internal object rayTraceBlocks(Vec3D vec3D1, Vec3D vec3D2)
+    public MovingObjectPosition rayTraceBlocks(Vec3D var1, Vec3D var2)
     {
-        throw new NotImplementedException();
+        return this.rayTraceBlocks_do_do(var1, var2, false, false);
     }
 
-    internal void setEntityState(EntityLiving entityLiving, byte v)
+    public void setEntityState(EntityLiving entityLiving, byte v)
     {
-        throw new NotImplementedException();
+       
     }
 
-    internal bool checkIfAABBIsClear(AxisAlignedBB boundingBox)
+    internal bool checkIfAABBIsClear(AxisAlignedBB var1)
     {
-        throw new NotImplementedException();
+        List<Entity> var2 = this.getEntitiesWithinAABBExcludingEntity((Entity)null, var1);
+
+        for (int var3 = 0; var3 < var2.Count; ++var3)
+        {
+            Entity var4 = var2[var3];
+            if (!var4.isDead && var4.preventEntitySpawning)
+            {
+                return false;
+            }
+        }
+
+        return true;
     }
 
-    internal bool getIsAnyLiquid(AxisAlignedBB boundingBox)
+    public bool getIsAnyLiquid(AxisAlignedBB var1)
     {
-        throw new NotImplementedException();
+        int var2 = MathHelper.floor_double(var1.minX);
+        int var3 = MathHelper.floor_double(var1.maxX + 1.0D);
+        int var4 = MathHelper.floor_double(var1.minY);
+        int var5 = MathHelper.floor_double(var1.maxY + 1.0D);
+        int var6 = MathHelper.floor_double(var1.minZ);
+        int var7 = MathHelper.floor_double(var1.maxZ + 1.0D);
+        if (var1.minX < 0.0D)
+        {
+            --var2;
+        }
+
+        if (var1.minY < 0.0D)
+        {
+            --var4;
+        }
+
+        if (var1.minZ < 0.0D)
+        {
+            --var6;
+        }
+
+        for (int var8 = var2; var8 < var3; ++var8)
+        {
+            for (int var9 = var4; var9 < var5; ++var9)
+            {
+                for (int var10 = var6; var10 < var7; ++var10)
+                {
+                    Block var11 = Block.blocks[this.getBlockIDAt(var8, var9, var10)];
+                    if (var11 != null && var11.material.getIsLiquid())
+                    {
+                        return true;
+                    }
+                }
+            }
+        }
+
+        return false;
     }
 
-    internal PathEntity getEntityPathToXYZ(EntityCreature entityCreature, int var2, int var3, int var4, float v)
+    internal PathEntity getEntityPathToXYZ(Entity var1, int var2, int var3, int var4, float var5)
     {
-        throw new NotImplementedException();
+        return (new Pathfinder(this)).CreateEntityPathTo(var1, var2, var3, var4, var5);
     }
 
-    internal PathEntity getPathToEntity(EntityCreature entityCreature, Entity playerToAttack, float var1)
+    internal PathEntity getPathToEntity(Entity var1, Entity var2, float var3)
     {
-        throw new NotImplementedException();
+        return (new Pathfinder(this)).CreateEntityPathTo(var1, var2, var3);
     }
 
     internal float getLightBrightness(int var1, int var2, int var3)
     {
-        throw new NotImplementedException();
+        return 15; // TODO
     }
 
     internal int getFullBlockLightValue(int var1, int var2, int var3)
     {
-        throw new NotImplementedException();
+        return 15; // TODO
     }
 
-    internal EntityPlayer getClosestPlayerToEntity(EntityMob entityMob, double v)
+    internal EntityPlayer getClosestPlayerToEntity(Entity var1, double var2)
     {
-        throw new NotImplementedException();
+        return this.getClosestPlayer(var1.posX, var1.posY, var1.posZ, var2);
     }
+    public EntityPlayer getClosestPlayer(double var1, double var3, double var5, double var7)
+    {
+        double var9 = -1.0D;
+        EntityPlayer var11 = null;
 
+        for (int var12 = 0; var12 < this.players.Count; ++var12)
+        {
+            EntityPlayer var13 = this.players[var12];
+            double var14 = var13.getDistanceSq(var1, var3, var5);
+            if ((var7 < 0.0D || var14 < var7 * var7) && (var9 == -1.0D || var14 < var9))
+            {
+                var9 = var14;
+                var11 = var13;
+            }
+        }
+
+        return var11;
+    }
     internal int getSavedLightValue(object sky, int var1, int var2, int var3)
     {
-        throw new NotImplementedException();
+        return 15; // TODO
     }
 
     internal int getBlockLightValue(int var1, int var2, int var3)
     {
-        throw new NotImplementedException();
+        return 15; // TODO
     }
 
     internal bool isDaytime()

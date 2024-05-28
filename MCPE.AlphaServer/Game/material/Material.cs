@@ -61,16 +61,35 @@ namespace SpoongePE.Core.Game.material
             this.isSolid = false;
             return this;
         }
-
+        private Material setIsTranslucent()
+        {
+            this.isOpaque = true;
+            return this;
+        }
         internal bool getIsHarvestable()
         {
-            throw new NotImplementedException();
+            return this.canHarvest;
+        }
+        public bool getIsSolid()
+        {
+            return true;
+        }
+        public bool getIsTranslucent()
+        {
+            return this.isOpaque ? false : this.getIsSolid();
+        }
+
+        internal bool getIsLiquid()
+        {
+            return false;
         }
 
         public bool isFlameable = false; //MCPE Offset: 4
         public bool isSolid = true;
+        private bool isOpaque = true;
         public bool isLiquid = false;
         public bool blocksLight = true;
         public bool blocksMotion = true;
+        private bool canHarvest = true;
     }
 }
