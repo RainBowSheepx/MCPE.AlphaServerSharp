@@ -15,6 +15,7 @@ using SpoongePE.Core.Game.utils.random;
 using SpoongePE.Core.Game.utils.noise;
 using SpoongePE.Core.Game.BlockBase;
 using SpoongePE.Core.Game.utils;
+using SpoongePE.Core.Game.player;
 
 namespace SpoongePE.Core;
 
@@ -34,7 +35,7 @@ internal static class Starter
 .WriteTo.Console(theme: SystemConsoleTheme.Colored)
 .MinimumLevel.Debug()
 .CreateLogger();
-        var mainWorld = new World(SpoongePE.Core.Game.utils.Utils.stringHash("nyan"), prop.levelName); //TODO: Get seed from properties
+        var mainWorld = new World(new WorldProviderSurface(), SpoongePE.Core.Game.utils.Utils.stringHash("nyan"), prop.levelName); //TODO: Get seed from properties
 
         if (!Directory.Exists(Path.Combine("worlds", mainWorld.name)))
         {

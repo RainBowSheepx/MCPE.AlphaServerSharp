@@ -62,6 +62,7 @@ namespace SpoongePE.Core.Game.player
             this.unused180 = 180.0F;
             this.fireResistance = 20;
 
+
         }
         public new void onUpdate()
         {

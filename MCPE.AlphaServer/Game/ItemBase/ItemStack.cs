@@ -7,7 +7,7 @@ using System.Diagnostics;
 
 namespace SpoongePE.Core.Game.ItemBase;
 
-public class ItemStack // ItemStack
+public class ItemStack // alias ItemInstance
 {
     public int itemID;
     public byte stackSize;

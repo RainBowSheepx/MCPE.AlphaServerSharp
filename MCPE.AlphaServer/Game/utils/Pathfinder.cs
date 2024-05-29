@@ -13,13 +13,13 @@ namespace SpoongePE.Core.Game.utils
     public class Pathfinder
     {
         private World _worldMap;
-        private Path _path;
+        private PathMC _path;
         private MCHash _pointMap;
         private PathPoint[] _pathOptions;
         public Pathfinder(World worldMap)
         {
             _worldMap = worldMap;
-            _path = new Path();
+            _path = new PathMC();
             _pointMap = new MCHash();
             _pathOptions = new PathPoint[32];
         }

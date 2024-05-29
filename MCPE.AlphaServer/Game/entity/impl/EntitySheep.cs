@@ -66,8 +66,8 @@ namespace SpoongePE.Core.Game.entity.impl
         public new void writeEntityToNBT(NbtCompound var1)
         {
             base.writeEntityToNBT(var1);
-            var1["Sheared"] = new NbtByte(this.getSheared() ? (byte)1 : (byte)0);
-            var1["Color"] = new NbtByte((byte)this.getFleeceColor());
+            var1.Add(new NbtByte("Sheared", this.getSheared() ? (byte)1 : (byte)0));
+            var1.Add(new NbtByte("Color",(byte)this.getFleeceColor()));
         }
 
         public new void readEntityFromNBT(NbtCompound var1)

@@ -33,7 +33,7 @@ namespace SpoongePE.Core.Game.entity.impl
         public new void writeEntityToNBT(NbtCompound var1)
         {
             base.writeEntityToNBT(var1);
-            var1["Anger"] = new NbtShort((short)this.angerLevel);
+            var1.Add(new NbtShort("Anger", (short)this.angerLevel));
         }
 
         public new void readEntityFromNBT(NbtCompound var1)

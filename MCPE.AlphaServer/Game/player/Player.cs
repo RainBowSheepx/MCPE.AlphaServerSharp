@@ -1,5 +1,4 @@
 ﻿using SpoongePE.Core.Game.entity;
-using SpoongePE.Core.Game.player;
 using SpoongePE.Core.NBT;
 using SpoongePE.Core.RakNet;
 using System;
@@ -7,7 +6,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Numerics;
 
-namespace SpoongePE.Core.Game;
+namespace SpoongePE.Core.Game.player;
 
 public class Player : EntityPlayer
 {
@@ -26,8 +25,8 @@ public class Player : EntityPlayer
     public Player(RakNetClient client, World w) : base(w)
     {
         Client = client;
-        this.heartsLife = 20;
-        this.inCreative = RakNetServer.Properties.gamemode;
+        heartsLife = 20;
+        inCreative = RakNetServer.Properties.gamemode;
         Define(EntityDataKey.IsSleeping, EntityDataType.Byte);
         Define(EntityDataKey.SleepPosition, EntityDataType.Pos);
     }

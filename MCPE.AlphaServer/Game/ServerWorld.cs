@@ -7,6 +7,7 @@ using System.Net.Sockets;
 using System.Numerics;
 using System.Threading.Tasks;
 using SpoongePE.Core.Game.entity;
+using SpoongePE.Core.Game.player;
 using SpoongePE.Core.NBT;
 using SpoongePE.Core.Network;
 using SpoongePE.Core.RakNet;

@@ -14,13 +14,13 @@ namespace SpoongePE.Core.Game.entity.impl
 
 
 
-        public void writeEntityToNBT(NbtCompound var1)
+        public new void writeEntityToNBT(NbtCompound var1)
         {
             base.writeEntityToNBT(var1);
-            var1["Saddle"] = new NbtByte(this.getSaddled() ? (byte)1 : (byte)0);
+            var1.Add(new NbtByte("Saddle", this.getSaddled() ? (byte)1 : (byte)0));
         }
 
-        public void readEntityFromNBT(NbtCompound var1)
+        public new void readEntityFromNBT(NbtCompound var1)
         {
             base.readEntityFromNBT(var1);
             this.setSaddled(var1["Saddle"].ByteValue == 1 ? true : false);
@@ -29,7 +29,7 @@ namespace SpoongePE.Core.Game.entity.impl
 
 
 
-        public bool interact(EntityPlayer var1)
+        public new bool interact(EntityPlayer var1)
         {
             if (!this.getSaddled() || this.riddenByEntity != null && this.riddenByEntity != var1)
             {
@@ -37,12 +37,12 @@ namespace SpoongePE.Core.Game.entity.impl
             }
             else
             {
-                var1.mountEntity(this);
+            //    var1.mountEntity(this);
                 return true;
             }
         }
 
-        protected int getDropItemId()
+        protected new int getDropItemId()
         {
             return this.fire > 0 ? Item.porkCooked.shiftedIndex : Item.porkRaw.shiftedIndex;
         }

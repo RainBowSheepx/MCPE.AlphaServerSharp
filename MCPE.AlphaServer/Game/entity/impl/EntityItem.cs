@@ -21,7 +21,7 @@ namespace SpoongePE.Core.Game.entity.impl
             setSize(0.25F, 0.25F);
             yOffset = height / 2.0F;
         }
-        public EntityItem(World paramfd, double paramDouble1, double paramDouble2, double paramDouble3, ItemStack paramiz) : base(w)
+        public EntityItem(World paramfd, double paramDouble1, double paramDouble2, double paramDouble3, ItemStack paramiz) : base(paramfd)
         {
             setSize(0.25F, 0.25F);
             yOffset = height / 2.0F;

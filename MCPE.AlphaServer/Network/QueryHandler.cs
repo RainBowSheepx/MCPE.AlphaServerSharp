@@ -1,4 +1,4 @@
-﻿using SpoongePE.Core.Game;
+﻿using SpoongePE.Core.Game.player;
 using SpoongePE.Core.RakNet;
 using SpoongePE.Core.Utils;
 using System;

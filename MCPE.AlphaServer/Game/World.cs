@@ -53,8 +53,9 @@ public class World
     public WorldSaver Saver;
     public SortedSet<TickNextTickData> scheduledTickTreeSet;
     public HashSet<TickNextTickData> scheduledTickSet;
-
-    public World(int seed, string name = "")
+    public int skylightSubtracted = 0;
+    public WorldProvider worldProvider;
+    public World(WorldProvider provider, int seed, string name = "")
     {
 
         this.worldSeed = seed;
@@ -69,6 +70,9 @@ public class World
         _entitiesDat = new NbtFile();
         if (name.Length < 1) return;
         this.name = name;
+        worldProvider = provider;
+        provider.registerWorld(this);
+        this.calculateInitialSkylight();
         Saver = new WorldSaver(this);
         if (Directory.Exists(Path.Combine("worlds", name)))
         {
@@ -803,26 +807,257 @@ public class World
 
     internal bool isDaytime()
     {
-        throw new NotImplementedException();
+        return this.skylightSubtracted < 4;
     }
 
     internal bool canBlockSeeTheSky(int v1, int v2, int v3)
     {
-        throw new NotImplementedException();
+      return this._chunks[v1 >> 4, v3 >> 4].canBlockSeeTheSky(v1 & 15, v2, v3 & 15);
     }
 
     internal ChunkCoordinates getSpawnPoint()
     {
-        throw new NotImplementedException();
+        return new ChunkCoordinates(this.spawnX, this.spawnY, this.spawnZ);
     }
 
-    internal MovingObjectPosition rayTraceBlocks_do_do(Vec3D var16, Vec3D var17, bool v1, bool v2)
+    internal MovingObjectPosition rayTraceBlocks_do_do(Vec3D var1, Vec3D var2, bool var3, bool var4)
     {
-        throw new NotImplementedException();
+        if (!Double.IsNaN(var1.xCoord) && !Double.IsNaN(var1.yCoord) && !Double.IsNaN(var1.zCoord))
+        {
+            if (!Double.IsNaN(var2.xCoord) && !Double.IsNaN(var2.yCoord) && !Double.IsNaN(var2.zCoord))
+            {
+                int var5 = MathHelper.floor_double(var2.xCoord);
+                int var6 = MathHelper.floor_double(var2.yCoord);
+                int var7 = MathHelper.floor_double(var2.zCoord);
+                int var8 = MathHelper.floor_double(var1.xCoord);
+                int var9 = MathHelper.floor_double(var1.yCoord);
+                int var10 = MathHelper.floor_double(var1.zCoord);
+                int var11 = this.getBlockIDAt(var8, var9, var10);
+                int var12 = this.getBlockMetaAt(var8, var9, var10);
+                Block var13 = Block.blocks[var11];
+                if ((!var4 || var13 == null || var13.getCollisionBoundingBoxFromPool(this, var8, var9, var10) != null) && var11 > 0 && var13.canCollideCheck(var12, var3) && var13.material.getIsTranslucent() && var13.renderAsNormalBlock())
+                {
+                    MovingObjectPosition var14 = var13.collisionRayTrace(this, var8, var9, var10, var1, var2);
+                    if (var14 != null)
+                    {
+                        return var14;
+                    }
+                }
+
+                var11 = 200;
+
+                while (var11-- >= 0)
+                {
+                    if (Double.IsNaN(var1.xCoord) || Double.IsNaN(var1.yCoord) || Double.IsNaN(var1.zCoord))
+                    {
+                        return null;
+                    }
+
+                    if (var8 == var5 && var9 == var6 && var10 == var7)
+                    {
+                        return null;
+                    }
+
+                    bool var39 = true;
+                    bool var40 = true;
+                    bool var41 = true;
+                    double var15 = 999.0D;
+                    double var17 = 999.0D;
+                    double var19 = 999.0D;
+                    if (var5 > var8)
+                    {
+                        var15 = (double)var8 + 1.0D;
+                    }
+                    else if (var5 < var8)
+                    {
+                        var15 = (double)var8 + 0.0D;
+                    }
+                    else
+                    {
+                        var39 = false;
+                    }
+
+                    if (var6 > var9)
+                    {
+                        var17 = (double)var9 + 1.0D;
+                    }
+                    else if (var6 < var9)
+                    {
+                        var17 = (double)var9 + 0.0D;
+                    }
+                    else
+                    {
+                        var40 = false;
+                    }
+
+                    if (var7 > var10)
+                    {
+                        var19 = (double)var10 + 1.0D;
+                    }
+                    else if (var7 < var10)
+                    {
+                        var19 = (double)var10 + 0.0D;
+                    }
+                    else
+                    {
+                        var41 = false;
+                    }
+
+                    double var21 = 999.0D;
+                    double var23 = 999.0D;
+                    double var25 = 999.0D;
+                    double var27 = var2.xCoord - var1.xCoord;
+                    double var29 = var2.yCoord - var1.yCoord;
+                    double var31 = var2.zCoord - var1.zCoord;
+                    if (var39)
+                    {
+                        var21 = (var15 - var1.xCoord) / var27;
+                    }
+
+                    if (var40)
+                    {
+                        var23 = (var17 - var1.yCoord) / var29;
+                    }
+
+                    if (var41)
+                    {
+                        var25 = (var19 - var1.zCoord) / var31;
+                    }
+
+                    bool var33 = false;
+                    byte var42;
+                    if (var21 < var23 && var21 < var25)
+                    {
+                        if (var5 > var8)
+                        {
+                            var42 = 4;
+                        }
+                        else
+                        {
+                            var42 = 5;
+                        }
+
+                        var1.xCoord = var15;
+                        var1.yCoord += var29 * var21;
+                        var1.zCoord += var31 * var21;
+                    }
+                    else if (var23 < var25)
+                    {
+                        if (var6 > var9)
+                        {
+                            var42 = 0;
+                        }
+                        else
+                        {
+                            var42 = 1;
+                        }
+
+                        var1.xCoord += var27 * var23;
+                        var1.yCoord = var17;
+                        var1.zCoord += var31 * var23;
+                    }
+                    else
+                    {
+                        if (var7 > var10)
+                        {
+                            var42 = 2;
+                        }
+                        else
+                        {
+                            var42 = 3;
+                        }
+
+                        var1.xCoord += var27 * var25;
+                        var1.yCoord += var29 * var25;
+                        var1.zCoord = var19;
+                    }
+
+                    Vec3D var34 = Vec3D.createVector(var1.xCoord, var1.yCoord, var1.zCoord);
+                    var8 = (int)(var34.xCoord = (double)MathHelper.floor_double(var1.xCoord));
+                    if (var42 == 5)
+                    {
+                        --var8;
+                        ++var34.xCoord;
+                    }
+
+                    var9 = (int)(var34.yCoord = (double)MathHelper.floor_double(var1.yCoord));
+                    if (var42 == 1)
+                    {
+                        --var9;
+                        ++var34.yCoord;
+                    }
+
+                    var10 = (int)(var34.zCoord = (double)MathHelper.floor_double(var1.zCoord));
+                    if (var42 == 3)
+                    {
+                        --var10;
+                        ++var34.zCoord;
+                    }
+
+                    int var35 = this.getBlockIDAt(var8, var9, var10);
+                    int var36 = this.getBlockMetaAt(var8, var9, var10);
+                    Block var37 = Block.blocks[var35];
+
+
+                    if ((!var4 || var37 == null || var37.getCollisionBoundingBoxFromPool(this, var8, var9, var10) != null) && var35 > 0 && var37.canCollideCheck(var36, var3))
+                    {
+                        MovingObjectPosition var38 = var37.collisionRayTrace(this, var8, var9, var10, var1, var2);
+
+                        if (var38 != null)
+                        {
+                            return var38;
+                        }
+                    }
+                }
+
+                return null;
+            }
+            else
+            {
+                return null;
+            }
+        }
+        else
+        {
+            return null;
+        }
     }
 
     internal void updateAllPlayersSleepingFlag()
     {
-        throw new NotImplementedException();
+      //  throw new NotImplementedException(); // TODO
+    }
+    public void calculateInitialSkylight()
+    {
+        int var1 = this.calculateSkylightSubtracted(1.0F);
+        if (var1 != this.skylightSubtracted)
+        {
+            this.skylightSubtracted = var1;
+        }
+
+    }
+    public int calculateSkylightSubtracted(float var1)
+    {
+        float var2 = this.getCelestialAngle(var1);
+        float var3 = 1.0F - (MathHelper.cos(var2 * (float)Math.PI * 2.0F) * 2.0F + 0.5F);
+        if (var3 < 0.0F)
+        {
+            var3 = 0.0F;
+        }
+
+        if (var3 > 1.0F)
+        {
+            var3 = 1.0F;
+        }
+
+        var3 = 1.0F - var3;
+        var3 = (float)((double)var3 * (1.0D));
+        var3 = (float)((double)var3 * (1.0D));
+        var3 = 1.0F - var3;
+        return (int)(var3 * 11.0F);
+    }
+    public float getCelestialAngle(float var1)
+    {
+        return this.worldProvider.calculateCelestialAngle(this.worldTime, var1);
     }
 }

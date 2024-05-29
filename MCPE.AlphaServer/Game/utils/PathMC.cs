@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace SpoongePE.Core.Game.utils
 {
-    public class Path
+    public class PathMC
     {
         private PathPoint[] pathPoints = new PathPoint[1024];
         private int count = 0;

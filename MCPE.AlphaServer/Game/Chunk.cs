@@ -241,7 +241,10 @@ public class Chunk
         /*  int index = x << 11 | z << 7 | y;*/
         return BlockLight[x, z, y];
     }
-
+    public bool canBlockSeeTheSky(int var1, int var2, int var3)
+    {
+        return var2 >= (this.HeightMap[var1, var3] & 255);
+    }
     public void getEntitiesWithinAABBForEntity(Entity var1, AxisAlignedBB var2, List<Entity> var3)
     {
         int var4 = MathHelper.floor_double((var2.minY - 2.0D) / 16.0D);
