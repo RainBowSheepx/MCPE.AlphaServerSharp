@@ -259,57 +259,56 @@ namespace SpoongePE.Core.Game.player.inventory
 
         public NbtList writeToNBT(NbtList var1)
         {
-            /*            int var2;
-                        NbtCompound var3;
-                        for (var2 = 0; var2 < this.mainInventory.Length; ++var2)
-                        {
-                            if (this.mainInventory[var2] != null)
-                            {
-                                var3 = new NBTTagCompound();
-                                var3.setByte("Slot", (byte)var2);
-                                this.mainInventory[var2].writeToNBT(var3);
-                                var1.setTag(var3);
-                            }
-                        }
+            int var2;
+            NbtCompound var3;
+            for (var2 = 0; var2 < this.mainInventory.Length; ++var2)
+            {
+                if (this.mainInventory[var2] != null)
+                {
+                    var3 = new NbtCompound();
+                    var3.Add(new NbtByte("Slot", (byte)var2));
+                    this.mainInventory[var2].writeToNBT(var3);
+                    var1.Add(var3);
+                }
+            }
 
-                        for (var2 = 0; var2 < this.armorInventory.length; ++var2)
-                        {
-                            if (this.armorInventory[var2] != null)
-                            {
-                                var3 = new NBTTagCompound();
-                                var3.setByte("Slot", (byte)(var2 + 100));
-                                this.armorInventory[var2].writeToNBT(var3);
-                                var1.setTag(var3);
-                            }
-                        }
+            for (var2 = 0; var2 < this.armorInventory.Length; ++var2)
+            {
+                if (this.armorInventory[var2] != null)
+                {
+                    var3 = new NbtCompound();
+                    var3.Add(new NbtByte("Slot", (byte)(var2 + 100)));
+                    this.armorInventory[var2].writeToNBT(var3);
+                    var1.Add(var3);
+                }
+            }
 
-                        return var1;*/
-            return null;
+            return var1;
         }
 
         public void readFromNBT(NbtList var1)
         {
-            /*            this.mainInventory = new ItemStack[36];
-                        this.armorInventory = new ItemStack[4];
+            this.mainInventory = new ItemStack[36];
+            this.armorInventory = new ItemStack[4];
 
-                        for (int var2 = 0; var2 < var1.tagCount(); ++var2)
-                        {
-                            NBTTagCompound var3 = (NBTTagCompound)var1.tagAt(var2);
-                            int var4 = var3.getByte("Slot") & 255;
-                            ItemStack var5 = new ItemStack(var3);
-                            if (var5.getItem() != null)
-                            {
-                                if (var4 >= 0 && var4 < this.mainInventory.length)
-                                {
-                                    this.mainInventory[var4] = var5;
-                                }
+            for (int var2 = 0; var2 < var1.Count; ++var2)
+            {
+                NbtCompound var3 = var1.Get<NbtCompound>(var2);
+                int var4 = var3.Get<NbtByte>("Slot").ByteValue & 255;
+                ItemStack var5 = new ItemStack(var3);
+                if (var5.getItem() != null)
+                {
+                    if (var4 >= 0 && var4 < this.mainInventory.Length)
+                    {
+                        this.mainInventory[var4] = var5;
+                    }
 
-                                if (var4 >= 100 && var4 < this.armorInventory.length + 100)
-                                {
-                                    this.armorInventory[var4 - 100] = var5;
-                                }
-                            }
-                        }*/
+                    if (var4 >= 100 && var4 < this.armorInventory.Length + 100)
+                    {
+                        this.armorInventory[var4 - 100] = var5;
+                    }
+                }
+            }
 
         }
 

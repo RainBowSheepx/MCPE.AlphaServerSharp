@@ -32,7 +32,7 @@ namespace SpoongePE.Core.Network
             { "maxplayers", RakNetServer.Properties.maxPlayers.ToString() },
             { "whitelist", "off" },
             { "hostport", RakNetServer.Properties.serverPort.ToString() },
-            { "tps", "over900" },
+            { "tps", "999" },
         };
         public QueryHandler(IPEndPoint endPoint, RakNetServer server)
         {

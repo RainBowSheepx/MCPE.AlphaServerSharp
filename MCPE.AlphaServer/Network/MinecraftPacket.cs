@@ -1106,7 +1106,7 @@ public class ChatPacket : MinecraftPacket {
     }
 }
 
-public class SignUpdatePacket : MinecraftPacket {
+public class AdventureSettingsPacket : MinecraftPacket { // need to check
     public ushort X;
     public byte Y;
     public ushort Z;
@@ -1121,7 +1121,7 @@ public class SignUpdatePacket : MinecraftPacket {
     }
 
     public override void Encode(ref DataWriter writer) {
-        writer.Byte((byte)MinecraftPacketType.SignUpdate);
+        writer.Byte((byte)MinecraftPacketType.AdventureSettings);
         writer.UShort(X);
         writer.Byte(Y);
         writer.UShort(Z);
@@ -1129,7 +1129,7 @@ public class SignUpdatePacket : MinecraftPacket {
     }
 }
 
-public class AdventureSettingsPacket : MinecraftPacket {
+public class SetTileEntityDataPacket : MinecraftPacket { // need to check 
     public byte Unk0;
     public uint Unk1;
 
@@ -1140,7 +1140,7 @@ public class AdventureSettingsPacket : MinecraftPacket {
     }
 
     public override void Encode(ref DataWriter writer) {
-        writer.Byte((byte)MinecraftPacketType.AdventureSettings);
+        writer.Byte((byte)MinecraftPacketType.SetTileEntityData);
         writer.Byte(Unk0);
         writer.UInt(Unk1);
     }
@@ -1213,8 +1213,8 @@ public abstract class MinecraftPacket : UserPacket {
             (byte)MinecraftPacketType.ContainerSetContent => new ContainerSetContentPacket(),
             (byte)MinecraftPacketType.ContainerAck => new ContainerAckPacket(),
             (byte)MinecraftPacketType.Chat => new ChatPacket(),
-            (byte)MinecraftPacketType.SignUpdate => new SignUpdatePacket(),
             (byte)MinecraftPacketType.AdventureSettings => new AdventureSettingsPacket(),
+            (byte)MinecraftPacketType.SetTileEntityData => new SetTileEntityDataPacket(),
             (byte)MinecraftPacketType.Unknown => new UnknowPacket(),
             _ => null,
         };

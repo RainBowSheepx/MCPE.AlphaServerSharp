@@ -28,7 +28,7 @@ public abstract class Entity
     public bool onGround, isCollidedHorizontally, isCollidedVertically, isCollided, beenAttacked, isInWeb, field_9293_aM, isDead;
     public float yOffset, ySize, width, height, prevDistanceWalkedModified, distanceWalkedModified, fallDistance, stepHeight;
 
-    public double lastTickPosX, lastTickPosY, lastTickPosZ;
+    public float lastTickPosX, lastTickPosY, lastTickPosZ;
     public bool noClip;
     public float entityCollisionReduction;
     public int ticksExisted, fireResistance, fire;
@@ -692,7 +692,7 @@ public abstract class Entity
         string var2 = getEntityString();
         if (!isDead && var2 != null)
         {
-            var1["id"] = new NbtString(var2);
+            var1.Add(new NbtString("id", var2));
             writeToNBT(var1);
             return true;
         }
@@ -703,12 +703,74 @@ public abstract class Entity
     }
     public void writeToNBT(NbtCompound var1)
     {
-        // TODO
+        var1.Add(this.newFloatNBTList("Pos", this.posX, this.posY + this.ySize, this.posZ));
+        var1.Add(this.newFloatNBTList("Motion", this.motionX, this.motionY, this.motionZ));
+        var1.Add(this.newFloatNBTList("Rotation", this.rotationYaw, this.rotationPitch));
+        var1.Add(new NbtFloat("FallDistance", this.fallDistance));
+        var1.Add(new NbtShort("Fire", (short)this.fire));
+        var1.Add(new NbtShort("Air", (short)this.air));
+        var1.Add(new NbtByte("OnGround", this.onGround == true ? (byte)1 : (byte)0));
+        this.writeEntityToNBT(var1);
     }
 
     public void readFromNBT(NbtCompound var1)
     {
-        // TODO
+        NbtList var2 = (NbtList)var1["Pos"];
+        NbtList var3 = (NbtList)var1["Motion"];
+        NbtList var4 = (NbtList)var1["Rotation"];
+        motionX = var3.Get<NbtFloat>(0).FloatValue;
+        motionY = var3.Get<NbtFloat>(1).FloatValue;
+        motionZ = var3.Get<NbtFloat>(2).FloatValue;
+
+        if (Math.Abs(motionX) > 10.0)
+            motionX = 0.0f;
+
+        if (Math.Abs(motionY) > 10.0)
+            motionY = 0.0f;
+
+        if (Math.Abs(motionZ) > 10.0)
+            motionZ = 0.0f;
+
+        prevPosX = lastTickPosX = posX = var2.Get<NbtFloat>(0).FloatValue;
+        prevPosY = lastTickPosY = posY = var2.Get<NbtFloat>(1).FloatValue;
+        prevPosZ = lastTickPosZ = posZ = var2.Get<NbtFloat>(2).FloatValue;
+
+        prevRotationYaw = rotationYaw = var4.Get<NbtFloat>(0).FloatValue;
+        prevRotationPitch = rotationPitch = var4.Get<NbtFloat>(1).FloatValue;
+
+        fallDistance = var1.Get<NbtFloat>("FallDistance").FloatValue;
+        fire = var1.Get<NbtShort>("Fire").ShortValue;
+        air = var1.Get<NbtShort>("Air").ShortValue;
+        onGround = var1.Get<NbtByte>("OnGround").ByteValue == 1 ? true : false;
+
+        setPosition(posX, posY, posZ);
+        setRotation(rotationYaw, rotationPitch);
+
+        readEntityFromNBT(var1);
+    }
+
+    protected NbtList newDoubleNBTList(string tagName, params double[] var1)
+    {
+        NbtList var2 = new NbtList(tagName);
+
+        foreach (double var6 in var1)
+        {
+            var2.Add(new NbtDouble(var6));
+        }
+
+        return var2;
+    }
+
+    protected NbtList newFloatNBTList(string tagName, params float[] var1)
+    {
+        NbtList var2 = new NbtList();
+
+        foreach (float var in var1)
+        {
+            var2.Add(new NbtFloat(var));
+        }
+
+        return var2;
     }
     public EntityItem dropItem(int var1, int var2) => dropItemWithOffset(var1, var2, 0.0F);
 
@@ -1003,5 +1065,5 @@ public abstract class Entity
     {
     }
     public bool interact(EntityPlayer var1) => false;
-    
+
 }

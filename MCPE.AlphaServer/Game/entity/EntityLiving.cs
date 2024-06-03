@@ -807,12 +807,23 @@ namespace SpoongePE.Core.Game.entity
 
         protected override void readEntityFromNBT(NbtCompound var1)
         {
-            throw new NotImplementedException();
+            this.health = var1.Get<NbtShort>("Health").ShortValue;
+            if (!var1.TryGet<NbtShort>("Health", out _))
+            {
+                this.health = 10;
+            }
+
+            this.hurtTime = var1.Get<NbtShort>("HurtTime").ShortValue;
+            this.deathTime = var1.Get<NbtShort>("DeathTime").ShortValue;
+            this.attackTime = var1.Get<NbtShort>("AttackTime").ShortValue;
         }
 
         protected override void writeEntityToNBT(NbtCompound var1)
         {
-            throw new NotImplementedException();
+            var1.Add(new NbtShort("Health", (short)this.health));
+            var1.Add(new NbtShort("HurtTime", (short)this.hurtTime));
+            var1.Add(new NbtShort("DeathTime", (short)this.deathTime));
+            var1.Add(new NbtShort("AttackTime", (short)this.attackTime));
         }
     }
 }

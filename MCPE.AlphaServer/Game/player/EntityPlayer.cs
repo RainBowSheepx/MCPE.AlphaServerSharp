@@ -30,7 +30,7 @@ namespace SpoongePE.Core.Game.player
         public bool isSwinging = false;
         public int swingProgressInt = 0;
         public string username;
-        public int dimension;
+        public int dimension; // for compability
         public double field_20066_r;
         public double field_20065_s;
         public double field_20064_t;
@@ -312,12 +312,39 @@ namespace SpoongePE.Core.Game.player
         }
         public new void readEntityFromNBT(NbtCompound var1)
         {
-            // TODO
+            base.readEntityFromNBT(var1);
+            NbtList var2 = var1.Get<NbtList>("Inventory");
+            this.inventory.readFromNBT(var2);
+            this.dimension = var1.Get<NbtInt>("Dimension").IntValue;
+            this.sleeping = var1.Get<NbtByte>("Sleeping").ByteValue == 1 ? true : false;
+            this.sleepTimer = var1.Get<NbtShort>("SleepTimer").ShortValue;
+            if (this.sleeping)
+            {
+                this.bedChunkCoordinates = new ChunkCoordinates(MathHelper.floor_double(this.posX), MathHelper.floor_double(this.posY), MathHelper.floor_double(this.posZ));
+                this.wakeUpPlayer(true, true, false);
+            }
+            NbtInt spawnX, spawnY, spawnZ;
+            if (var1.TryGet("SpawnX", out spawnX) && var1.TryGet("SpawnY", out spawnY) && var1.TryGet("SpawnZ", out spawnZ))
+            {
+                this.playerSpawnCoordinate = new ChunkCoordinates(spawnX.IntValue, spawnY.IntValue, spawnZ.IntValue);
+            }
         }
 
         public new void writeEntityToNBT(NbtCompound var1)
         {
-            // TODO
+            base.writeEntityToNBT(var1);
+            NbtList inv = new NbtList("Inventory");
+            inventory.writeToNBT(inv);
+            var1.Add(inv);
+            var1.Add(new NbtInt("Dimension", this.dimension));
+            var1.Add(new NbtByte("Sleeping", this.sleeping ? (byte)1 : (byte)0));
+            var1.Add(new NbtShort("SleepTimer", (short)this.sleepTimer));
+            if (this.playerSpawnCoordinate != null)
+            {
+                var1.Add(new NbtInt("SpawnX", this.playerSpawnCoordinate.posX));
+                var1.Add(new NbtInt("SpawnY", this.playerSpawnCoordinate.posY));
+                var1.Add(new NbtInt("SpawnZ", this.playerSpawnCoordinate.posZ));
+            }
         }
         public bool canHarvestBlock(Block var1)
         {

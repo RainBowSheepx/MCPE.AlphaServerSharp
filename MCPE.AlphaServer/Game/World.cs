@@ -641,7 +641,7 @@ public class World
 
     public bool checkChunksExist(int var38, int var26, int var39, int var28, int var40, int var30)
     {
-        return true;
+        return true; // wtdf
     }
 
     internal bool isBoundingBoxBurning(AxisAlignedBB var1)

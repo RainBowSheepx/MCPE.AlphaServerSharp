@@ -1,4 +1,6 @@
-﻿using SpoongePE.Core.Game.ItemBase;
+﻿using SpoongePE.Core.Game.BlockBase;
+using SpoongePE.Core.Game.ItemBase;
+using SpoongePE.Core.Game.player;
 using SpoongePE.Core.NBT;
 using System;
 using System.Collections.Generic;
@@ -34,12 +36,32 @@ namespace SpoongePE.Core.Game.entity.impl
         }
         protected override void readEntityFromNBT(NbtCompound var1)
         {
-            throw new NotImplementedException();
+            this.health = var1.Get<NbtShort>("Health").ShortValue & 255;
+            this.age = var1.Get<NbtShort>("Age").ShortValue;
+            NbtCompound localnu = var1.Get<NbtCompound>("Item");
+            this.item = new ItemStack(localnu);
         }
 
         protected override void writeEntityToNBT(NbtCompound var1)
         {
-            throw new NotImplementedException();
+            var1.Add(new NbtShort("Health", (short)this.health));
+            var1.Add(new NbtShort("Age", (short)this.age));
+            NbtCompound itemTag = new NbtCompound("Item");
+            item.writeToNBT(itemTag);
+            var1.Add(itemTag);
+        }
+
+        public new void onCollideWithPlayer(EntityPlayer paramgs)
+        {
+                int i = this.item.stackSize;
+                if (this.delayBeforeCanPickup == 0 && paramgs.inventory.addItemStackToInventory(this.item))
+                {
+                    paramgs.onItemPickup(this, i);
+                    if (this.item.stackSize <= 0)
+                    {
+                        this.setEntityDead();
+                    }
+                }
         }
     }
 }

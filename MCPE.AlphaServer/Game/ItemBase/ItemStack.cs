@@ -41,6 +41,11 @@ public class ItemStack // alias ItemInstance
         stackSize = itemCount;
         itemDamage = itemMeta;
     }
+    public ItemStack(NbtCompound var1)
+    {
+        this.stackSize = 0;
+        this.readFromNBT(var1);
+    }
     public ItemStack splitStack(int var1)
     {
         this.stackSize -= (byte)var1;
