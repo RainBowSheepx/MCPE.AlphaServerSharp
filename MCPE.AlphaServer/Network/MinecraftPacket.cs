@@ -1,4 +1,6 @@
-﻿using SpoongePE.Core.Game.ItemBase;
+﻿using SpoongePE.Core.Game.entity.impl;
+using SpoongePE.Core.Game.ItemBase;
+using SpoongePE.Core.Game.utils;
 using SpoongePE.Core.RakNet;
 using SpoongePE.Core.Utils;
 using System;
@@ -193,6 +195,7 @@ public class AddPlayerPacket : MinecraftPacket {
         ItemId = reader.UShort();
         ItemAuxValue = reader.UShort();
         Metadata = reader.Remaining().ToArray();
+       
     }
 
     public override void Encode(ref DataWriter writer) {
@@ -271,16 +274,30 @@ public class RemoveEntityPacket : MinecraftPacket {
 public class AddItemEntityPacket : MinecraftPacket {
     public int EntityId;
 
-    // public ItemInstance Item;
+    public ItemStack Item;
     public Vector3 Pos;
     public byte Yaw;
     public byte Pitch;
     public byte Roll;
 
+    public AddItemEntityPacket() { }
+
+    public AddItemEntityPacket(EntityItem var1)
+    {
+        this.EntityId = var1.EntityID;
+        this.Item = var1.item;
+        this.Pos.X = MathHelper.floor_double(var1.posX * 32.0D);
+        this.Pos.Y = MathHelper.floor_double(var1.posY * 32.0D);
+        this.Pos.Z = MathHelper.floor_double(var1.posZ * 32.0D);
+        this.Yaw = (byte)((int)(var1.motionX * 128.0D));
+        this.Pitch = (byte)((int)(var1.motionY * 128.0D));
+        this.Roll = (byte)((int)(var1.motionZ * 128.0D));
+    }
+
     public override void Decode(ref DataReader reader) {
         reader.Byte(); // Packet type.
         EntityId = reader.Int();
-        // Item = default; // TODO
+        Item = reader.Slot(); // TODO
         Pos = reader.Vector3();
         Yaw = reader.Byte();
         Pitch = reader.Byte();
@@ -290,7 +307,7 @@ public class AddItemEntityPacket : MinecraftPacket {
     public override void Encode(ref DataWriter writer) {
         writer.Byte((byte)MinecraftPacketType.AddItemEntity);
         writer.Int(EntityId);
-        // TODO Item
+        writer.Slot(Item);
         writer.Vector3(Pos);
         writer.Byte(Yaw);
         writer.Byte(Pitch);
@@ -724,7 +741,8 @@ public class UseItemPacket : MinecraftPacket {
         writer.UShort(Block);
         writer.Byte(Meta);
         writer.Int(Id);
-        // TODO FPos
+        // TODO FPos // OK
+        writer.Vector3(FPos);
         writer.Vector3(Pos);
     }
 }
@@ -906,26 +924,14 @@ public class SendInventoryPacket : MinecraftPacket {
         reader.Byte(); // Packet type.
         EntityId = reader.Int();
         WindowId = reader.Byte();
-        Items = new List<ItemStack>();
-        for (int i = 0; i < reader.Short(); i++)
-            Items.Add(new ItemStack {
-                    itemID = reader.UShort(),
-                    stackSize = reader.Byte(),
-                    itemDamage = reader.UShort()
-                }
-            );
+        Items = reader.Items();
     }
 
     public override void Encode(ref DataWriter writer) {
         writer.Byte((byte)MinecraftPacketType.SendInventory);
         writer.Int(EntityId);
         writer.Byte(WindowId);
-        writer.Short((short)Items.Count);
-        for (int i = 0; i < Items.Count; i++) {
-            writer.UShort((ushort)Items[i].itemID);
-            writer.Byte((byte)Items[i].stackSize);
-            writer.UShort((ushort)Items[i].itemDamage);
-        }
+        writer.Items(Items);
     }
 }
 
@@ -933,20 +939,20 @@ public class DropItemPacket : MinecraftPacket {
     public int EntityId;
 
     public byte Unk0;
-    // public ItemInstance Item;
+    public ItemStack Item;
 
     public override void Decode(ref DataReader reader) {
         reader.Byte(); // Packet type.
         EntityId = reader.Int();
         Unk0 = reader.Byte();
-        // Item = default; // TODO
+        Item = reader.Slot(); // TODO
     }
 
     public override void Encode(ref DataWriter writer) {
         writer.Byte((byte)MinecraftPacketType.DropItem);
         writer.Int(EntityId);
         writer.Byte(Unk0);
-        // TODO Item
+        writer.Slot(Item);
     }
 }
 
@@ -1031,44 +1037,28 @@ public class ContainerSetDataPacket : MinecraftPacket {
 public class ContainerSetContentPacket : MinecraftPacket {
     public byte WindowId;
     public List<ItemStack> Items;
-    public List<int> Hotbar;
+    public List<int> Hotbar; // ???
 
     public override void Decode(ref DataReader reader) {
         reader.Byte(); // Packet type.
         WindowId = reader.Byte();
-        Items = new List<ItemStack>();
-        for (int i = 0; i < reader.Short(); i++)
-            Items.Add(new ItemStack {
-                    itemID = reader.UShort(),
-                    stackSize = reader.Byte(),
-                    itemDamage = reader.UShort()
-                }
-            );
+        Items = reader.Items();
 
         if (WindowId != 0)
             return;
 
-        Hotbar = new List<int>();
-        for (int i = 0; i < reader.Short(); i++)
-            Hotbar.Add(reader.Int());
+        Hotbar = reader.Hotbar();
     }
 
     public override void Encode(ref DataWriter writer) {
         writer.Byte((byte)MinecraftPacketType.ContainerSetContent);
         writer.Byte(WindowId);
-        writer.Short((short)Items.Count);
-        for (int i = 0; i < Items.Count; i++) {
-            writer.UShort((ushort)Items[i].itemID);
-            writer.Byte((byte)Items[i].stackSize);
-            writer.UShort((ushort)Items[i].itemDamage);
-        }
+        writer.Items(Items);
 
         if (WindowId != 0)
             return;
 
-        writer.Short((short)Hotbar.Count);
-        for (int i = 0; i < Hotbar.Count; i++)
-            writer.Int(Hotbar[i]);
+        writer.Hotbar(Hotbar);
     }
 }
 

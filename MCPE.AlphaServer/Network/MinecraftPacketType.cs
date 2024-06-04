@@ -1,6 +1,7 @@
 ﻿namespace SpoongePE.Core.Network;
 
-public enum MinecraftPacketType : byte {
+public enum MinecraftPacketType : byte
+{
     // Who can send it?
     Unknown = 0x00, // Server (for split packets)
     LoginRequest = 0x82, // Client
@@ -16,7 +17,7 @@ public enum MinecraftPacketType : byte {
     RemoveEntity = 0x8D, // Server
     AddItemEntity = 0x8E, // Server
     TakeItemEntity = 0x8F, // Server?
-    MoveEntity = 0x90, // Unused?
+    MoveEntity = 0x90, // Unused
     MoveEntityPosRot = 0x93, // Server
     RotateHead = 0x94, // Server
     MovePlayer = 0x95, // Both
@@ -56,4 +57,62 @@ public enum MinecraftPacketType : byte {
     SetTileEntityData = 0xB8, // Server/Both?
     PlayerInput = 0xB9, // Client
     DATA_PACKET_0 = 0x80 // Unk
+    /*
+    Packets analogues in beta 1.7.3
+
+
+    Packet1Login -> LoginResponse
+    Packet2Handshake -> LoginRequest
+    Packet3Chat -> Message
+    Packet4UpdateTime -> SetTime
+    Packet5PlayerInventory -> PlayerEquipment?
+    Packet6SpawnPosition -> SetSpawnPosition
+    Packet7UseEntity -> Interact?
+    Packet8UpdateHealth -> SetHealth
+    Packet9Respawn -> Respawn
+    Packet10Flying -> not exist
+    Packet11PlayerPosition -> not exist
+    Packet12PlayerLook -> RotateHead
+    Packet13PlayerLookMove -> MovePlayer
+    Packet14BlockDig -> RemoveBlock
+    Packet15Place -> PlaceBlock
+    Packet16BlockItemSwitch(swing) -> PlayerEquipment???
+    Packet17Sleep -> not exist
+    Packet18Animation -> Animate?
+    Packet19EntityAction -> Interact?
+    Packet20NamedEntitySpawn -> AddPlayer
+    Packet21PickupSpawn -> AddItemEntity
+    Packet22Collect -> TakeItemEntity??
+    Packet23VehicleSpawn -> AddEntityPacket
+    Packet24MobSpawn -> AddMob
+    Packet25EntityPainting -> AddPainting
+    Packet28EntityVelocity -> SetEntityMotion
+    Packet29DestroyEntity -> RemoveEntity
+    Packet30Entity -> AddEntity
+    Packet31RelEntityMove -> not exist
+    Packet32EntityLook -> not exist
+    Packet33RelEntityMoveLook -> MoveEntityPosRot
+    Packet34EntityTeleport -> MoveEntityPosRot
+    Packet38EntityStatus -> SetEntityData
+    Packet39AttachEntity -> SetRiding?
+    Packet40EntityMetadata -> SetEntityData
+    Packet50PreChunk -> not exist
+    Packet51MapChunk -> ChunkData
+    Packet52MultiBlockChange -> not exist
+    Packet53BlockChange -> UpdateBlock
+    Packet54PlayNoteBlock -> not exist
+    Packet60Explosion -> Explode
+    Packet61DoorChange -> LevelEvent???
+    Packet70Bed -> UpdateBlock/LevelEvent??
+    Packet71Weather -> not exist
+    Packet100OpenWindow -> ContainerOpen
+    Packet101CloseWindow -> ContainerClose
+    Packet102WindowClick -> ??
+    Packet103SetSlot -> ContainerSetSlot
+    Packet104WindowItems -> ContainerSetContent
+    Packet105UpdateProgressbar -> SetTileEntityData?
+    Packet106Transaction -> ContainerAck? xd
+    Packet130UpdateSign -> SignUpdate? xddd
+    Packet255KickDisconnect -> PlayerDisconnect
+    */
 }

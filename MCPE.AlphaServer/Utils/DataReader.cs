@@ -2,9 +2,11 @@ using SpoongePE.Core.Game;
 using SpoongePE.Core.Game.ItemBase;
 using System;
 using System.Buffers.Binary;
+using System.Collections.Generic;
 using System.IO;
 using System.Net;
 using System.Numerics;
+using System.Reflection.PortableExecutable;
 using System.Runtime.CompilerServices;
 using System.Text;
 
@@ -91,5 +93,26 @@ public class DataReader {
         byte count = this.Byte();
         ushort meta = this.UShort();
         return new ItemStack(id, count, meta);
+    }
+    public List<ItemStack> Items() {
+        List<ItemStack> Items = new List<ItemStack>();
+        for (int i = 0; i < this.Short(); i++)
+            Items.Add(new ItemStack
+            {
+                itemID = this.UShort(),
+                stackSize = this.Byte(),
+                itemDamage = this.UShort()
+            }
+            );
+        return Items;
+    }
+
+    internal List<int> Hotbar()
+    {
+        List<int> Hotbar = new List<int>();
+        for (int i = 0; i < this.Short(); i++)
+            Hotbar.Add(this.Int());
+
+        return Hotbar;
     }
 }

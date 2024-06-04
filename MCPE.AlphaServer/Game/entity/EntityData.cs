@@ -25,8 +25,8 @@ public enum EntityDataKey
 {
     Flags = 0,
     Air = 1,
-
-    IsSleeping = 16,
+    IsBaby = 14,
+    State = 16, // IsSleeping(Player), Fuse(TNT), Saddled(Pig), Creeper(29 ticks before explosion)
     SleepPosition = 17
 }
 
@@ -76,8 +76,8 @@ public class EntityData
             var dataType = reader.Byte();
             if (dataType == 0x7F) break;
 
-            var type = (EntityDataType)(dataType >> 5);
-            var id = (EntityDataKey)(dataType & 0x1F);
+            EntityDataType type = (EntityDataType)(dataType >> 5);
+            EntityDataKey id = (EntityDataKey)(dataType & 0x1F);
 
             if (!DefinedData.TryGetValue(id, out var holder))
                 throw new Exception("Undefined data id");
@@ -114,6 +114,7 @@ public class EntityData
                     holder.Value = new Vector3(x, y, z);
                     break;
             }
+            Console.WriteLine($"Type: {type} id: {id} Value: {holder.Value}");
         }
     }
 

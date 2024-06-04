@@ -1,5 +1,6 @@
 using System;
 using System.Buffers.Binary;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -109,5 +110,23 @@ public class DataWriter {
         this.Byte(item.stackSize);
         this.UShort((ushort)item.itemDamage);
 
+    }
+
+    public void Items(List<ItemStack> items)
+    {
+        this.Short((short)items.Count);
+        for (int i = 0; i < items.Count; i++)
+        {
+            this.UShort((ushort)items[i].itemID);
+            this.Byte((byte)items[i].stackSize);
+            this.UShort((ushort)items[i].itemDamage);
+        }
+    }
+
+    public void Hotbar(List<int> hotbar)
+    {
+        this.Short((short)hotbar.Count);
+        for (int i = 0; i < hotbar.Count; i++)
+            this.Int(hotbar[i]);
     }
 }

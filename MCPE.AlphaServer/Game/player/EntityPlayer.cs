@@ -633,6 +633,11 @@ namespace SpoongePE.Core.Game.player
             }
 
         }
+
+        internal void displayGUIChest(EntityMinecart entityMinecart)
+        {
+            throw new NotImplementedException();
+        }
     }
 
 

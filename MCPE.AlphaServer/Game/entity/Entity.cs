@@ -962,7 +962,7 @@ public abstract class Entity
 
     }
 
-    internal void applyEntityCollision(EntityLiving var1)
+    internal void applyEntityCollision(Entity var1)
     {
         if (var1.riddenByEntity != this && var1.ridingEntity != this)
         {
@@ -1066,4 +1066,13 @@ public abstract class Entity
     }
     public bool interact(EntityPlayer var1) => false;
 
+    public ItemStack[] getInventory()
+    {
+        return null;
+    }
+
+    internal void mountEntity(EntityMinecart entityMinecart)
+    {
+        throw new NotImplementedException();
+    }
 }

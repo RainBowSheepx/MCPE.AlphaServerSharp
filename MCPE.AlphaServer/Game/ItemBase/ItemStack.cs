@@ -41,6 +41,12 @@ public class ItemStack // alias ItemInstance
         stackSize = itemCount;
         itemDamage = itemMeta;
     }
+    public ItemStack(int itemID, int itemCount, int itemMeta)
+    {
+        this.itemID = itemID;
+        stackSize = (byte)itemCount;
+        itemDamage = itemMeta;
+    }
     public ItemStack(NbtCompound var1)
     {
         this.stackSize = 0;

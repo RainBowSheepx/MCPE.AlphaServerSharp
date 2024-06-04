@@ -8,6 +8,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Threading;
 
 namespace SpoongePE.Core.Game;
 
@@ -32,6 +33,7 @@ public class Chunk
     public byte[,] updateMap = new byte[16, 16];
 
     private World world;
+    private bool hasEntities = false;
 
     public Chunk(int x, int z, World world)
     {
@@ -272,5 +274,53 @@ public class Chunk
                 }
             }
         }
+    }
+
+    internal void addEntity(Entity var1)
+    {
+        this.hasEntities = true;
+        int var2 = MathHelper.floor_double(var1.posX / 16.0D);
+        int var3 = MathHelper.floor_double(var1.posZ / 16.0D);
+        if (var2 != this.posX || var3 != this.posZ)
+        {
+            Console.WriteLine("Wrong location! " + var1);
+            Console.WriteLine(new StackTrace().ToString());
+        }
+
+        int var4 = MathHelper.floor_double(var1.posY / 16.0D);
+        if (var4 < 0)
+        {
+            var4 = 0;
+        }
+
+        if (var4 >= this.entities.Length)
+        {
+            var4 = this.entities.Length - 1;
+        }
+
+        var1.addedToChunk = true;
+        var1.chunkCoordX = this.posX;
+        var1.chunkCoordY = var4;
+        var1.chunkCoordZ = this.posZ;
+        this.entities[var4].Add(var1);
+    }
+    public void removeEntity(Entity var1)
+    {
+        this.removeEntityAtIndex(var1, var1.chunkCoordY);
+    }
+
+    public void removeEntityAtIndex(Entity var1, int var2)
+    {
+        if (var2 < 0)
+        {
+            var2 = 0;
+        }
+
+        if (var2 >= this.entities.Length)
+        {
+            var2 = this.entities.Length - 1;
+        }
+
+        this.entities[var2].Remove(var1);
     }
 }

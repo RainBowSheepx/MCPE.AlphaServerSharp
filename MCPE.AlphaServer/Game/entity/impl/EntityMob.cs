@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace SpoongePE.Core.Game.entity.impl
 {
-    public class EntityMob : EntityCreature
+    public class EntityMob : EntityCreature, IMob
     {
         protected int attackStrength = 2;
 

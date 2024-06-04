@@ -1,30 +1,36 @@
 ﻿using SpoongePE.Core.Game.ItemBase;
 using SpoongePE.Core.Game.player;
 using SpoongePE.Core.Game.utils;
-using System.Collections.Generic;
-using System;
 using SpoongePE.Core.NBT;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace SpoongePE.Core.Game.entity.impl
 {
-    public class EntitySnowball : Entity
+    public class EntityEgg : Entity
     {
-        private int xTileSnowball = -1;
-        private int yTileSnowball = -1;
-        private int zTileSnowball = -1;
-        private int inTileSnowball = 0;
-        private bool inGroundSnowball = false;
-        public int shakeSnowball = 0;
+        private int xTile = -1;
+        private int yTile = -1;
+        private int zTile = -1;
+        private int inTile = 0;
+        private bool inGround = false;
+        public int shake = 0;
         private EntityLiving thrower;
-        private int ticksInGroundSnowball;
-        private int ticksInAirSnowball = 0;
+        private int ticksInGround;
+        private int ticksinAir = 0;
 
-        public EntitySnowball(World var1) : base(var1)
+        public EntityEgg(World var1) : base(var1)
         {
+            
             this.setSize(0.25F, 0.25F);
         }
 
-
+        protected void entityInit()
+        {
+        }
 
         public bool isInRangeToRenderDist(double var1)
         {
@@ -33,8 +39,9 @@ namespace SpoongePE.Core.Game.entity.impl
             return var1 < var3 * var3;
         }
 
-        public EntitySnowball(World var1, EntityLiving var2) : base(var1)
+        public EntityEgg(World var1, EntityLiving var2) : base(var1)
         {
+            
             this.thrower = var2;
             this.setSize(0.25F, 0.25F);
             this.setLocationAndAngles(var2.posX, var2.posY + (double)var2.getEyeHeight(), var2.posZ, var2.rotationYaw, var2.rotationPitch);
@@ -47,19 +54,19 @@ namespace SpoongePE.Core.Game.entity.impl
             this.motionX = (-MathHelper.sin(this.rotationYaw / 180.0F * 3.1415927F) * MathHelper.cos(this.rotationPitch / 180.0F * 3.1415927F) * var3);
             this.motionZ = (MathHelper.cos(this.rotationYaw / 180.0F * 3.1415927F) * MathHelper.cos(this.rotationPitch / 180.0F * 3.1415927F) * var3);
             this.motionY = (-MathHelper.sin(this.rotationPitch / 180.0F * 3.1415927F) * var3);
-            this.setSnowballHeading(this.motionX, this.motionY, this.motionZ, 1.5F, 1.0F);
+            this.setEggHeading(this.motionX, this.motionY, this.motionZ, 1.5F, 1.0F);
         }
 
-        public EntitySnowball(World var1, double var2, double var4, double var6) : base(var1)
+        public EntityEgg(World var1, double var2, double var4, double var6) : base(var1)
         {
             
-            this.ticksInGroundSnowball = 0;
+            this.ticksInGround = 0;
             this.setSize(0.25F, 0.25F);
             this.setPosition(var2, var4, var6);
             this.yOffset = 0.0F;
         }
 
-        public void setSnowballHeading(double var1, double var3, double var5, float var7, float var8)
+        public void setEggHeading(double var1, double var3, double var5, float var7, float var8)
         {
             float var9 = MathHelper.sqrt_double(var1 * var1 + var3 * var3 + var5 * var5);
             var1 /= (double)var9;
@@ -77,7 +84,7 @@ namespace SpoongePE.Core.Game.entity.impl
             float var10 = MathHelper.sqrt_double(var1 * var1 + var5 * var5);
             this.prevRotationYaw = this.rotationYaw = (float)(Math.Atan2(var1, var5) * 180.0D / 3.1415927410125732D);
             this.prevRotationPitch = this.rotationPitch = (float)(Math.Atan2(var3, (double)var10) * 180.0D / 3.1415927410125732D);
-            this.ticksInGroundSnowball = 0;
+            this.ticksInGround = 0;
         }
 
         public new void setVelocity(float var1, float var3, float var5)
@@ -100,18 +107,18 @@ namespace SpoongePE.Core.Game.entity.impl
             this.lastTickPosY = this.posY;
             this.lastTickPosZ = this.posZ;
             base.onUpdate();
-            if (this.shakeSnowball > 0)
+            if (this.shake > 0)
             {
-                --this.shakeSnowball;
+                --this.shake;
             }
 
-            if (this.inGroundSnowball)
+            if (this.inGround)
             {
-                int var1 = this.world.getBlockIDAt(this.xTileSnowball, this.yTileSnowball, this.zTileSnowball);
-                if (var1 == this.inTileSnowball)
+                int var1 = this.world.getBlockIDAt(this.xTile, this.yTile, this.zTile);
+                if (var1 == this.inTile)
                 {
-                    ++this.ticksInGroundSnowball;
-                    if (this.ticksInGroundSnowball == 1200)
+                    ++this.ticksInGround;
+                    if (this.ticksInGround == 1200)
                     {
                         this.setEntityDead();
                     }
@@ -119,16 +126,16 @@ namespace SpoongePE.Core.Game.entity.impl
                     return;
                 }
 
-                this.inGroundSnowball = false;
+                this.inGround = false;
                 this.motionX *= (this.rand.NextSingle() * 0.2F);
                 this.motionY *= (this.rand.NextSingle() * 0.2F);
                 this.motionZ *= (this.rand.NextSingle() * 0.2F);
-                this.ticksInGroundSnowball = 0;
-                this.ticksInAirSnowball = 0;
+                this.ticksInGround = 0;
+                this.ticksinAir = 0;
             }
             else
             {
-                ++this.ticksInAirSnowball;
+                ++this.ticksinAir;
             }
 
             Vec3D var15 = Vec3D.createVector(this.posX, this.posY, this.posZ);
@@ -148,8 +155,8 @@ namespace SpoongePE.Core.Game.entity.impl
 
                 for (int var8 = 0; var8 < var5.Count; ++var8)
                 {
-                    Entity var9 = (Entity)var5[var8];
-                    if (var9.canBeCollidedWith() && (var9 != this.thrower || this.ticksInAirSnowball >= 5))
+                    Entity var9 = var5[var8];
+                    if (var9.canBeCollidedWith() && (var9 != this.thrower || this.ticksinAir >= 5))
                     {
                         float var10 = 0.3F;
                         AxisAlignedBB var11 = var9.boundingBox.expand((double)var10, (double)var10, (double)var10);
@@ -178,6 +185,21 @@ namespace SpoongePE.Core.Game.entity.impl
                 {
                 }
 
+                if (this.rand.Next(8) == 0)
+                {
+                    byte var16 = 1;
+                    if (this.rand.Next(32) == 0)
+                    {
+                        var16 = 4;
+                    }
+
+                    for (int var17 = 0; var17 < var16; ++var17)
+                    {
+                        EntityChicken var21 = new EntityChicken(this.world);
+                        var21.setLocationAndAngles(this.posX, this.posY, this.posZ, this.rotationYaw, 0.0F);
+                        this.world.entityJoinedWorld(var21);
+                    }
+                }
 
 
                 this.setEntityDead();
@@ -186,10 +208,10 @@ namespace SpoongePE.Core.Game.entity.impl
             this.posX += this.motionX;
             this.posY += this.motionY;
             this.posZ += this.motionZ;
-            float var17 = MathHelper.sqrt_double(this.motionX * this.motionX + this.motionZ * this.motionZ);
+            float var20 = MathHelper.sqrt_double(this.motionX * this.motionX + this.motionZ * this.motionZ);
             this.rotationYaw = (float)(Math.Atan2(this.motionX, this.motionZ) * 180.0D / 3.1415927410125732D);
 
-            for (this.rotationPitch = (float)(Math.Atan2(this.motionY, (double)var17) * 180.0D / 3.1415927410125732D); this.rotationPitch - this.prevRotationPitch < -180.0F; this.prevRotationPitch -= 360.0F)
+            for (this.rotationPitch = (float)(Math.Atan2(this.motionY, (double)var20) * 180.0D / 3.1415927410125732D); this.rotationPitch - this.prevRotationPitch < -180.0F; this.prevRotationPitch -= 360.0F)
             {
             }
 
@@ -210,47 +232,45 @@ namespace SpoongePE.Core.Game.entity.impl
 
             this.rotationPitch = this.prevRotationPitch + (this.rotationPitch - this.prevRotationPitch) * 0.2F;
             this.rotationYaw = this.prevRotationYaw + (this.rotationYaw - this.prevRotationYaw) * 0.2F;
-            float var18 = 0.99F;
-            float var19 = 0.03F;
+            float var19 = 0.99F;
+            float var22 = 0.03F;
             if (this.isInWater())
             {
 
-
-                var18 = 0.8F;
+                var19 = 0.8F;
             }
 
-            this.motionX *= var18;
-            this.motionY *= var18;
-            this.motionZ *= var18;
-            this.motionY -= var19;
+            this.motionX *= var19;
+            this.motionY *= var19;
+            this.motionZ *= var19;
+            this.motionY -= var22;
             this.setPosition(this.posX, this.posY, this.posZ);
         }
 
         protected override void writeEntityToNBT(NbtCompound var1)
         {
-            var1.Add(new NbtShort("xTile", (short)this.xTileSnowball));
-            var1.Add(new NbtShort("yTile", (short)this.yTileSnowball));
-            var1.Add(new NbtShort("zTile", (short)this.zTileSnowball));
-            var1.Add(new NbtByte("inTile", (byte)this.inTileSnowball));
-            var1.Add(new NbtByte("shake", (byte)this.shakeSnowball));
-            var1.Add(new NbtByte("inGround", (byte)(this.inGroundSnowball ? 1 : 0)));
+            var1.Add(new NbtShort("xTile", (short)this.xTile));
+            var1.Add(new NbtShort("yTile", (short)this.yTile));
+            var1.Add(new NbtShort("zTile", (short)this.zTile));
+            var1.Add(new NbtByte("inTile", (byte)this.inTile));
+            var1.Add(new NbtByte("shake", (byte)this.shake));
+            var1.Add(new NbtByte("inGround", (byte)(this.inGround ? 1 : 0)));
         }
 
         protected override void readEntityFromNBT(NbtCompound var1)
         {
-            this.xTileSnowball = var1.Get<NbtShort>("xTile").ShortValue;
-            this.yTileSnowball = var1.Get<NbtShort>("yTile").ShortValue;
-            this.zTileSnowball = var1.Get<NbtShort>("zTile").ShortValue;
-            this.inTileSnowball = var1.Get<NbtByte>("inTile").ByteValue & 255;
-            this.shakeSnowball = var1.Get<NbtByte>("shake").ByteValue & 255;
-            this.inGroundSnowball = var1.Get<NbtByte>("inGround").ByteValue == 1;
+            this.xTile = var1.Get<NbtShort>("xTile").ShortValue;
+            this.yTile = var1.Get<NbtShort>("yTile").ShortValue;
+            this.zTile = var1.Get<NbtShort>("zTile").ShortValue;
+            this.inTile = var1.Get<NbtByte>("inTile").ByteValue & 255;
+            this.shake = var1.Get<NbtByte>("shake").ByteValue & 255;
+            this.inGround = var1.Get<NbtByte>("inGround").ByteValue == 1;
         }
 
         public new void onCollideWithPlayer(EntityPlayer var1)
         {
-            if (this.inGroundSnowball && this.thrower == var1 && this.shakeSnowball <= 0 && var1.inventory.addItemStackToInventory(new ItemStack(Item.arrow, 1)))
+            if (this.inGround && this.thrower == var1 && this.shake <= 0 && var1.inventory.addItemStackToInventory(new ItemStack(Item.arrow, 1))) // arrow?
             {
-          
                 var1.onItemPickup(this, 1);
                 this.setEntityDead();
             }
@@ -261,5 +281,7 @@ namespace SpoongePE.Core.Game.entity.impl
         {
             return 0.0F;
         }
+
+   
     }
 }

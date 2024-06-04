@@ -1,4 +1,5 @@
 ﻿using SpoongePE.Core.Game.entity;
+using SpoongePE.Core.Game.ItemBase;
 using SpoongePE.Core.NBT;
 using SpoongePE.Core.RakNet;
 using System;
@@ -22,12 +23,13 @@ public class Player : EntityPlayer
     public byte itemID;
     public string ip, identifier;
     public NbtFile playerData;
+    private ItemStack[] playerInventory = new ItemStack[] { null, null, null, null, null };
     public Player(RakNetClient client, World w) : base(w)
     {
         Client = client;
         heartsLife = 20;
         inCreative = RakNetServer.Properties.gamemode;
-        Define(EntityDataKey.IsSleeping, EntityDataType.Byte);
+        Define(EntityDataKey.State, EntityDataType.Byte);
         Define(EntityDataKey.SleepPosition, EntityDataType.Pos);
     }
 
@@ -79,8 +81,12 @@ public class Player : EntityPlayer
     public void Send(ConnectedPacket packet, int reliability = ConnectedPacket.RELIABLE) =>
         Client.Send(packet, reliability);
 
-    internal void heal(int healAmount)
+    internal new void heal(int healAmount)
     {
-        throw new NotImplementedException();
+        base.heal(healAmount);
+    }
+    public new ItemStack[] getInventory()
+    {
+        return this.playerInventory;
     }
 }

@@ -36,6 +36,7 @@ public class World
     public Chunk this[int x, int z] => _chunks[x, z]; // Why we don't use it?
 
     public Dictionary<int, Player> players = new Dictionary<int, Player>();
+    public List<Entity> EntityList = new List<Entity>();
     private int freeEID = 1;
     public int worldSeed = 0x256512;
     public BedrockRandom random;
@@ -55,6 +56,7 @@ public class World
     public HashSet<TickNextTickData> scheduledTickSet;
     public int skylightSubtracted = 0;
     public WorldProvider worldProvider;
+    public EntityTracker entityTracker;
     public World(WorldProvider provider, int seed, string name = "")
     {
 
@@ -74,6 +76,7 @@ public class World
         provider.registerWorld(this);
         this.calculateInitialSkylight();
         Saver = new WorldSaver(this);
+        entityTracker = new EntityTracker(this, 0);
         if (Directory.Exists(Path.Combine("worlds", name)))
         {
             Saver.LoadAll();
@@ -86,11 +89,26 @@ public class World
     }
     public void addPlayer(Player player)
     {
-        this.players.Add(player.EntityID, player);
+        entityJoinedWorld(player);
+     
     }
     public void removePlayer(int eid)
     {
+        Player player = this.players[eid];
+        player.setEntityDead();
+
+        int var2 = player.chunkCoordX;
+        int var3 = player.chunkCoordZ;
+        if (player.addedToChunk && this.chunkExists(var2, var3))
+        {
+            this._chunks[var2, var3].removeEntity(player);
+        }
+
+        EntityList.Remove(player);
+
+
         this.players.Remove(eid);
+        
         /*  RemoveEntityPacket pk = new RemoveEntityPacket();
           pk.EntityId = eid;
           foreach (Player p in this.players.Values)
@@ -446,9 +464,32 @@ public class World
         throw new NotImplementedException();
     }
 
-    internal void entityJoinedWorld(Entity ent)
+    internal bool entityJoinedWorld(Entity var1)
     {
-        throw new NotImplementedException();
+        int var2 = MathHelper.floor_double(var1.posX / 16.0D);
+        int var3 = MathHelper.floor_double(var1.posZ / 16.0D);
+        bool var4 = false;
+        if (var1 is EntityPlayer) {
+            var4 = true;
+        }
+
+        if (!var4 && !this.chunkExists(var2, var3))
+        {
+            return false;
+        }
+        else
+        {
+            if (var1 is Player) {
+                Player var5 = (Player)var1;
+                this.players.Add(var5.EntityID, var5);
+                this.updateAllPlayersSleepingFlag();
+            }
+
+            this._chunks[var2, var3].addEntity(var1);
+            this.EntityList.Add(var1);
+           // this.obtainEntitySkin(var1);
+            return true;
+        }
     }
     public bool blockExists(int var1, int var2, int var3) => var2 >= 0 && var2 < 128 ? this.chunkExists(var1 >> 4, var3 >> 4) : false;
 
@@ -1059,5 +1100,136 @@ public class World
     public float getCelestialAngle(float var1)
     {
         return this.worldProvider.calculateCelestialAngle(this.worldTime, var1);
+    }
+
+    internal void updateEntities()
+    {
+        for (int var1 = 0; var1 < this.EntityList.Count; ++var1)
+        {
+            Entity var2 = this.EntityList[var1];
+
+            if (!var2.isDead)
+            {
+                this.updateEntity(var2);
+            }
+
+            if (var2.isDead)
+            {
+                int var3 = var2.chunkCoordX;
+                int var4 = var2.chunkCoordZ;
+                if (var2.addedToChunk && this.chunkExists(var3, var4))
+                {
+                    this._chunks[var3, var4].removeEntity(var2);
+                }
+
+                this.EntityList.RemoveAt(var1--);
+               // this.ReleaseEntitySkin(var2);
+            }
+        }
+    }
+
+    private void updateEntity(Entity var1)
+    {
+        this.updateEntityWithOptionalForce(var1, true);
+    }
+
+    private void updateEntityWithOptionalForce(Entity var1, bool var2)
+    {
+        int var3 = MathHelper.floor_double(var1.posX);
+        int var4 = MathHelper.floor_double(var1.posZ);
+        byte var5 = 32;
+        if (!var2 || this.checkChunksExist(var3 - var5, 0, var4 - var5, var3 + var5, 128, var4 + var5))
+        {
+            var1.lastTickPosX = var1.posX;
+            var1.lastTickPosY = var1.posY;
+            var1.lastTickPosZ = var1.posZ;
+            var1.prevRotationYaw = var1.rotationYaw;
+            var1.prevRotationPitch = var1.rotationPitch;
+            if (var2 && var1.addedToChunk)
+            {
+              /*  if (var1.ridingEntity != null)
+                {
+                    var1.updateRidden();
+                }
+                else
+                {*/
+                    var1.onUpdate();
+                //}
+            }
+
+            if (Double.IsNaN(var1.posX) || Double.IsInfinity(var1.posX))
+            {
+                var1.posX = var1.lastTickPosX;
+            }
+
+            if (Double.IsNaN(var1.posY) || Double.IsInfinity(var1.posY))
+            {
+                var1.posY = var1.lastTickPosY;
+            }
+
+            if (Double.IsNaN(var1.posZ) || Double.IsInfinity(var1.posZ))
+            {
+                var1.posZ = var1.lastTickPosZ;
+            }
+
+            if (Double.IsNaN((double)var1.rotationPitch) || Double.IsInfinity((double)var1.rotationPitch))
+            {
+                var1.rotationPitch = var1.prevRotationPitch;
+            }
+
+            if (Double.IsNaN((double)var1.rotationYaw) || Double.IsInfinity((double)var1.rotationYaw))
+            {
+                var1.rotationYaw = var1.prevRotationYaw;
+            }
+
+            int var6 = MathHelper.floor_double(var1.posX / 16.0D);
+            int var7 = MathHelper.floor_double(var1.posY / 16.0D);
+            int var8 = MathHelper.floor_double(var1.posZ / 16.0D);
+            if (!var1.addedToChunk || var1.chunkCoordX != var6 || var1.chunkCoordY != var7 || var1.chunkCoordZ != var8)
+            {
+                if (var1.addedToChunk && this.chunkExists(var1.chunkCoordX, var1.chunkCoordZ))
+                {
+                    this._chunks[var1.chunkCoordX, var1.chunkCoordZ].removeEntityAtIndex(var1, var1.chunkCoordY);
+                }
+
+                if (this.chunkExists(var6, var8))
+                {
+                    var1.addedToChunk = true;
+                    this._chunks[var6, var8].addEntity(var1);
+                }
+                else
+                {
+                    var1.addedToChunk = false;
+                }
+            }
+
+            if (var2 && var1.addedToChunk && var1.riddenByEntity != null)
+            {
+                if (!var1.riddenByEntity.isDead && var1.riddenByEntity.ridingEntity == var1)
+                {
+                    this.updateEntity(var1.riddenByEntity);
+                }
+                else
+                {
+                    var1.riddenByEntity.ridingEntity = null;
+                    var1.riddenByEntity = null;
+                }
+            }
+
+        }
+    }
+    public void obtainEntitySkin(Entity var1)
+    {
+        entityTracker.trackEntity(var1);
+    }
+
+    public void releaseEntitySkin(Entity var1)
+    {
+        entityTracker.untrackEntity(var1);
+    }
+
+    internal void createExplosion(Entity entity, float posX, float posY, float posZ, float var1)
+    {
+        throw new NotImplementedException();
     }
 }

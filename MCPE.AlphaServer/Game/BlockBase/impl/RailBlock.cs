@@ -12,5 +12,20 @@ namespace SpoongePE.Core.Game.BlockBase.impl
         public RailBlock(int id, Material m) : base(id, m)
         {
         }
+
+        public static bool isRailBlock(int var9)
+        {
+            throw new NotImplementedException();
+        }
+
+        public static bool isRailBlockAt(World world, int var1, int v, int var3)
+        {
+            throw new NotImplementedException();
+        }
+
+        internal bool getIsPowered()
+        {
+            throw new NotImplementedException();
+        }
     }
 }

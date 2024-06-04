@@ -1,13 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net.Http.Headers;
 using System.Net.Sockets;
 using System.Numerics;
+using System.Threading;
 using System.Threading.Tasks;
 using SpoongePE.Core.Game.entity;
 using SpoongePE.Core.Game.player;
+using SpoongePE.Core.Game.utils;
 using SpoongePE.Core.NBT;
 using SpoongePE.Core.Network;
 using SpoongePE.Core.RakNet;
@@ -23,20 +26,49 @@ public class ServerWorld
     public World World;
     private GameServer Server;
     public bool sendFullChunks = true;
-
+    private int ticks;
+    public double currentTPS; // need to check
+    Stopwatch stopwatch = new Stopwatch();
+    
     public ServerWorld(GameServer server, World world)
     {
         Server = server;
         World = world;
+        ticks = 0;
+        stopwatch.Start();
+
         // Activate World ticking
-        // 1 tick is 50ms, i think
-        RakNetServer.StartRepeatingTask(world.tick, TimeSpan.FromMilliseconds(50));
-        RakNetServer.StartRepeatingTask(HandleTick, TimeSpan.FromMilliseconds(2000));
+        // 1 tick is 50ms, but StartRepeatingTask take ~3 mills from task
+        RakNetServer.StartRepeatingTask(doTick, TimeSpan.FromMilliseconds(46));
+        RakNetServer.StartRepeatingTask(TimeSendUpdate, TimeSpan.FromMilliseconds(2000));
     }
 
     public IEnumerable<Player> Players => ConnectionMap.Values;
 
-    public async Task HandleTick()
+    public async Task doTick()
+    {
+        ticks++;
+        if (stopwatch.Elapsed.TotalSeconds >= 1)
+        {
+            currentTPS = ticks;
+            stopwatch.Restart();
+            Console.Title = $"SpoongePE Core :) TPS: {currentTPS} | Players: {World.players.Count()}/{RakNetServer.Properties.maxPlayers} | WorldTime: {World.worldTime}";
+
+            ticks = 0;
+        }
+
+        AxisAlignedBB.clearBoundingBoxPool();
+        Vec3D.initialize();
+
+        await World.tick();
+        World.updateEntities();
+
+        World.entityTracker.updateTrackedEntities();
+
+
+    }
+
+    public async Task TimeSendUpdate()
     {
 
         SendAll(new SetTimePacket
@@ -85,7 +117,7 @@ public class ServerWorld
             newPlayer.playerData.LoadFromFile(Path.Combine(playersFolder, $"{newPlayer.Username}.dat"));
 
         newPlayer.LoadDat();
-     
+
 
         SendAll(new AddPlayerPacket
         {

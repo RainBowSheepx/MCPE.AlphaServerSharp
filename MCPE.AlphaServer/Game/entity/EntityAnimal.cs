@@ -1,4 +1,5 @@
 ﻿using SpoongePE.Core.Game.BlockBase;
+using SpoongePE.Core.Game.entity.impl;
 using SpoongePE.Core.Game.utils;
 using SpoongePE.Core.NBT;
 using System;
@@ -9,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace SpoongePE.Core.Game.entity
 {
-    public abstract class EntityAnimal : EntityCreature
+    public abstract class EntityAnimal : EntityCreature, IAnimals
     {
         public EntityAnimal(World var1) : base(var1)
         {
