@@ -207,7 +207,7 @@ public abstract class Entity
             setOnFireFromLava();
         }
 
-        if (posY < -64.0D)
+        if (posY < 0)
         {
             kill();
         }

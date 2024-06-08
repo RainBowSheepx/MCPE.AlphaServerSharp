@@ -87,11 +87,11 @@ namespace SpoongePE.Core.Game.entity
                 {
                     if (var11 && var12)
                     {
-                         var10 = new MoveEntityPosRotPacket(this.trackedEntity, (byte)var7, (byte)var8, (byte)var9, (byte)var5, (byte)var6);
+                         var10 = new MoveEntityPosRotPacket(this.trackedEntity, (byte)this.trackedEntity.posX, (byte)this.trackedEntity.posY, (byte)this.trackedEntity.posZ, (byte)var5, (byte)var6);
                     }
                     else if (var11)
                     {
-                         var10 = new MoveEntityPosRotPacket(this.trackedEntity, (byte)var7, (byte)var8, (byte)var9);
+                         var10 = new MoveEntityPosRotPacket(this.trackedEntity, (byte)this.trackedEntity.posX, (byte)this.trackedEntity.posY, (byte)this.trackedEntity.posZ);
                     }
                     else if (var12)
                     {
@@ -104,7 +104,7 @@ namespace SpoongePE.Core.Game.entity
                     this.trackedEntity.posX = var2 / 32.0f;
                     this.trackedEntity.posY = var3 / 32.0f;
                     this.trackedEntity.posZ = var4 / 32.0f;
-                    var10 = new MoveEntityPosRotPacket(this.trackedEntity.EntityID, var2, var3, var4, (byte)var5, (byte)var6);
+                    var10 = new MoveEntityPosRotPacket(this.trackedEntity, (byte)var5, (byte)var6);
                 }
 
                 if (this.shouldSendMotionUpdates)
@@ -194,8 +194,7 @@ namespace SpoongePE.Core.Game.entity
             {
                 double var2 = var1.posX - (double)(this.encodedPosX / 32);
                 double var4 = var1.posZ - (double)(this.encodedPosZ / 32);
-                if (var2 >= (double)(-this.trackingDistanceThreshold) && var2 <= (double)this.trackingDistanceThreshold && var4 >= (double)(-this.trackingDistanceThreshold) && var4 <= (double)this.trackingDistanceThreshold)
-                {
+
                     if (!this.trackedPlayers.Contains(var1))
                     {
                         this.trackedPlayers.Add(var1);
@@ -224,12 +223,7 @@ namespace SpoongePE.Core.Game.entity
                             }
                         }
                     }
-                }
-                else if (this.trackedPlayers.Contains(var1))
-                {
-                    this.trackedPlayers.Remove(var1);
-                       var1.Send(new RemoveEntityPacket(this.trackedEntity.EntityID));
-                }
+
 
             }
         }

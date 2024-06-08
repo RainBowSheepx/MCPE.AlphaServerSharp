@@ -157,6 +157,8 @@ namespace SpoongePE.Core.Game
 
                 inputFile.Seek(offset, SeekOrigin.Begin);
                 world._chunks[x, z] = Chunk.From(chunkReader);
+                world._chunks[x, z].posX = x;
+                world._chunks[x, z].posZ = z;
             }
         }
         public void LoadLevelDat(FileStream inputFile)

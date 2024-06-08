@@ -1,6 +1,7 @@
 ﻿using SpoongePE.Core.Game.BlockBase;
 using SpoongePE.Core.Game.ItemBase;
 using SpoongePE.Core.Game.material;
+using SpoongePE.Core.Game.player;
 using SpoongePE.Core.Game.utils;
 using SpoongePE.Core.NBT;
 using System;
@@ -174,7 +175,7 @@ namespace SpoongePE.Core.Game.entity
             this.newRotationPitch = (double)var8;
             this.newPosRotationIncrements = var9;
         }
-        public void onUpdate()
+        public new void onUpdate()
         {
             base.onUpdate();
             this.onLivingUpdate();
@@ -617,7 +618,7 @@ namespace SpoongePE.Core.Game.entity
                 this.randomYawVelocity = 0.0F;
             }
 
-            // this.updatePlayerActionState();
+            this.updatePlayerActionState();
 
 
             bool var14 = this.isInWater();
@@ -653,6 +654,56 @@ namespace SpoongePE.Core.Game.entity
                         var16.applyEntityCollision(this);
                     }
                 }
+            }
+
+        }
+
+        protected void updatePlayerActionState()
+        {
+            ++this.entityAge;
+            EntityPlayer var1 = this.world.getClosestPlayerToEntity(this, -1.0D);
+           // this.despawnEntity();
+            this.moveStrafing = 0.0F;
+            this.moveForward = 0.0F;
+            float var2 = 8.0F;
+            if (this.rand.NextSingle() < 0.02F)
+            {
+                var1 = this.world.getClosestPlayerToEntity(this, (double)var2);
+                if (var1 != null)
+                {
+                    this.currentTarget = var1;
+                    this.numTicksToChaseTarget = 10 + this.rand.Next(20);
+                }
+                else
+                {
+                    this.randomYawVelocity = (this.rand.NextSingle() - 0.5F) * 20.0F;
+                }
+            }
+
+            if (this.currentTarget != null)
+            {
+                this.faceEntity(this.currentTarget, 10.0F, (float)this.getVerticalFaceSpeed());
+                if (this.numTicksToChaseTarget-- <= 0 || this.currentTarget.isDead || this.currentTarget.getDistanceSqToEntity(this) > (double)(var2 * var2))
+                {
+                    this.currentTarget = null;
+                }
+            }
+            else
+            {
+                if (this.rand.NextSingle() < 0.05F)
+                {
+                    this.randomYawVelocity = (this.rand.NextSingle() - 0.5F) * 20.0F;
+                }
+
+                this.rotationYaw += this.randomYawVelocity;
+                this.rotationPitch = this.defaultPitch;
+            }
+
+            bool var3 = this.isInWater();
+            bool var4 = this.handleLavaMovement();
+            if (var3 || var4)
+            {
+                this.isJumping = this.rand.NextSingle() < 0.8F;
             }
 
         }

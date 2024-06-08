@@ -17,7 +17,7 @@ namespace SpoongePE.Core.Game.entity
            
         }
 
-        protected float getBlockPathWeight(int var1, int var2, int var3)
+        protected new float getBlockPathWeight(int var1, int var2, int var3)
         {
             return this.world.getBlockIDAt(var1, var2 - 1, var3) == Block.grass.blockID ? 10.0F : this.world.getLightBrightness(var1, var2, var3) - 0.5F;
         }

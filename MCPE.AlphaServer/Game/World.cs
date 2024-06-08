@@ -464,7 +464,7 @@ public class World
         throw new NotImplementedException();
     }
 
-    internal bool entityJoinedWorld(Entity var1)
+    public bool entityJoinedWorld(Entity var1)
     {
         int var2 = MathHelper.floor_double(var1.posX / 16.0D);
         int var3 = MathHelper.floor_double(var1.posZ / 16.0D);

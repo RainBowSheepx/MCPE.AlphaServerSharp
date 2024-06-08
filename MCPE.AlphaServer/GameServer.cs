@@ -4,6 +4,7 @@ using System.Linq;
 using System.Numerics;
 using System.Reflection;
 using SpoongePE.Core.Game;
+using SpoongePE.Core.Game.entity.impl;
 using SpoongePE.Core.Game.ItemBase;
 using SpoongePE.Core.Network;
 using SpoongePE.Core.RakNet;
@@ -147,7 +148,19 @@ public class GameServer : IConnectionHandler
 
     }
 
-    public virtual void HandleMessage(RakNetClient client, MessagePacket packet) => ServerWorld.SendAll(packet);
+    public virtual void HandleMessage(RakNetClient client, MessagePacket packet) { 
+        
+        
+        ServerWorld.SendAll(packet);
+        if (packet.Message.Contains("h"))
+        {
+            Console.WriteLine("Spawn pig");
+            EntityPig pig = new EntityPig(ServerWorld.World);
+            pig.setLocationAndAngles(client.player.posX, client.player.posY, client.player.posZ, client.player.rotationYaw, client.player.rotationPitch);
+           Console.WriteLine(this.ServerWorld.World.entityJoinedWorld(pig));
+        }
+    
+    }
 
     //public virtual void HandleAddEntity(RakNetClient client, AddEntityPacket packet) { }
     //public virtual void HandleRemoveEntity(RakNetClient client, RemoveEntityPacket packet) { }

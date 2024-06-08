@@ -747,6 +747,9 @@ public class EntityEventPacket : MinecraftPacket
     public int EntityId;
     public byte EventId;
 
+    public const byte ENTITY_DAMAGE = 2;
+    public const byte ENTITY_DEAD = 3;
+    public const byte ENTITY_ANIM_10 = 10;
     public override void Decode(ref DataReader reader)
     {
         reader.Byte(); // Packet type.

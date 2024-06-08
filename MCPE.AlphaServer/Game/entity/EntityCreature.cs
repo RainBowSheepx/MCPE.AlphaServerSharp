@@ -21,7 +21,7 @@ namespace SpoongePE.Core.Game.entity
         protected bool isMovementCeased() => false;
         
 
-        protected void updatePlayerActionState()
+        protected new void updatePlayerActionState()
         {
             this.hasAttacked = this.isMovementCeased();
             float var1 = 16.0F;
@@ -149,7 +149,7 @@ namespace SpoongePE.Core.Game.entity
             }
             else
             {
-               // base.updatePlayerActionState();
+                base.updatePlayerActionState();
                 this.pathToEntity = null;
             }
         }

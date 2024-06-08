@@ -58,7 +58,10 @@ public class Chunk
     }
     public Chunk()
     {
-
+        for (int var4 = 0; var4 < this.entities.Length; ++var4)
+        {
+            this.entities[var4] = new ArrayList();
+        }
     }
 /*    public void setBlockID(int x, int y, int z, byte id)
     {
@@ -283,7 +286,7 @@ public class Chunk
         int var3 = MathHelper.floor_double(var1.posZ / 16.0D);
         if (var2 != this.posX || var3 != this.posZ)
         {
-            Console.WriteLine("Wrong location! " + var1);
+            Console.WriteLine($"Wrong location! {posX}, {posZ}, {var2}, {var3}");
             Console.WriteLine(new StackTrace().ToString());
         }
 
