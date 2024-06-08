@@ -83,31 +83,32 @@ namespace SpoongePE.Core.Game.entity
                 MinecraftPacket var10 = null;
                 bool var11 = Math.Abs(var2) >= 8 || Math.Abs(var3) >= 8 || Math.Abs(var4) >= 8;
                 bool var12 = Math.Abs(var5 - this.encodedRotationYaw) >= 8 || Math.Abs(var6 - this.encodedRotationPitch) >= 8;
-                if (var7 >= -128 && var7 < 128 && var8 >= -128 && var8 < 128 && var9 >= -128 && var9 < 128 && this.field_28165_t <= 400)
-                {
-                    if (var11 && var12)
-                    {
-                         var10 = new MoveEntityPosRotPacket(this.trackedEntity, (byte)this.trackedEntity.posX, (byte)this.trackedEntity.posY, (byte)this.trackedEntity.posZ, (byte)var5, (byte)var6);
-                    }
-                    else if (var11)
-                    {
-                         var10 = new MoveEntityPosRotPacket(this.trackedEntity, (byte)this.trackedEntity.posX, (byte)this.trackedEntity.posY, (byte)this.trackedEntity.posZ);
-                    }
-                    else if (var12)
-                    {
-                          var10 = new MoveEntityPosRotPacket(this.trackedEntity, (byte)var5, (byte)var6);
-                    }
-                }
-                else
+		Console.WriteLine("send"+this.trackedEntity.EntityID+" "+this.trackedEntity.posX+" "+this.trackedEntity.posY+" "+ this.trackedEntity.posZ);
+                //if (var7 >= -128 && var7 < 128 && var8 >= -128 && var8 < 128 && var9 >= -128 && var9 < 128 && this.field_28165_t <= 400)
+                //{
+                //    if (var11 && var12)
+                //    {
+                         var10 = new MoveEntityPosRotPacket(this.trackedEntity, this.trackedEntity.posX, this.trackedEntity.posY, this.trackedEntity.posZ, (byte)var5, (byte)var6);
+                //    }
+                //    else if (var11)
+                //    {
+                //         var10 = new MoveEntityPosRotPacket(this.trackedEntity, this.trackedEntity.posX, this.trackedEntity.posY, this.trackedEntity.posZ);
+                //    }
+                //    else if (var12)
+                //    {
+                //          var10 = new MoveEntityPosRotPacket(this.trackedEntity, (byte)var5, (byte)var6);
+                //    }
+                //}
+                /*else
                 {
                     this.field_28165_t = 0;
-                    this.trackedEntity.posX = var2 / 32.0f;
-                    this.trackedEntity.posY = var3 / 32.0f;
-                    this.trackedEntity.posZ = var4 / 32.0f;
+                    //this.trackedEntity.posX = var2 / 32.0f;
+                    //this.trackedEntity.posY = var3 / 32.0f;
+                    //this.trackedEntity.posZ = var4 / 32.0f;
                     var10 = new MoveEntityPosRotPacket(this.trackedEntity, (byte)var5, (byte)var6);
-                }
+                }*/
 
-                if (this.shouldSendMotionUpdates)
+                /*if (this.shouldSendMotionUpdates)
                 {
                     double var13 = this.trackedEntity.motionX - this.lastTrackedEntityMotionX;
                     double var15 = this.trackedEntity.motionY - this.lastTrackedEntityMotionY;
@@ -121,7 +122,7 @@ namespace SpoongePE.Core.Game.entity
                         this.lastTrackedEntityMotionZ = this.trackedEntity.motionZ;
                         this.sendPacketToTrackedPlayers(new SetEntityMotionPacket(this.trackedEntity.EntityID, this.lastTrackedEntityMotionX, this.lastTrackedEntityMotionY, this.lastTrackedEntityMotionZ));
                     }
-                }
+                }*/
 
                 if (var10 != null)
                 {
@@ -134,7 +135,7 @@ namespace SpoongePE.Core.Game.entity
                                     this.sendPacketToTrackedPlayersAndTrackedEntity(new Packet40EntityMetadata(this.trackedEntity.entityId, var23));
                                 }*/
 
-                if (var11)
+                /*if (var11)
                 {
                     this.encodedPosX = var2;
                     this.encodedPosY = var3;
@@ -145,7 +146,7 @@ namespace SpoongePE.Core.Game.entity
                 {
                     this.encodedRotationYaw = var5;
                     this.encodedRotationPitch = var6;
-                }
+                }*/
             }
 
             if (this.trackedEntity.beenAttacked)

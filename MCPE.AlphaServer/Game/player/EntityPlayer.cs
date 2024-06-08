@@ -64,8 +64,9 @@ namespace SpoongePE.Core.Game.player
 
 
         }
-        public new void onUpdate()
+        public override void onUpdate()
         {
+		return;
             if (this.isPlayerSleeping())
             {
                 ++this.sleepTimer;
@@ -422,12 +423,12 @@ namespace SpoongePE.Core.Game.player
         }
         protected new void damageEntity(int var1)
         {
-            int var2 = 25 - this.inventory.getTotalArmorValue();
+            /*int var2 = 25 - this.inventory.getTotalArmorValue();
             int var3 = var1 * var2 + this.damageRemainder;
             this.inventory.damageArmor(var1);
             var1 = var3 / 25;
             this.damageRemainder = var3 % 25;
-            base.damageEntity(var1);
+            base.damageE1ntity(var1);*/
         }
 
         public void useCurrentItemOnEntity(Entity var1)

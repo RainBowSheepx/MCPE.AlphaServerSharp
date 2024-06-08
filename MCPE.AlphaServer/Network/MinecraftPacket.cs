@@ -449,21 +449,21 @@ public class MoveEntityPosRotPacket : MinecraftPacket
         Pitch = var6;
     }
 
-    public MoveEntityPosRotPacket(Entity ent, byte var5, byte var6, byte var9) // alias Packet31RelEntityMove
+    public MoveEntityPosRotPacket(Entity ent, float var5, float var6, float var9) // alias Packet31RelEntityMove
     {
         EntityId = ent.EntityID;
         Pos = new Vector3(var5, var6, var9);
         Yaw = (byte)ent.rotationYaw;
         Pitch = (byte)ent.rotationPitch;
     }
-    public MoveEntityPosRotPacket(Entity ent, byte var5, byte var6, byte var9, byte var51, byte var61) // alias Packet33RelEntityMoveLook
+    public MoveEntityPosRotPacket(Entity ent, float var5, float var6, float var9, byte var51, byte var61) // alias Packet33RelEntityMoveLook
     {
         EntityId = ent.EntityID;
         Pos = new Vector3(var5, var6, var9);
         Yaw = var51;
         Pitch = var61;
     }
-    public MoveEntityPosRotPacket(int entityID, int var2, int var3, int var4, byte var5, byte var6) // alias Packet34EntityTeleport
+    public MoveEntityPosRotPacket(int entityID, float var2, float var3, float var4, byte var5, byte var6) // alias Packet34EntityTeleport
     {
         EntityId = entityID;
         Pos = new Vector3(var2, var3, var4);

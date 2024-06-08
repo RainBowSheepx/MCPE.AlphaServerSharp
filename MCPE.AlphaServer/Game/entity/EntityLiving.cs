@@ -175,10 +175,12 @@ namespace SpoongePE.Core.Game.entity
             this.newRotationPitch = (double)var8;
             this.newPosRotationIncrements = var9;
         }
-        public new void onUpdate()
+        public override void onUpdate()
         {
             base.onUpdate();
+		
             this.onLivingUpdate();
+	
             double var1 = this.posX - this.prevPosX;
             double var3 = this.posZ - this.prevPosZ;
             float var5 = MathHelper.sqrt_double(var1 * var1 + var3 * var3);
@@ -248,37 +250,37 @@ namespace SpoongePE.Core.Game.entity
             {
                 var7 *= -1.0F;
             }
-
+	
             while (this.rotationYaw - this.prevRotationYaw < -180.0F)
             {
                 this.prevRotationYaw -= 360.0F;
             }
-
+	
             while (this.rotationYaw - this.prevRotationYaw >= 180.0F)
             {
                 this.prevRotationYaw += 360.0F;
             }
-
+	
             while (this.renderYawOffset - this.prevRenderYawOffset < -180.0F)
             {
                 this.prevRenderYawOffset -= 360.0F;
             }
-
+	
             while (this.renderYawOffset - this.prevRenderYawOffset >= 180.0F)
             {
                 this.prevRenderYawOffset += 360.0F;
             }
-
+	
             while (this.rotationPitch - this.prevRotationPitch < -180.0F)
             {
                 this.prevRotationPitch -= 360.0F;
             }
-
+	
             while (this.rotationPitch - this.prevRotationPitch >= 180.0F)
             {
                 this.prevRotationPitch += 360.0F;
             }
-
+	
             this.field_9360_w += var7;
         }
         protected new void setSize(float var1, float var2) => base.setSize(var1, var2);
@@ -421,7 +423,7 @@ namespace SpoongePE.Core.Game.entity
             int var2 = (int)Math.Ceiling((double)(var1 - 3.0F));
             if (var2 > 0)
             {
-                this.attackEntityFrom((Entity)null, var2);
+                //this.attackEntityFrom((Entity)null, var2);
             }
 
         }
@@ -575,17 +577,17 @@ namespace SpoongePE.Core.Game.entity
                 double var1 = this.posX + (this.newPosX - this.posX) / (double)this.newPosRotationIncrements;
                 double var3 = this.posY + (this.newPosY - this.posY) / (double)this.newPosRotationIncrements;
                 double var5 = this.posZ + (this.newPosZ - this.posZ) / (double)this.newPosRotationIncrements;
-
+		
                 double var7;
                 for (var7 = this.newRotationYaw - (double)this.rotationYaw; var7 < -180.0D; var7 += 360.0D)
                 {
                 }
-
+				
                 while (var7 >= 180.0D)
                 {
                     var7 -= 360.0D;
                 }
-
+		
                 this.rotationYaw = (float)((double)this.rotationYaw + var7 / (double)this.newPosRotationIncrements);
                 this.rotationPitch = (float)((double)this.rotationPitch + (this.newRotationPitch - (double)this.rotationPitch) / (double)this.newPosRotationIncrements);
                 --this.newPosRotationIncrements;
@@ -658,16 +660,20 @@ namespace SpoongePE.Core.Game.entity
 
         }
 
-        protected void updatePlayerActionState()
+        protected virtual void updatePlayerActionState()
         {
             ++this.entityAge;
+		
             EntityPlayer var1 = this.world.getClosestPlayerToEntity(this, -1.0D);
+		
            // this.despawnEntity();
             this.moveStrafing = 0.0F;
             this.moveForward = 0.0F;
             float var2 = 8.0F;
+		
             if (this.rand.NextSingle() < 0.02F)
             {
+		
                 var1 = this.world.getClosestPlayerToEntity(this, (double)var2);
                 if (var1 != null)
                 {
@@ -678,8 +684,9 @@ namespace SpoongePE.Core.Game.entity
                 {
                     this.randomYawVelocity = (this.rand.NextSingle() - 0.5F) * 20.0F;
                 }
+		
             }
-
+		
             if (this.currentTarget != null)
             {
                 this.faceEntity(this.currentTarget, 10.0F, (float)this.getVerticalFaceSpeed());
@@ -698,14 +705,14 @@ namespace SpoongePE.Core.Game.entity
                 this.rotationYaw += this.randomYawVelocity;
                 this.rotationPitch = this.defaultPitch;
             }
-
+		
             bool var3 = this.isInWater();
             bool var4 = this.handleLavaMovement();
             if (var3 || var4)
             {
                 this.isJumping = this.rand.NextSingle() < 0.8F;
             }
-
+		
         }
         protected bool isMovementBlocked() => this.health <= 0;
 
