@@ -150,12 +150,13 @@ public abstract class Entity
         prevRotationPitch += rotationPitch - var3;
         prevRotationYaw += rotationYaw - var4;
     }
-    public void onUpdate()
+    public virtual void onUpdate()
     {
         onEntityUpdate();
+
     }
 
-    public void onEntityUpdate()
+    public virtual void onEntityUpdate()
     {
         if (ridingEntity != null && ridingEntity.isDead)
         {

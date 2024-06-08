@@ -92,7 +92,7 @@ public class GameServer : IConnectionHandler
             Seed = ServerWorld.World.Seed,
             Pos = newPlayer.Position,
             EntityId = newPlayer.EntityID,
-            Gamemode = newPlayer.inCreative ? 1 : 0,
+            Gamemode = 1,
         }
         );
 

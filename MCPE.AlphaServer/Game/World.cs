@@ -816,7 +816,7 @@ public class World
 
     internal EntityPlayer getClosestPlayerToEntity(Entity var1, double var2)
     {
-        return this.getClosestPlayer(var1.posX, var1.posY, var1.posZ, var2);
+        return null; //this.getClosestPlayer(var1.posX, var1.posY, var1.posZ, var2);
     }
     public EntityPlayer getClosestPlayer(double var1, double var3, double var5, double var7)
     {
@@ -1104,16 +1104,17 @@ public class World
 
     internal void updateEntities()
     {
+	Console.WriteLine(this.EntityList.Count);
         for (int var1 = 0; var1 < this.EntityList.Count; ++var1)
         {
             Entity var2 = this.EntityList[var1];
 
-            if (!var2.isDead)
-            {
+            //if (!var2.isDead)
+            //{
                 this.updateEntity(var2);
-            }
+            //}
 
-            if (var2.isDead)
+            /*if (var2.isDead)
             {
                 int var3 = var2.chunkCoordX;
                 int var4 = var2.chunkCoordZ;
@@ -1124,7 +1125,7 @@ public class World
 
                 this.EntityList.RemoveAt(var1--);
                 this.releaseEntitySkin(var2);
-            }
+            }*/
         }
     }
 
@@ -1138,14 +1139,14 @@ public class World
         int var3 = MathHelper.floor_double(var1.posX);
         int var4 = MathHelper.floor_double(var1.posZ);
         byte var5 = 32;
-        if (!var2 || this.checkChunksExist(var3 - var5, 0, var4 - var5, var3 + var5, 128, var4 + var5))
+        if (true || !var2 || this.checkChunksExist(var3 - var5, 0, var4 - var5, var3 + var5, 128, var4 + var5))
         {
             var1.lastTickPosX = var1.posX;
             var1.lastTickPosY = var1.posY;
             var1.lastTickPosZ = var1.posZ;
             var1.prevRotationYaw = var1.rotationYaw;
             var1.prevRotationPitch = var1.rotationPitch;
-            if (var2 && var1.addedToChunk)
+            if (true || var2 && var1.addedToChunk)
             {
               /*  if (var1.ridingEntity != null)
                 {
