@@ -1,6 +1,6 @@
 # MCPE.AlphaServer
 
-This is a Minecraft Pocket Edition server targeted for MinecraftPE Alpha v0.8.1.
+This is a Minecraft Pocket Edition server targeted for MinecraftPE Alpha v0.8.1. Currently it is better than [NostalgiaCore](https://github.com/kotyaralih/NostalgiaCore).
 
 The goal is to replace/provide a better documented alternative PocketMine, as it was made in PHP with little understanding of how the internals actually work.
 
