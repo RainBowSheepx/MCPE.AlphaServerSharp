@@ -310,7 +310,7 @@ namespace SpoongePE.Core.Game.player
 
             return var2;
         }
-        public new void readEntityFromNBT(NbtCompound var1)
+        protected override void readEntityFromNBT(NbtCompound var1)
         {
             base.readEntityFromNBT(var1);
             NbtList var2 = var1.Get<NbtList>("Inventory");
@@ -330,7 +330,7 @@ namespace SpoongePE.Core.Game.player
             }
         }
 
-        public new void writeEntityToNBT(NbtCompound var1)
+        protected override void writeEntityToNBT(NbtCompound var1)
         {
             base.writeEntityToNBT(var1);
             NbtList inv = new NbtList("Inventory");

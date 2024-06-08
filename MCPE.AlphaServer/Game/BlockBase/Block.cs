@@ -212,7 +212,7 @@ public abstract class Block
 
     public virtual void onBlockAdded(World world, int x, int y, int z)
     {
-
+        
     }
 
     public void onRemove(World world, int x, int y, int z)
@@ -320,11 +320,14 @@ public abstract class Block
 
 
 
-    public bool renderAsNormalBlock()
+    public bool renderAsNormalBlock() 
     {
         return true;
     }
-
+    public bool isOpaqueCube()
+    {
+        return true;
+    }
     public bool canCollideCheck(int var1, bool var2)
     {
         return isCollidable();

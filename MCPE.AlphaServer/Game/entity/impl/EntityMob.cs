@@ -86,12 +86,12 @@ namespace SpoongePE.Core.Game.entity.impl
             return 0.5F - this.world.getLightBrightness(var1, var2, var3);
         }
 
-        public new void writeEntityToNBT(NbtCompound var1)
+        protected override void writeEntityToNBT(NbtCompound var1)
         {
             base.writeEntityToNBT(var1);
         }
 
-        public new void readEntityFromNBT(NbtCompound var1)
+        protected override void readEntityFromNBT(NbtCompound var1)
         {
             base.readEntityFromNBT(var1);
         }

@@ -108,7 +108,7 @@ public class World
 
 
         this.players.Remove(eid);
-        
+        this.releaseEntitySkin(player);
         /*  RemoveEntityPacket pk = new RemoveEntityPacket();
           pk.EntityId = eid;
           foreach (Player p in this.players.Values)
@@ -487,7 +487,7 @@ public class World
 
             this._chunks[var2, var3].addEntity(var1);
             this.EntityList.Add(var1);
-           // this.obtainEntitySkin(var1);
+            this.obtainEntitySkin(var1);
             return true;
         }
     }
@@ -1123,7 +1123,7 @@ public class World
                 }
 
                 this.EntityList.RemoveAt(var1--);
-               // this.ReleaseEntitySkin(var2);
+                this.releaseEntitySkin(var2);
             }
         }
     }
@@ -1229,6 +1229,21 @@ public class World
     }
 
     internal void createExplosion(Entity entity, float posX, float posY, float posZ, float var1)
+    {
+        throw new NotImplementedException();
+    }
+
+    internal Material getBlockMaterial(int xPosition, int v1, int v2)
+    {
+        throw new NotImplementedException();
+    }
+
+    internal bool canBlockBePlacedAt(int blockID, int var1, int var2, int var3, bool v1, int v2)
+    {
+        throw new NotImplementedException();
+    }
+
+    internal bool setBlockWithNotify(int var1, int var2, int var3, int blockID)
     {
         throw new NotImplementedException();
     }

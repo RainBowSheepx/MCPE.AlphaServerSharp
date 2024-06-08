@@ -61,12 +61,12 @@ namespace SpoongePE.Core.Game.entity.impl
         {
         }
 
-        public new void writeEntityToNBT(NbtCompound var1)
+        protected override void writeEntityToNBT(NbtCompound var1)
         {
             base.writeEntityToNBT(var1);
         }
 
-        public new void readEntityFromNBT(NbtCompound var1)
+        protected override void readEntityFromNBT(NbtCompound var1)
         {
             base.readEntityFromNBT(var1);
         }

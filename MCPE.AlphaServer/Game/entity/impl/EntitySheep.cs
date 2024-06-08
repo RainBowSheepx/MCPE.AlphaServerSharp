@@ -63,14 +63,14 @@ namespace SpoongePE.Core.Game.entity.impl
             return false;
         }
 
-        public new void writeEntityToNBT(NbtCompound var1)
+        protected override void writeEntityToNBT(NbtCompound var1)
         {
             base.writeEntityToNBT(var1);
             var1.Add(new NbtByte("Sheared", this.getSheared() ? (byte)1 : (byte)0));
             var1.Add(new NbtByte("Color",(byte)this.getFleeceColor()));
         }
 
-        public new void readEntityFromNBT(NbtCompound var1)
+        protected override void readEntityFromNBT(NbtCompound var1)
         {
             base.readEntityFromNBT(var1);
             this.setSheared(var1["Sheared"].ByteValue == 1 ? true : false);

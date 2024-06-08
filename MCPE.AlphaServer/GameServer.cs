@@ -189,7 +189,7 @@ public class GameServer : IConnectionHandler
     //public virtual void HandleChunkData(RakNetClient client, ChunkDataPacket packet) { }
     public virtual void HandlePlayerEquipment(RakNetClient client, PlayerEquipmentPacket packet)
     {
-        Logger.PInfo($"Slot: {packet.Slot} Block: {packet.Block} Meta: {packet.Meta} EntID: {packet.EntityId}");
+        Logger.PInfo($"Slot: {packet.Slot} Block: {packet.Item} Meta: {packet.Meta} EntID: {packet.EntityId}");
     }
     //public virtual void HandlePlayerArmorEquipment(RakNetClient client, PlayerArmorEquipmentPacket packet) { }
     //public virtual void HandleInteract(RakNetClient client, InteractPacket packet) { }

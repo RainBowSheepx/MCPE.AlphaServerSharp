@@ -14,13 +14,13 @@ namespace SpoongePE.Core.Game.entity.impl
 
 
 
-        public new void writeEntityToNBT(NbtCompound var1)
+        protected override void writeEntityToNBT(NbtCompound var1)
         {
             base.writeEntityToNBT(var1);
             var1.Add(new NbtByte("Saddle", this.getSaddled() ? (byte)1 : (byte)0));
         }
 
-        public new void readEntityFromNBT(NbtCompound var1)
+        protected override void readEntityFromNBT(NbtCompound var1)
         {
             base.readEntityFromNBT(var1);
             this.setSaddled(var1["Saddle"].ByteValue == 1 ? true : false);

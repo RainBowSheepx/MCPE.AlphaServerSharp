@@ -84,6 +84,11 @@ namespace SpoongePE.Core.Game.material
             return false;
         }
 
+        internal bool IsSolid()
+        {
+            throw new NotImplementedException();
+        }
+
         public bool isFlameable = false; //MCPE Offset: 4
         public bool isSolid = true;
         private bool isOpaque = true;

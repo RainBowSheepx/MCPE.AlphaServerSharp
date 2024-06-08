@@ -30,6 +30,32 @@ public enum EntityDataKey
     SleepPosition = 17
 }
 
+public enum EntityTypeID
+{
+    Player = 1,
+
+    Chicken = 10,
+    Cow = 11,
+    Pig = 12,
+    Sheep = 13,
+
+    Zombie = 32,
+    Creeper = 33,
+    Skeleton = 34,
+    Spider = 35,
+    PigZombie = 36,
+
+    Arrow = 80,
+    Snowball = 81,
+    //AddMapping EntityEgg here
+    Painting = 83,
+    Minecart = 84,
+    PrimedTnt = 20,
+
+    Item = 64,
+    FallingSand = 66,
+}
+
 public class EntityData
 {
     class EntityDataHolder

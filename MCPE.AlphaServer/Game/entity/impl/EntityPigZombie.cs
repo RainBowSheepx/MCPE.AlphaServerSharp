@@ -30,13 +30,13 @@ namespace SpoongePE.Core.Game.entity.impl
             return this.world.difficultySetting > 0 && this.world.checkIfAABBIsClear(this.boundingBox) && this.world.getCollidingBoundingBoxes(this, this.boundingBox).Count == 0 && !this.world.getIsAnyLiquid(this.boundingBox);
         }
 
-        public new void writeEntityToNBT(NbtCompound var1)
+        protected override void writeEntityToNBT(NbtCompound var1)
         {
             base.writeEntityToNBT(var1);
             var1.Add(new NbtShort("Anger", (short)this.angerLevel));
         }
 
-        public new void readEntityFromNBT(NbtCompound var1)
+        protected override void readEntityFromNBT(NbtCompound var1)
         {
             base.readEntityFromNBT(var1);
             this.angerLevel = var1["Anger"].ShortValue;

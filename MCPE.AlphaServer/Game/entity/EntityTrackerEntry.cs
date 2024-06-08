@@ -87,15 +87,15 @@ namespace SpoongePE.Core.Game.entity
                 {
                     if (var11 && var12)
                     {
-                  //      var10 = new Packet33RelEntityMoveLook(this.trackedEntity.entityId, (byte)var7, (byte)var8, (byte)var9, (byte)var5, (byte)var6);
+                         var10 = new MoveEntityPosRotPacket(this.trackedEntity, (byte)var7, (byte)var8, (byte)var9, (byte)var5, (byte)var6);
                     }
                     else if (var11)
                     {
-                       // var10 = new Packet31RelEntityMove(this.trackedEntity.entityId, (byte)var7, (byte)var8, (byte)var9);
+                         var10 = new MoveEntityPosRotPacket(this.trackedEntity, (byte)var7, (byte)var8, (byte)var9);
                     }
                     else if (var12)
                     {
-                      //  var10 = new Packet32EntityLook(this.trackedEntity.entityId, (byte)var5, (byte)var6);
+                          var10 = new MoveEntityPosRotPacket(this.trackedEntity, (byte)var5, (byte)var6);
                     }
                 }
                 else
@@ -104,7 +104,7 @@ namespace SpoongePE.Core.Game.entity
                     this.trackedEntity.posX = var2 / 32.0f;
                     this.trackedEntity.posY = var3 / 32.0f;
                     this.trackedEntity.posZ = var4 / 32.0f;
-                  //  var10 = new Packet34EntityTeleport(this.trackedEntity.entityId, var2, var3, var4, (byte)var5, (byte)var6);
+                    var10 = new MoveEntityPosRotPacket(this.trackedEntity.EntityID, var2, var3, var4, (byte)var5, (byte)var6);
                 }
 
                 if (this.shouldSendMotionUpdates)
@@ -119,20 +119,20 @@ namespace SpoongePE.Core.Game.entity
                         this.lastTrackedEntityMotionX = this.trackedEntity.motionX;
                         this.lastTrackedEntityMotionY = this.trackedEntity.motionY;
                         this.lastTrackedEntityMotionZ = this.trackedEntity.motionZ;
-                       // this.sendPacketToTrackedPlayers(new Packet28EntityVelocity(this.trackedEntity.entityId, this.lastTrackedEntityMotionX, this.lastTrackedEntityMotionY, this.lastTrackedEntityMotionZ));
+                        this.sendPacketToTrackedPlayers(new SetEntityMotionPacket(this.trackedEntity.EntityID, this.lastTrackedEntityMotionX, this.lastTrackedEntityMotionY, this.lastTrackedEntityMotionZ));
                     }
                 }
 
                 if (var10 != null)
                 {
-                  //  this.sendPacketToTrackedPlayers((Packet)var10);
+                      this.sendPacketToTrackedPlayers(var10);
                 }
-/*
-                DataWatcher var23 = this.trackedEntity.getDataWatcher();
-                if (var23.hasObjectChanged())
-                {
-                    this.sendPacketToTrackedPlayersAndTrackedEntity(new Packet40EntityMetadata(this.trackedEntity.entityId, var23));
-                }*/
+                /*
+                                DataWatcher var23 = this.trackedEntity.getDataWatcher(); // need SyncedEntityData
+                                if (var23.hasObjectChanged())
+                                {
+                                    this.sendPacketToTrackedPlayersAndTrackedEntity(new Packet40EntityMetadata(this.trackedEntity.entityId, var23));
+                                }*/
 
                 if (var11)
                 {
@@ -150,7 +150,7 @@ namespace SpoongePE.Core.Game.entity
 
             if (this.trackedEntity.beenAttacked)
             {
-              //  this.sendPacketToTrackedPlayersAndTrackedEntity(new Packet28EntityVelocity(this.trackedEntity));
+                this.sendPacketToTrackedPlayersAndTrackedEntity(new SetEntityMotionPacket(this.trackedEntity));
                 this.trackedEntity.beenAttacked = false;
             }
 
@@ -167,7 +167,8 @@ namespace SpoongePE.Core.Game.entity
         public void sendPacketToTrackedPlayersAndTrackedEntity(MinecraftPacket var1)
         {
             this.sendPacketToTrackedPlayers(var1);
-            if (this.trackedEntity is Player) {
+            if (this.trackedEntity is Player)
+            {
                 ((Player)this.trackedEntity).Send(var1);
             }
 
@@ -175,7 +176,7 @@ namespace SpoongePE.Core.Game.entity
 
         public void sendDestroyEntityPacketToTrackedPlayers()
         {
-           // this.sendPacketToTrackedPlayers(new Packet29DestroyEntity(this.trackedEntity.entityId));
+            this.sendPacketToTrackedPlayers(new RemoveEntityPacket(this.trackedEntity.EntityID));
         }
 
         public void removeFromTrackedPlayers(Player var1)
@@ -198,10 +199,11 @@ namespace SpoongePE.Core.Game.entity
                     if (!this.trackedPlayers.Contains(var1))
                     {
                         this.trackedPlayers.Add(var1);
+                       
                         var1.Send(this.getSpawnPacket());
                         if (this.shouldSendMotionUpdates)
                         {
-                         //   var1.playerNetServerHandler.sendPacket(new Packet28EntityVelocity(this.trackedEntity.entityId, this.trackedEntity.motionX, this.trackedEntity.motionY, this.trackedEntity.motionZ));
+                           var1.Send(new SetEntityMotionPacket(this.trackedEntity.EntityID, this.trackedEntity.motionX, this.trackedEntity.motionY, this.trackedEntity.motionZ));
                         }
 
                         ItemStack[] var6 = this.trackedEntity.getInventory();
@@ -209,15 +211,16 @@ namespace SpoongePE.Core.Game.entity
                         {
                             for (int var7 = 0; var7 < var6.Length; ++var7)
                             {
-                               // var1.playerNetServerHandler.sendPacket(new Packet5PlayerInventory(this.trackedEntity.entityId, var7, var6[var7]));
+                                 var1.Send(new PlayerEquipmentPacket(this.trackedEntity.EntityID, var7, var6[var7]));
                             }
                         }
 
-                        if (this.trackedEntity is EntityPlayer) {
+                        if (this.trackedEntity is EntityPlayer)
+                        {
                             EntityPlayer var8 = (EntityPlayer)this.trackedEntity;
                             if (var8.isPlayerSleeping())
                             {
-                               // var1.playerNetServerHandler.sendPacket(new Packet17Sleep(this.trackedEntity, 0, MathHelper.floor_double(this.trackedEntity.posX), MathHelper.floor_double(this.trackedEntity.posY), MathHelper.floor_double(this.trackedEntity.posZ)));
+                              // var1.Send(new SetEntityDataPacket(this.trackedEntity, 0, MathHelper.floor_double(this.trackedEntity.posX), MathHelper.floor_double(this.trackedEntity.posY), MathHelper.floor_double(this.trackedEntity.posZ)));
                             }
                         }
                     }
@@ -225,7 +228,7 @@ namespace SpoongePE.Core.Game.entity
                 else if (this.trackedPlayers.Contains(var1))
                 {
                     this.trackedPlayers.Remove(var1);
-                 //   var1.playerNetServerHandler.sendPacket(new Packet29DestroyEntity(this.trackedEntity.entityId));
+                       var1.Send(new RemoveEntityPacket(this.trackedEntity.EntityID));
                 }
 
             }
@@ -242,71 +245,76 @@ namespace SpoongePE.Core.Game.entity
 
         private MinecraftPacket getSpawnPacket()
         {
-/*                        if (this.trackedEntity is EntityItem) {
-                            EntityItem var6 = (EntityItem)this.trackedEntity;
-                            AddItemEntityPacket var7 = new AddItemEntityPacket(var6);
-                            
-                            var6.posX = var7.Pos.X / 32.0f;
-                            var6.posY = var7.Pos.Y / 32.0f;
-                            var6.posZ = var7.Pos.Z / 32.0f;
-                            return var7;
-                        } else if (this.trackedEntity is Player) {
-                            return new AddPlayerPacket((EntityPlayer)this.trackedEntity);
-                        } else
-                        {
-                            if (this.trackedEntity is EntityMinecart) {
-                                EntityMinecart var1 = (EntityMinecart)this.trackedEntity;
-                                if (var1.minecartType == 0)
-                                {
-                                    return new Packet23VehicleSpawn(this.trackedEntity, 10);
-                                }
+            if (this.trackedEntity is EntityItem)
+            {
+                EntityItem var6 = (EntityItem)this.trackedEntity;
+                AddItemEntityPacket var7 = new AddItemEntityPacket(var6);
 
-                                if (var1.minecartType == 1)
-                                {
-                                    return new Packet23VehicleSpawn(this.trackedEntity, 11);
-                                }
+                var6.posX = var7.Pos.X / 32.0f;
+                var6.posY = var7.Pos.Y / 32.0f;
+                var6.posZ = var7.Pos.Z / 32.0f;
+                return var7;
+            }
+            else
+            {
+                if (this.trackedEntity is EntityMinecart)
+                {
+                    EntityMinecart var1 = (EntityMinecart)this.trackedEntity;
+                    if (var1.minecartType == 0)
+                    {
+                        return new AddEntityPacket(this.trackedEntity);
+                    }
 
-                                if (var1.minecartType == 2)
-                                {
-                                    return new Packet23VehicleSpawn(this.trackedEntity, 12);
-                                }
-                            }
+/*                    if (var1.minecartType == 1)
+                    {
+                        return new Packet23VehicleSpawn(this.trackedEntity, 11);
+                    }
 
-                             if (this.trackedEntity is IAnimals) {
-                                return new Packet24MobSpawn((EntityLiving)this.trackedEntity);
-                            } else if (this.trackedEntity is EntityArrow) {
-                                EntityLiving var5 = ((EntityArrow)this.trackedEntity).owner;
-                                return new Packet23VehicleSpawn(this.trackedEntity, 60, var5 != null ? var5.entityId : this.trackedEntity.entityId);
-                            } else if (this.trackedEntity is EntitySnowball) {
-                                return new Packet23VehicleSpawn(this.trackedEntity, 61);
-                            } else if (this.trackedEntity is EntityEgg) {
-                                return new Packet23VehicleSpawn(this.trackedEntity, 62);
-                            } else if (this.trackedEntity is EntityTNTPrimed) {
-                                return new Packet23VehicleSpawn(this.trackedEntity, 50);
-                            } else
-                            {
-                                if (this.trackedEntity is EntityFallingSand) {
-                                    EntityFallingSand var3 = (EntityFallingSand)this.trackedEntity;
-                                    if (var3.blockID == Block.sand.blockID)
-                                    {
-                                        return new Packet23VehicleSpawn(this.trackedEntity, 70);
-                                    }
+                    if (var1.minecartType == 2)
+                    {
+                        return new Packet23VehicleSpawn(this.trackedEntity, 12);
+                    }*/
+                }
 
-                                    if (var3.blockID == Block.gravel.blockID)
-                                    {
-                                        return new Packet23VehicleSpawn(this.trackedEntity, 71);
-                                    }
-                                }
+                if (this.trackedEntity is IAnimals)
+                {
+                    return new AddMobPacket((EntityLiving)this.trackedEntity);
+                }
+                else if (this.trackedEntity is EntityArrow)
+                {
+                    // EntityLiving var5 = ((EntityArrow)this.trackedEntity).owner;
+                    return new AddEntityPacket(this.trackedEntity); // need owner fix
+                }
+                else if (this.trackedEntity is EntitySnowball)
+                {
+                    return new AddEntityPacket(this.trackedEntity);
+                }
+                else if (this.trackedEntity is EntityEgg)
+                {
+                    return new AddEntityPacket(this.trackedEntity);
+                }
+                else if (this.trackedEntity is EntityTNTPrimed)
+                {
+                    return new AddEntityPacket(this.trackedEntity);
+                }
+                else
+                {
+                    if (this.trackedEntity is EntityFallingSand)
+                    {
+                       // EntityFallingSand var3 = (EntityFallingSand)this.trackedEntity;
+                        return new AddEntityPacket(this.trackedEntity); // need sand/gravel check
+                    }
 
-                                if (this.trackedEntity is EntityPainting) {
-                                    return new Packet25EntityPainting((EntityPainting)this.trackedEntity);
-                                } else
-                                {
-                                    throw new ArgumentException("Don\'t know how to add " + this.trackedEntity.getClass() + "!");
-                                }
-                            }
-                        }*/
-            return null;
+                    if (this.trackedEntity is EntityPainting)
+                    {
+                        return new AddPaintingPacket((EntityPainting)this.trackedEntity);
+                    }
+                    else
+                    {
+                        throw new ArgumentException("Don\'t know how to add " + this.trackedEntity.GetType().Name + "!");
+                    }
+                }
+            }
         }
 
         public void removeTrackedPlayerSymmetric(Player var1)
@@ -314,7 +322,7 @@ namespace SpoongePE.Core.Game.entity
             if (this.trackedPlayers.Contains(var1))
             {
                 this.trackedPlayers.Remove(var1);
-              //  var1.Send(new Packet29DestroyEntity(this.trackedEntity.entityId));
+                var1.Send(new RemovePlayerPacket() { EntityId = var1.EntityID, PlayerId = var1.PlayerID });
             }
 
         }

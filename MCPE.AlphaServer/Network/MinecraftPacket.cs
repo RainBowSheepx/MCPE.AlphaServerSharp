@@ -1,4 +1,5 @@
-﻿using SpoongePE.Core.Game.entity.impl;
+﻿using SpoongePE.Core.Game.entity;
+using SpoongePE.Core.Game.entity.impl;
 using SpoongePE.Core.Game.ItemBase;
 using SpoongePE.Core.Game.utils;
 using SpoongePE.Core.RakNet;
@@ -7,19 +8,22 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
+using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace SpoongePE.Core.Network;
 
-public class LoginRequestPacket : MinecraftPacket {
+public class LoginRequestPacket : MinecraftPacket
+{
     public string Username;
     public int Protocol1;
     public int Protocol2;
     public uint ClientId;
     public string RealmsData;
 
-    public override void Decode(ref DataReader reader) {
+    public override void Decode(ref DataReader reader)
+    {
         reader.Byte(); // Packet type.
         Username = reader.String();
         Protocol1 = reader.Int();
@@ -28,7 +32,8 @@ public class LoginRequestPacket : MinecraftPacket {
         RealmsData = reader.String();
     }
 
-    public override void Encode(ref DataWriter writer) {
+    public override void Encode(ref DataWriter writer)
+    {
         writer.Byte((byte)MinecraftPacketType.LoginRequest);
         writer.String(Username);
         writer.Int(Protocol1);
@@ -38,26 +43,31 @@ public class LoginRequestPacket : MinecraftPacket {
     }
 }
 
-public class LoginResponsePacket : MinecraftPacket {
+public class LoginResponsePacket : MinecraftPacket
+{
     public LoginStatus Status;
 
-    public override void Decode(ref DataReader reader) {
+    public override void Decode(ref DataReader reader)
+    {
         reader.Byte(); // Packet type.
         Status = (LoginStatus)reader.Int();
     }
 
-    public override void Encode(ref DataWriter writer) {
+    public override void Encode(ref DataWriter writer)
+    {
         writer.Byte((byte)MinecraftPacketType.LoginResponse);
         writer.Int((int)Status);
     }
 
-    public enum LoginStatus : int {
+    public enum LoginStatus : int
+    {
         VersionsMatch,
         ClientOutdated,
         ServerOutdated,
     }
 
-    public static LoginStatus StatusFor(int protocol1, int protocol2, int version) {
+    public static LoginStatus StatusFor(int protocol1, int protocol2, int version)
+    {
         if (protocol1 != protocol2 || protocol1 < version)
             return LoginStatus.ClientOutdated;
         if (protocol1 > version)
@@ -66,60 +76,71 @@ public class LoginResponsePacket : MinecraftPacket {
     }
 }
 
-public class ReadyPacket : MinecraftPacket {
+public class ReadyPacket : MinecraftPacket
+{
     public byte Status;
 
-    public override void Decode(ref DataReader reader) {
+    public override void Decode(ref DataReader reader)
+    {
         reader.Byte(); // Packet type.
         Status = reader.Byte();
     }
 
-    public override void Encode(ref DataWriter writer) {
+    public override void Encode(ref DataWriter writer)
+    {
         writer.Byte((byte)MinecraftPacketType.Ready);
         writer.Byte(Status);
     }
 }
 
-public class MessagePacket : MinecraftPacket {
+public class MessagePacket : MinecraftPacket
+{
     public string Username;
     public string Message;
 
-    public override void Decode(ref DataReader reader) {
+    public override void Decode(ref DataReader reader)
+    {
         reader.Byte(); // Packet type.
         Username = reader.String();
         Message = reader.String();
     }
 
-    public override void Encode(ref DataWriter writer) {
+    public override void Encode(ref DataWriter writer)
+    {
         writer.Byte((byte)MinecraftPacketType.Message);
         writer.String(Username);
         writer.String(Message);
     }
 }
 
-public class SetTimePacket : MinecraftPacket {
+public class SetTimePacket : MinecraftPacket
+{
     public int Time;
     public bool started = true; // From PMMP
-    public override void Decode(ref DataReader reader) {
+    public override void Decode(ref DataReader reader)
+    {
         reader.Byte(); // Packet type.
         Time = reader.Int();
     }
 
-    public override void Encode(ref DataWriter writer) {
+    public override void Encode(ref DataWriter writer)
+    {
         writer.Byte((byte)MinecraftPacketType.SetTime);
         writer.Int(Time);
         writer.Byte(started == true ? (byte)0x80 : (byte)0x00); // From PMMP
     }
 }
 
-public class StartGamePacket : MinecraftPacket {
+public class StartGamePacket : MinecraftPacket
+{
     public int Seed;
     public int GeneratorVersion;
     public int Gamemode;
     public int EntityId;
     public Vector3 Pos;
 
-    public override void Decode(ref DataReader reader) {
+    public override void Decode(ref DataReader reader)
+    {
         reader.Byte(); // Packet type.
         Seed = reader.Int();
         GeneratorVersion = reader.Int();
@@ -128,7 +149,8 @@ public class StartGamePacket : MinecraftPacket {
         Pos = reader.Vector3();
     }
 
-    public override void Encode(ref DataWriter writer) {
+    public override void Encode(ref DataWriter writer)
+    {
         writer.Byte((byte)MinecraftPacketType.StartGame);
         writer.Int(Seed);
         writer.Int(GeneratorVersion);
@@ -138,7 +160,8 @@ public class StartGamePacket : MinecraftPacket {
     }
 }
 
-public class AddMobPacket : MinecraftPacket {
+public class AddMobPacket : MinecraftPacket
+{
     public int EntityId;
     public int MobType;
     public Vector3 Pos;
@@ -147,7 +170,20 @@ public class AddMobPacket : MinecraftPacket {
     public byte Pitch;
     // public SyncedEntityData Metadata;
 
-    public override void Decode(ref DataReader reader) {
+
+    public AddMobPacket() { }
+
+    public AddMobPacket(EntityLiving ent)
+    {
+        EntityId = ent.EntityID;
+        MobType = EntityList.GetEntityID(ent);
+        Pos = new Vector3(ent.posX, ent.posY, ent.posZ);
+        Yaw = (byte)ent.rotationYaw;
+        Pitch = (byte)ent.rotationPitch;
+    }
+
+    public override void Decode(ref DataReader reader)
+    {
         reader.Byte(); // Packet type.
         EntityId = reader.Int();
         MobType = reader.Int();
@@ -157,7 +193,8 @@ public class AddMobPacket : MinecraftPacket {
         // Metadata = default; // TODO
     }
 
-    public override void Encode(ref DataWriter writer) {
+    public override void Encode(ref DataWriter writer)
+    {
         writer.Byte((byte)MinecraftPacketType.AddMob);
         writer.Int(EntityId);
         writer.Int(MobType);
@@ -168,7 +205,8 @@ public class AddMobPacket : MinecraftPacket {
     }
 }
 
-public class AddPlayerPacket : MinecraftPacket {
+public class AddPlayerPacket : MinecraftPacket
+{
     public ulong PlayerId;
     public string Username;
     public int EntityId;
@@ -184,7 +222,8 @@ public class AddPlayerPacket : MinecraftPacket {
         0x00, 0x00, 0x00, 0x00, 0x7f
     };
 
-    public override void Decode(ref DataReader reader) {
+    public override void Decode(ref DataReader reader)
+    {
         reader.Byte(); // Packet type.
         PlayerId = reader.ULong();
         Username = reader.String();
@@ -195,10 +234,11 @@ public class AddPlayerPacket : MinecraftPacket {
         ItemId = reader.UShort();
         ItemAuxValue = reader.UShort();
         Metadata = reader.Remaining().ToArray();
-       
+
     }
 
-    public override void Encode(ref DataWriter writer) {
+    public override void Encode(ref DataWriter writer)
+    {
         writer.Byte((byte)MinecraftPacketType.AddPlayer);
         writer.ULong(PlayerId);
         writer.String(Username);
@@ -212,31 +252,54 @@ public class AddPlayerPacket : MinecraftPacket {
     }
 }
 
-public class RemovePlayerPacket : MinecraftPacket {
+public class RemovePlayerPacket : MinecraftPacket
+{
     public int EntityId;
     public ulong PlayerId;
 
-    public override void Decode(ref DataReader reader) {
+    public override void Decode(ref DataReader reader)
+    {
         reader.Byte(); // Packet type.
         EntityId = reader.Int();
         PlayerId = reader.ULong();
     }
 
-    public override void Encode(ref DataWriter writer) {
+    public override void Encode(ref DataWriter writer)
+    {
         writer.Byte((byte)MinecraftPacketType.RemovePlayer);
         writer.Int(EntityId);
         writer.ULong(PlayerId);
     }
 }
 
-public class AddEntityPacket : MinecraftPacket {
+public class AddEntityPacket : MinecraftPacket
+{
     public int EntityId;
     public byte EntityType;
     public Vector3 Pos;
     public int Moved;
     public Vector3 Velocity;
 
-    public override void Decode(ref DataReader reader) {
+    public AddEntityPacket() { }
+
+
+    public AddEntityPacket(Entity ent)
+    {
+        EntityId = ent.EntityID;
+        EntityType = (byte)EntityList.GetEntityID(ent);
+        Pos = new Vector3(ent.posX, ent.posY, ent.posZ);
+        Moved = 0;
+        if (ent.motionX + ent.motionY + ent.motionZ > 0) // check
+        {
+            Moved = 1;
+            Velocity = new Vector3(ent.motionX, ent.motionY, ent.motionZ);
+        }
+
+    }
+
+
+    public override void Decode(ref DataReader reader)
+    {
         reader.Byte(); // Packet type.
         EntityId = reader.Int();
         EntityType = reader.Byte();
@@ -246,7 +309,8 @@ public class AddEntityPacket : MinecraftPacket {
             Velocity = reader.Vector3();
     }
 
-    public override void Encode(ref DataWriter writer) {
+    public override void Encode(ref DataWriter writer)
+    {
         writer.Byte((byte)MinecraftPacketType.AddEntity);
         writer.Int(EntityId);
         writer.Byte(EntityType);
@@ -257,21 +321,32 @@ public class AddEntityPacket : MinecraftPacket {
     }
 }
 
-public class RemoveEntityPacket : MinecraftPacket {
+public class RemoveEntityPacket : MinecraftPacket
+{
     public int EntityId;
 
-    public override void Decode(ref DataReader reader) {
+    public RemoveEntityPacket() { }
+
+    public RemoveEntityPacket(int entityID)
+    {
+        EntityId = entityID;
+    }
+
+    public override void Decode(ref DataReader reader)
+    {
         reader.Byte(); // Packet type.
         EntityId = reader.Int();
     }
 
-    public override void Encode(ref DataWriter writer) {
+    public override void Encode(ref DataWriter writer)
+    {
         writer.Byte((byte)MinecraftPacketType.RemoveEntity);
         writer.Int(EntityId);
     }
 }
 
-public class AddItemEntityPacket : MinecraftPacket {
+public class AddItemEntityPacket : MinecraftPacket
+{
     public int EntityId;
 
     public ItemStack Item;
@@ -294,7 +369,8 @@ public class AddItemEntityPacket : MinecraftPacket {
         this.Roll = (byte)((int)(var1.motionZ * 128.0D));
     }
 
-    public override void Decode(ref DataReader reader) {
+    public override void Decode(ref DataReader reader)
+    {
         reader.Byte(); // Packet type.
         EntityId = reader.Int();
         Item = reader.Slot(); // TODO
@@ -304,7 +380,8 @@ public class AddItemEntityPacket : MinecraftPacket {
         Roll = reader.Byte();
     }
 
-    public override void Encode(ref DataWriter writer) {
+    public override void Encode(ref DataWriter writer)
+    {
         writer.Byte((byte)MinecraftPacketType.AddItemEntity);
         writer.Int(EntityId);
         writer.Slot(Item);
@@ -315,47 +392,89 @@ public class AddItemEntityPacket : MinecraftPacket {
     }
 }
 
-public class TakeItemEntityPacket : MinecraftPacket {
+public class TakeItemEntityPacket : MinecraftPacket
+{
     public int Target;
     public int EntityId;
 
-    public override void Decode(ref DataReader reader) {
+    public override void Decode(ref DataReader reader)
+    {
         reader.Byte(); // Packet type.
         Target = reader.Int();
         EntityId = reader.Int();
     }
 
-    public override void Encode(ref DataWriter writer) {
+    public override void Encode(ref DataWriter writer)
+    {
         writer.Byte((byte)MinecraftPacketType.TakeItemEntity);
         writer.Int(Target);
         writer.Int(EntityId);
     }
 }
 
-public class MoveEntityPacket : MinecraftPacket {
+public class MoveEntityPacket : MinecraftPacket
+{
     public int EntityId;
     public Vector3 Pos;
 
-    public override void Decode(ref DataReader reader) {
+    public override void Decode(ref DataReader reader)
+    {
         reader.Byte(); // Packet type.
         EntityId = reader.Int();
         Pos = reader.Vector3();
     }
 
-    public override void Encode(ref DataWriter writer) {
+    public override void Encode(ref DataWriter writer)
+    {
         writer.Byte((byte)MinecraftPacketType.MoveEntity);
         writer.Int(EntityId);
         writer.Vector3(Pos);
     }
 }
 
-public class MoveEntityPosRotPacket : MinecraftPacket {
+public class MoveEntityPosRotPacket : MinecraftPacket
+{
     public int EntityId;
     public Vector3 Pos;
     public byte Yaw;
     public byte Pitch;
 
-    public override void Decode(ref DataReader reader) {
+    public MoveEntityPosRotPacket() { }
+
+    public MoveEntityPosRotPacket(Entity ent, byte var5, byte var6) // alias Packet32EntityLook
+    {
+        EntityId = ent.EntityID;
+        Pos = new Vector3(ent.posX, ent.posY, ent.posZ);
+        Yaw = var5;
+        Pitch = var6;
+    }
+
+    public MoveEntityPosRotPacket(Entity ent, byte var5, byte var6, byte var9) // alias Packet31RelEntityMove
+    {
+        EntityId = ent.EntityID;
+        Pos = new Vector3(var5, var6, var9);
+        Yaw = (byte)ent.rotationYaw;
+        Pitch = (byte)ent.rotationPitch;
+    }
+    public MoveEntityPosRotPacket(Entity ent, byte var5, byte var6, byte var9, byte var51, byte var61) // alias Packet33RelEntityMoveLook
+    {
+        EntityId = ent.EntityID;
+        Pos = new Vector3(var5, var6, var9);
+        Yaw = var51;
+        Pitch = var61;
+    }
+    public MoveEntityPosRotPacket(int entityID, int var2, int var3, int var4, byte var5, byte var6) // alias Packet34EntityTeleport
+    {
+        EntityId = entityID;
+        Pos = new Vector3(var2, var3, var4);
+        Yaw = var5;
+        Pitch = var6;
+    }
+
+
+
+    public override void Decode(ref DataReader reader)
+    {
         reader.Byte(); // Packet type.
         EntityId = reader.Int();
         Pos = reader.Vector3();
@@ -363,7 +482,8 @@ public class MoveEntityPosRotPacket : MinecraftPacket {
         Pitch = reader.Byte();
     }
 
-    public override void Encode(ref DataWriter writer) {
+    public override void Encode(ref DataWriter writer)
+    {
         writer.Byte((byte)MinecraftPacketType.MoveEntityPosRot);
         writer.Int(EntityId);
         writer.Vector3(Pos);
@@ -372,36 +492,42 @@ public class MoveEntityPosRotPacket : MinecraftPacket {
     }
 }
 
-public class RotateHeadPacket : MinecraftPacket {
+public class RotateHeadPacket : MinecraftPacket
+{
     public int EntityId;
     public byte Yaw;
 
-    public override void Decode(ref DataReader reader) {
+    public override void Decode(ref DataReader reader)
+    {
         reader.Byte(); // Packet type.
         EntityId = reader.Int();
         Yaw = reader.Byte();
     }
 
-    public override void Encode(ref DataWriter writer) {
+    public override void Encode(ref DataWriter writer)
+    {
         writer.Byte((byte)MinecraftPacketType.RotateHead);
         writer.Int(EntityId);
         writer.Byte(Yaw);
     }
 }
 
-public class MovePlayerPacket : MinecraftPacket {
+public class MovePlayerPacket : MinecraftPacket
+{
     public int EntityId;
     public Vector3 Pos;
     public Vector3 Rot;
 
-    public override void Decode(ref DataReader reader) {
+    public override void Decode(ref DataReader reader)
+    {
         reader.Byte(); // Packet type.
         EntityId = reader.Int();
         Pos = reader.Vector3();
         Rot = reader.Vector3();
     }
 
-    public override void Encode(ref DataWriter writer) {
+    public override void Encode(ref DataWriter writer)
+    {
         writer.Byte((byte)MinecraftPacketType.MovePlayer);
         writer.Int(EntityId);
         writer.Vector3(Pos);
@@ -409,7 +535,8 @@ public class MovePlayerPacket : MinecraftPacket {
     }
 }
 
-public class PlaceBlockPacket : MinecraftPacket {
+public class PlaceBlockPacket : MinecraftPacket
+{
     public int EntityId;
     public int X;
     public int Z;
@@ -418,7 +545,8 @@ public class PlaceBlockPacket : MinecraftPacket {
     public byte Meta;
     public byte Face;
 
-    public override void Decode(ref DataReader reader) {
+    public override void Decode(ref DataReader reader)
+    {
         reader.Byte(); // Packet type.
         EntityId = reader.Int();
         X = reader.Int();
@@ -429,7 +557,8 @@ public class PlaceBlockPacket : MinecraftPacket {
         Face = reader.Byte();
     }
 
-    public override void Encode(ref DataWriter writer) {
+    public override void Encode(ref DataWriter writer)
+    {
         writer.Byte((byte)MinecraftPacketType.PlaceBlock);
         writer.Int(EntityId);
         writer.Int(X);
@@ -441,13 +570,15 @@ public class PlaceBlockPacket : MinecraftPacket {
     }
 }
 
-public class RemoveBlockPacket : MinecraftPacket {
+public class RemoveBlockPacket : MinecraftPacket
+{
     public int EntityId;
     public int X;
     public int Z;
     public byte Y;
 
-    public override void Decode(ref DataReader reader) {
+    public override void Decode(ref DataReader reader)
+    {
         reader.Byte(); // Packet type.
         EntityId = reader.Int();
         X = reader.Int();
@@ -455,7 +586,8 @@ public class RemoveBlockPacket : MinecraftPacket {
         Y = reader.Byte();
     }
 
-    public override void Encode(ref DataWriter writer) {
+    public override void Encode(ref DataWriter writer)
+    {
         writer.Byte((byte)MinecraftPacketType.RemoveBlock);
         writer.Int(EntityId);
         writer.Int(X);
@@ -464,7 +596,8 @@ public class RemoveBlockPacket : MinecraftPacket {
     }
 }
 
-public class UpdateBlockPacket : MinecraftPacket {
+public class UpdateBlockPacket : MinecraftPacket
+{
     public int EntityId;
     public int X;
     public int Z;
@@ -472,7 +605,8 @@ public class UpdateBlockPacket : MinecraftPacket {
     public byte Block;
     public byte Meta;
 
-    public override void Decode(ref DataReader reader) {
+    public override void Decode(ref DataReader reader)
+    {
         reader.Byte(); // Packet type.
         EntityId = reader.Int();
         X = reader.Int();
@@ -482,7 +616,8 @@ public class UpdateBlockPacket : MinecraftPacket {
         Meta = reader.Byte();
     }
 
-    public override void Encode(ref DataWriter writer) {
+    public override void Encode(ref DataWriter writer)
+    {
         writer.Byte((byte)MinecraftPacketType.UpdateBlock);
         writer.Int(EntityId);
         writer.Int(X);
@@ -493,14 +628,23 @@ public class UpdateBlockPacket : MinecraftPacket {
     }
 }
 
-public class AddPaintingPacket : MinecraftPacket {
+public class AddPaintingPacket : MinecraftPacket
+{
     public int EntityId;
     public int X;
     public int Y;
     public int Direction;
     public string Title;
 
-    public override void Decode(ref DataReader reader) {
+    public AddPaintingPacket() { }
+
+    public AddPaintingPacket(EntityPainting painting)
+    {
+
+    }
+
+    public override void Decode(ref DataReader reader)
+    {
         reader.Byte(); // Packet type.
         EntityId = reader.Int();
         X = reader.Int();
@@ -509,7 +653,8 @@ public class AddPaintingPacket : MinecraftPacket {
         Title = reader.String();
     }
 
-    public override void Encode(ref DataWriter writer) {
+    public override void Encode(ref DataWriter writer)
+    {
         writer.Byte((byte)MinecraftPacketType.AddPainting);
         writer.Int(EntityId);
         writer.Int(X);
@@ -519,19 +664,22 @@ public class AddPaintingPacket : MinecraftPacket {
     }
 }
 
-public class ExplodePacket : MinecraftPacket {
+public class ExplodePacket : MinecraftPacket
+{
     public Vector3 Pos;
     public float Radius;
     public int CountIncompleteSetToZero;
 
-    public override void Decode(ref DataReader reader) {
+    public override void Decode(ref DataReader reader)
+    {
         reader.Byte(); // Packet type.
         Pos = reader.Vector3();
         Radius = reader.Float();
         CountIncompleteSetToZero = reader.Int();
     }
 
-    public override void Encode(ref DataWriter writer) {
+    public override void Encode(ref DataWriter writer)
+    {
         writer.Byte((byte)MinecraftPacketType.Explode);
         writer.Vector3(Pos);
         writer.Float(Radius);
@@ -539,14 +687,16 @@ public class ExplodePacket : MinecraftPacket {
     }
 }
 
-public class LevelEventPacket : MinecraftPacket {
+public class LevelEventPacket : MinecraftPacket
+{
     public ushort EventId;
     public ushort X;
     public ushort Y;
     public ushort Z;
     public int EventData;
 
-    public override void Decode(ref DataReader reader) {
+    public override void Decode(ref DataReader reader)
+    {
         reader.Byte(); // Packet type.
         EventId = reader.UShort();
         X = reader.UShort();
@@ -555,7 +705,8 @@ public class LevelEventPacket : MinecraftPacket {
         EventData = reader.Int();
     }
 
-    public override void Encode(ref DataWriter writer) {
+    public override void Encode(ref DataWriter writer)
+    {
         writer.Byte((byte)MinecraftPacketType.LevelEvent);
         writer.UShort(EventId);
         writer.UShort(X);
@@ -565,13 +716,15 @@ public class LevelEventPacket : MinecraftPacket {
     }
 }
 
-public class TileEventPacket : MinecraftPacket {
+public class TileEventPacket : MinecraftPacket
+{
     public int X;
     public int Y;
     public int Case1;
     public int Case2;
 
-    public override void Decode(ref DataReader reader) {
+    public override void Decode(ref DataReader reader)
+    {
         reader.Byte(); // Packet type.
         X = reader.Int();
         Y = reader.Int();
@@ -579,7 +732,8 @@ public class TileEventPacket : MinecraftPacket {
         Case2 = reader.Int();
     }
 
-    public override void Encode(ref DataWriter writer) {
+    public override void Encode(ref DataWriter writer)
+    {
         writer.Byte((byte)MinecraftPacketType.TileEvent);
         writer.Int(X);
         writer.Int(Y);
@@ -588,53 +742,62 @@ public class TileEventPacket : MinecraftPacket {
     }
 }
 
-public class EntityEventPacket : MinecraftPacket {
+public class EntityEventPacket : MinecraftPacket
+{
     public int EntityId;
     public byte EventId;
 
-    public override void Decode(ref DataReader reader) {
+    public override void Decode(ref DataReader reader)
+    {
         reader.Byte(); // Packet type.
         EntityId = reader.Int();
         EventId = reader.Byte();
     }
 
-    public override void Encode(ref DataWriter writer) {
+    public override void Encode(ref DataWriter writer)
+    {
         writer.Byte((byte)MinecraftPacketType.EntityEvent);
         writer.Int(EntityId);
         writer.Byte(EventId);
     }
 }
 
-public class RequestChunkPacket : MinecraftPacket {
+public class RequestChunkPacket : MinecraftPacket
+{
     public int X;
     public int Z;
 
-    public override void Decode(ref DataReader reader) {
+    public override void Decode(ref DataReader reader)
+    {
         reader.Byte(); // Packet type.
         X = reader.Int();
         Z = reader.Int();
     }
 
-    public override void Encode(ref DataWriter writer) {
+    public override void Encode(ref DataWriter writer)
+    {
         writer.Byte((byte)MinecraftPacketType.RequestChunk);
         writer.Int(X);
         writer.Int(Z);
     }
 }
 
-public class ChunkDataPacket : MinecraftPacket {
+public class ChunkDataPacket : MinecraftPacket
+{
     public int X;
     public int Z;
     public byte[] ChunkData;
 
-    public override void Decode(ref DataReader reader) {
+    public override void Decode(ref DataReader reader)
+    {
         reader.Byte(); // Packet type.
         X = reader.Int();
         Z = reader.Int();
         Data = default; // TODO
     }
 
-    public override void Encode(ref DataWriter writer) {
+    public override void Encode(ref DataWriter writer)
+    {
         writer.Byte((byte)MinecraftPacketType.ChunkData);
         writer.Int(X);
         writer.Int(Z);
@@ -642,37 +805,52 @@ public class ChunkDataPacket : MinecraftPacket {
     }
 }
 
-public class PlayerEquipmentPacket : MinecraftPacket {
+public class PlayerEquipmentPacket : MinecraftPacket
+{
     public int EntityId;
-    public ushort Block;
+    public ushort Item;
     public ushort Meta;
     public byte Slot;
 
-    public override void Decode(ref DataReader reader) {
+    public PlayerEquipmentPacket() { }
+
+    public PlayerEquipmentPacket(int entityID, int var7, ItemStack itemStack)
+    {
+        EntityId = entityID;
+        Slot = (byte)var7;
+        Item = (ushort)itemStack.itemID;
+        Meta = (ushort)itemStack.itemDamage;
+    }
+
+    public override void Decode(ref DataReader reader)
+    {
         reader.Byte(); // Packet type.
         EntityId = reader.Int();
-        Block = reader.UShort();
+        Item = reader.UShort();
         Meta = reader.UShort();
         Slot = reader.Byte();
     }
 
-    public override void Encode(ref DataWriter writer) {
+    public override void Encode(ref DataWriter writer)
+    {
         writer.Byte((byte)MinecraftPacketType.PlayerEquipment);
         writer.Int(EntityId);
-        writer.UShort(Block);
+        writer.UShort(Item);
         writer.UShort(Meta);
         writer.Byte(Slot);
     }
 }
 
-public class PlayerArmorEquipmentPacket : MinecraftPacket {
+public class PlayerArmorEquipmentPacket : MinecraftPacket
+{
     public int EntityId;
     public ushort Slot1;
     public ushort Slot2;
     public ushort Slot3;
     public ushort Slot4;
 
-    public override void Decode(ref DataReader reader) {
+    public override void Decode(ref DataReader reader)
+    {
         reader.Byte(); // Packet type.
         EntityId = reader.Int();
         Slot1 = reader.UShort();
@@ -681,7 +859,8 @@ public class PlayerArmorEquipmentPacket : MinecraftPacket {
         Slot4 = reader.UShort();
     }
 
-    public override void Encode(ref DataWriter writer) {
+    public override void Encode(ref DataWriter writer)
+    {
         writer.Byte((byte)MinecraftPacketType.PlayerArmorEquipment);
         writer.Int(EntityId);
         writer.UShort(Slot1);
@@ -691,19 +870,22 @@ public class PlayerArmorEquipmentPacket : MinecraftPacket {
     }
 }
 
-public class InteractPacket : MinecraftPacket {
+public class InteractPacket : MinecraftPacket
+{
     public byte Action;
     public int EntityId;
     public int TargetId;
 
-    public override void Decode(ref DataReader reader) {
+    public override void Decode(ref DataReader reader)
+    {
         reader.Byte(); // Packet type.
         Action = reader.Byte();
         EntityId = reader.Int();
         TargetId = reader.Int();
     }
 
-    public override void Encode(ref DataWriter writer) {
+    public override void Encode(ref DataWriter writer)
+    {
         writer.Byte((byte)MinecraftPacketType.Interact);
         writer.Byte(Action);
         writer.Int(EntityId);
@@ -711,7 +893,8 @@ public class InteractPacket : MinecraftPacket {
     }
 }
 
-public class UseItemPacket : MinecraftPacket {
+public class UseItemPacket : MinecraftPacket
+{
     public int X;
     public int Y;
     public int Face;
@@ -721,7 +904,8 @@ public class UseItemPacket : MinecraftPacket {
     public Vector3 FPos;
     public Vector3 Pos;
 
-    public override void Decode(ref DataReader reader) {
+    public override void Decode(ref DataReader reader)
+    {
         reader.Byte(); // Packet type.
         X = reader.Int();
         Y = reader.Int();
@@ -733,7 +917,8 @@ public class UseItemPacket : MinecraftPacket {
         Pos = reader.Vector3();
     }
 
-    public override void Encode(ref DataWriter writer) {
+    public override void Encode(ref DataWriter writer)
+    {
         writer.Byte((byte)MinecraftPacketType.UseItem);
         writer.Int(X);
         writer.Int(Y);
@@ -747,14 +932,16 @@ public class UseItemPacket : MinecraftPacket {
     }
 }
 
-public class PlayerActionPacket : MinecraftPacket {
+public class PlayerActionPacket : MinecraftPacket
+{
     public int Action;
     public int X;
     public int Y;
     public int Face;
     public int EntityId;
 
-    public override void Decode(ref DataReader reader) {
+    public override void Decode(ref DataReader reader)
+    {
         reader.Byte(); // Packet type.
         Action = reader.Int();
         X = reader.Int();
@@ -763,7 +950,8 @@ public class PlayerActionPacket : MinecraftPacket {
         EntityId = reader.Int();
     }
 
-    public override void Encode(ref DataWriter writer) {
+    public override void Encode(ref DataWriter writer)
+    {
         writer.Byte((byte)MinecraftPacketType.PlayerAction);
         writer.Int(Action);
         writer.Int(X);
@@ -773,107 +961,147 @@ public class PlayerActionPacket : MinecraftPacket {
     }
 }
 
-public class HurtArmorPacket : MinecraftPacket {
+public class HurtArmorPacket : MinecraftPacket
+{
     public byte Armor;
 
-    public override void Decode(ref DataReader reader) {
+    public override void Decode(ref DataReader reader)
+    {
         reader.Byte(); // Packet type.
         Armor = reader.Byte();
     }
 
-    public override void Encode(ref DataWriter writer) {
+    public override void Encode(ref DataWriter writer)
+    {
         writer.Byte((byte)MinecraftPacketType.HurtArmor);
         writer.Byte(Armor);
     }
 }
 
-public class SetEntityDataPacket : MinecraftPacket {
+public class SetEntityDataPacket : MinecraftPacket
+{
     public int EntityId;
     // public SyncedEntityData Metadata;
 
-    public override void Decode(ref DataReader reader) {
+    public override void Decode(ref DataReader reader)
+    {
         reader.Byte(); // Packet type.
         EntityId = reader.Int();
         // Metadata = default; // TODO
     }
 
-    public override void Encode(ref DataWriter writer) {
+    public override void Encode(ref DataWriter writer)
+    {
         writer.Byte((byte)MinecraftPacketType.SetEntityData);
         writer.Int(EntityId);
         // TODO Metadata
     }
 }
 
-public class SetEntityMotionPacket : MinecraftPacket {
-    public byte Unk0;
+public class SetEntityMotionPacket : MinecraftPacket
+{
+    // public byte Unk0; // where?
     public int EntityId;
     public ushort X;
     public ushort Y;
     public ushort Z;
 
-    public override void Decode(ref DataReader reader) {
+    public SetEntityMotionPacket() { }
+
+    public SetEntityMotionPacket(Entity trackedEntity) : this(trackedEntity.EntityID, trackedEntity.motionX, trackedEntity.motionY, trackedEntity.motionZ)
+    {
+    }
+
+    public SetEntityMotionPacket(int entityId, float motionX, float motionY, float motionZ)
+    {
+        // Unk0 = 0;
+        EntityId = entityId;
+        X = (ushort)motionX;
+        Y = (ushort)motionY;
+        Z = (ushort)motionZ;
+    }
+    public SetEntityMotionPacket(int entityId, double motionX, double motionY, double motionZ)
+    {
+        // Unk0 = 0;
+        EntityId = entityId;
+        X = (ushort)motionX;
+        Y = (ushort)motionY;
+        Z = (ushort)motionZ;
+    }
+    public override void Decode(ref DataReader reader)
+    {
         reader.Byte(); // Packet type.
-        Unk0 = reader.Byte();
+                       //  Unk0 = reader.Byte();
         EntityId = reader.Int();
         X = reader.UShort();
         Y = reader.UShort();
         Z = reader.UShort();
     }
 
-    public override void Encode(ref DataWriter writer) {
+    public override void Encode(ref DataWriter writer)
+    {
         writer.Byte((byte)MinecraftPacketType.SetEntityMotion);
-        writer.Byte(Unk0);
+        //  writer.Byte(Unk0);
         writer.Int(EntityId);
-        writer.UShort(X);
-        writer.UShort(Y);
-        writer.UShort(Z);
+        writer.UShort((ushort)(X * 8000));
+        writer.UShort((ushort)(Y * 8000));
+        writer.UShort((ushort)(Z * 8000));
     }
 }
 
-public class SetRidingPacket : MinecraftPacket {
+public class SetRidingPacket : MinecraftPacket
+{
     public int EntityId;
     public int TargetId;
 
-    public override void Decode(ref DataReader reader) {
+    public override void Decode(ref DataReader reader)
+    {
         reader.Byte(); // Packet type.
         EntityId = reader.Int();
         TargetId = reader.Int();
     }
 
-    public override void Encode(ref DataWriter writer) {
+    public override void Encode(ref DataWriter writer)
+    {
         writer.Byte((byte)MinecraftPacketType.SetRiding);
         writer.Int(EntityId);
         writer.Int(TargetId);
     }
 }
 
-public class SetHealthPacket : MinecraftPacket {
+public class SetHealthPacket : MinecraftPacket
+{
     public sbyte Health;
 
-    public override void Decode(ref DataReader reader) {
+    public override void Decode(ref DataReader reader)
+    {
         reader.Byte(); // Packet type.
         Health = (sbyte)reader.Byte();
     }
 
-    public override void Encode(ref DataWriter writer) {
+    public override void Encode(ref DataWriter writer)
+    {
         writer.Byte((byte)MinecraftPacketType.SetHealth);
         writer.Byte((byte)Health);
     }
 }
 
-public class SetSpawnPositionPacket : MinecraftPacket {
+public class SetSpawnPositionPacket : MinecraftPacket
+{
     public int X;
     public int Z;
     public byte Y;
 
-    public override void Decode(ref DataReader reader) {
+    public override void Decode(ref DataReader reader)
+    {
         reader.Byte(); // Packet type.
         X = reader.Int();
         Z = reader.Int();
         Y = reader.Byte();
     }
 
-    public override void Encode(ref DataWriter writer) {
+    public override void Encode(ref DataWriter writer)
+    {
         writer.Byte((byte)MinecraftPacketType.SetSpawnPosition);
         writer.Int(X);
         writer.Int(Z);
@@ -881,53 +1109,62 @@ public class SetSpawnPositionPacket : MinecraftPacket {
     }
 }
 
-public class AnimatePacket : MinecraftPacket {
+public class AnimatePacket : MinecraftPacket
+{
     public byte Action;
     public int EntityId;
 
-    public override void Decode(ref DataReader reader) {
+    public override void Decode(ref DataReader reader)
+    {
         reader.Byte(); // Packet type.
         Action = reader.Byte();
         EntityId = reader.Int();
     }
 
-    public override void Encode(ref DataWriter writer) {
+    public override void Encode(ref DataWriter writer)
+    {
         writer.Byte((byte)MinecraftPacketType.Animate);
         writer.Byte(Action);
         writer.Int(EntityId);
     }
 }
 
-public class RespawnPacket : MinecraftPacket {
+public class RespawnPacket : MinecraftPacket
+{
     public int EntityId;
     public Vector3 Pos;
 
-    public override void Decode(ref DataReader reader) {
+    public override void Decode(ref DataReader reader)
+    {
         reader.Byte(); // Packet type.
         EntityId = reader.Int();
         Pos = reader.Vector3();
     }
 
-    public override void Encode(ref DataWriter writer) {
+    public override void Encode(ref DataWriter writer)
+    {
         writer.Byte((byte)MinecraftPacketType.Respawn);
         writer.Int(EntityId);
         writer.Vector3(Pos);
     }
 }
 
-public class SendInventoryPacket : MinecraftPacket {
+public class SendInventoryPacket : MinecraftPacket
+{
     public int EntityId;
     public byte WindowId;
     public List<ItemStack> Items;
 
-    public override void Decode(ref DataReader reader) {
+    public override void Decode(ref DataReader reader)
+    {
         reader.Byte(); // Packet type.
         EntityId = reader.Int();
         WindowId = reader.Byte();
         Items = reader.Items();
     }
 
-    public override void Encode(ref DataWriter writer) {
+    public override void Encode(ref DataWriter writer)
+    {
         writer.Byte((byte)MinecraftPacketType.SendInventory);
         writer.Int(EntityId);
         writer.Byte(WindowId);
@@ -935,20 +1172,23 @@ public class SendInventoryPacket : MinecraftPacket {
     }
 }
 
-public class DropItemPacket : MinecraftPacket {
+public class DropItemPacket : MinecraftPacket
+{
     public int EntityId;
 
     public byte Unk0;
     public ItemStack Item;
 
-    public override void Decode(ref DataReader reader) {
+    public override void Decode(ref DataReader reader)
+    {
         reader.Byte(); // Packet type.
         EntityId = reader.Int();
         Unk0 = reader.Byte();
         Item = reader.Slot(); // TODO
     }
 
-    public override void Encode(ref DataWriter writer) {
+    public override void Encode(ref DataWriter writer)
+    {
         writer.Byte((byte)MinecraftPacketType.DropItem);
         writer.Int(EntityId);
         writer.Byte(Unk0);
@@ -956,13 +1196,15 @@ public class DropItemPacket : MinecraftPacket {
     }
 }
 
-public class ContainerOpenPacket : MinecraftPacket {
+public class ContainerOpenPacket : MinecraftPacket
+{
     public byte WindowId;
     public byte ContainerType;
     public byte Slot;
     public string Title;
 
-    public override void Decode(ref DataReader reader) {
+    public override void Decode(ref DataReader reader)
+    {
         reader.Byte(); // Packet type.
         WindowId = reader.Byte();
         ContainerType = reader.Byte();
@@ -970,7 +1212,8 @@ public class ContainerOpenPacket : MinecraftPacket {
         Title = reader.String();
     }
 
-    public override void Encode(ref DataWriter writer) {
+    public override void Encode(ref DataWriter writer)
+    {
         writer.Byte((byte)MinecraftPacketType.ContainerOpen);
         writer.Byte(WindowId);
         writer.Byte(ContainerType);
@@ -979,34 +1222,40 @@ public class ContainerOpenPacket : MinecraftPacket {
     }
 }
 
-public class ContainerClosePacket : MinecraftPacket {
+public class ContainerClosePacket : MinecraftPacket
+{
     public byte WindowId;
 
-    public override void Decode(ref DataReader reader) {
+    public override void Decode(ref DataReader reader)
+    {
         reader.Byte(); // Packet type.
         WindowId = reader.Byte();
     }
 
-    public override void Encode(ref DataWriter writer) {
+    public override void Encode(ref DataWriter writer)
+    {
         writer.Byte((byte)MinecraftPacketType.ContainerClose);
         writer.Byte(WindowId);
     }
 }
 
-public class ContainerSetSlotPacket : MinecraftPacket {
+public class ContainerSetSlotPacket : MinecraftPacket
+{
     public byte WindowId;
 
     public ushort Slot;
     public ItemStack Item;
 
-    public override void Decode(ref DataReader reader) {
+    public override void Decode(ref DataReader reader)
+    {
         reader.Byte(); // Packet type.
         WindowId = reader.Byte();
         Slot = reader.UShort();
         Item = reader.Slot(); // TODO
     }
 
-    public override void Encode(ref DataWriter writer) {
+    public override void Encode(ref DataWriter writer)
+    {
         writer.Byte((byte)MinecraftPacketType.ContainerSetSlot);
         writer.Byte(WindowId);
         writer.UShort(Slot);
@@ -1014,19 +1263,22 @@ public class ContainerSetSlotPacket : MinecraftPacket {
     }
 }
 
-public class ContainerSetDataPacket : MinecraftPacket {
+public class ContainerSetDataPacket : MinecraftPacket
+{
     public byte WindowId;
     public ushort Property;
     public ushort Value;
 
-    public override void Decode(ref DataReader reader) {
+    public override void Decode(ref DataReader reader)
+    {
         reader.Byte(); // Packet type.
         WindowId = reader.Byte();
         Property = reader.UShort();
         Value = reader.UShort();
     }
 
-    public override void Encode(ref DataWriter writer) {
+    public override void Encode(ref DataWriter writer)
+    {
         writer.Byte((byte)MinecraftPacketType.ContainerSetData);
         writer.Byte(WindowId);
         writer.UShort(Property);
@@ -1034,12 +1286,14 @@ public class ContainerSetDataPacket : MinecraftPacket {
     }
 }
 
-public class ContainerSetContentPacket : MinecraftPacket {
+public class ContainerSetContentPacket : MinecraftPacket
+{
     public byte WindowId;
     public List<ItemStack> Items;
     public List<int> Hotbar; // ???
 
-    public override void Decode(ref DataReader reader) {
+    public override void Decode(ref DataReader reader)
+    {
         reader.Byte(); // Packet type.
         WindowId = reader.Byte();
         Items = reader.Items();
@@ -1050,7 +1304,8 @@ public class ContainerSetContentPacket : MinecraftPacket {
         Hotbar = reader.Hotbar();
     }
 
-    public override void Encode(ref DataWriter writer) {
+    public override void Encode(ref DataWriter writer)
+    {
         writer.Byte((byte)MinecraftPacketType.ContainerSetContent);
         writer.Byte(WindowId);
         writer.Items(Items);
@@ -1062,19 +1317,22 @@ public class ContainerSetContentPacket : MinecraftPacket {
     }
 }
 
-public class ContainerAckPacket : MinecraftPacket {
+public class ContainerAckPacket : MinecraftPacket
+{
     public byte WindowId;
     public ushort Unk0;
     public byte Unk1;
 
-    public override void Decode(ref DataReader reader) {
+    public override void Decode(ref DataReader reader)
+    {
         reader.Byte(); // Packet type.
         WindowId = reader.Byte();
         Unk0 = reader.UShort();
         Unk1 = reader.Byte();
     }
 
-    public override void Encode(ref DataWriter writer) {
+    public override void Encode(ref DataWriter writer)
+    {
         writer.Byte((byte)MinecraftPacketType.ContainerAck);
         writer.Byte(WindowId);
         writer.UShort(Unk0);
@@ -1082,27 +1340,32 @@ public class ContainerAckPacket : MinecraftPacket {
     }
 }
 
-public class ChatPacket : MinecraftPacket {
+public class ChatPacket : MinecraftPacket
+{
     public string Message;
 
-    public override void Decode(ref DataReader reader) {
+    public override void Decode(ref DataReader reader)
+    {
         reader.Byte(); // Packet type.
         Message = reader.String();
     }
 
-    public override void Encode(ref DataWriter writer) {
+    public override void Encode(ref DataWriter writer)
+    {
         writer.Byte((byte)MinecraftPacketType.Chat);
         writer.String(Message);
     }
 }
 
-public class AdventureSettingsPacket : MinecraftPacket { // need to check
+public class AdventureSettingsPacket : MinecraftPacket
+{ // need to check
     public ushort X;
     public byte Y;
     public ushort Z;
     public string Lines;
 
-    public override void Decode(ref DataReader reader) {
+    public override void Decode(ref DataReader reader)
+    {
         reader.Byte(); // Packet type.
         X = reader.UShort();
         Y = reader.Byte();
@@ -1110,7 +1373,8 @@ public class AdventureSettingsPacket : MinecraftPacket { // need to check
         Lines = reader.String();
     }
 
-    public override void Encode(ref DataWriter writer) {
+    public override void Encode(ref DataWriter writer)
+    {
         writer.Byte((byte)MinecraftPacketType.AdventureSettings);
         writer.UShort(X);
         writer.Byte(Y);
@@ -1119,17 +1383,20 @@ public class AdventureSettingsPacket : MinecraftPacket { // need to check
     }
 }
 
-public class SetTileEntityDataPacket : MinecraftPacket { // need to check 
+public class SetTileEntityDataPacket : MinecraftPacket
+{ // need to check 
     public byte Unk0;
     public uint Unk1;
 
-    public override void Decode(ref DataReader reader) {
+    public override void Decode(ref DataReader reader)
+    {
         reader.Byte(); // Packet type.
         Unk0 = reader.Byte();
         Unk1 = reader.UInt();
     }
 
-    public override void Encode(ref DataWriter writer) {
+    public override void Encode(ref DataWriter writer)
+    {
         writer.Byte((byte)MinecraftPacketType.SetTileEntityData);
         writer.Byte(Unk0);
         writer.UInt(Unk1);
@@ -1142,7 +1409,7 @@ public class UnknowPacket : MinecraftPacket
 
     public override void Decode(ref DataReader reader)
     {
-      
+
     }
 
     public override void Encode(ref DataWriter writer)
@@ -1151,9 +1418,12 @@ public class UnknowPacket : MinecraftPacket
 
     }
 }
-public abstract class MinecraftPacket : UserPacket {
-    public static MinecraftPacket Parse(ReadOnlyMemory<byte> data) {
-        MinecraftPacket packet = data.Span[0] switch {
+public abstract class MinecraftPacket : UserPacket
+{
+    public static MinecraftPacket Parse(ReadOnlyMemory<byte> data)
+    {
+        MinecraftPacket packet = data.Span[0] switch
+        {
             (byte)MinecraftPacketType.LoginRequest => new LoginRequestPacket(),
             (byte)MinecraftPacketType.LoginResponse => new LoginResponsePacket(),
             (byte)MinecraftPacketType.Ready => new ReadyPacket(),

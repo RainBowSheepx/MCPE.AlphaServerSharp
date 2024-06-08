@@ -22,12 +22,12 @@ namespace SpoongePE.Core.Game.entity
             return this.world.getBlockIDAt(var1, var2 - 1, var3) == Block.grass.blockID ? 10.0F : this.world.getLightBrightness(var1, var2, var3) - 0.5F;
         }
 
-        public new void writeEntityToNBT(NbtCompound var1)
+        protected override void writeEntityToNBT(NbtCompound var1)
         {
             base.writeEntityToNBT(var1);
         }
 
-        public new void readEntityFromNBT(NbtCompound var1)
+        protected override void readEntityFromNBT(NbtCompound var1)
         {
             base.readEntityFromNBT(var1);
         }
